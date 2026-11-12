@@ -29,17 +29,17 @@ We keep the only real `MatchState` on the server. A client message carries an ac
 
 ## Implementation
 
-No code exists yet. `viewFor` is plan 1, task 9. The server side is specified in spec sections 6 and 7 and will be planned in plan 2.
+No code exists yet. `viewFor` is plan 1, task 9 (`packages/engine/src/view.ts`). The server builds every `match.view` from it in `Room.broadcastMatch` and `Room.sendEverythingTo` (`apps/server/src/room.ts`, plan 2, task 3). The client renders only `match.view` (plan 3).
 
 ## Consequences
 
 - **Positive:** modified clients cannot see hidden cards or make illegal moves.
 - **Negative / trade-off:** every action costs a round trip before the board updates — **mitigated by** small messages and `match.preview` for fusion previews; no client-side prediction in version one, accepted.
-- **Known gap:** server and protocol are not implemented or planned in detail yet.
+- **Known gap:** not implemented yet; planned in plans 2 and 3.
 
 ## Compliance
 
-`view.test.ts` asserts the serialised view contains no card from the opponent's hand or either deck. Plan 2 must add a server test that a player's socket never receives the opponent's hand.
+`view.test.ts` asserts the serialised view contains no card from the opponent's hand or either deck. `apps/server/test/match.test.ts` ("sends each player a view without the opponent's hand") checks what the server actually sends.
 
 ## Revisit when
 

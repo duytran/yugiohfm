@@ -24,3 +24,9 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[docs]** Synced the spec with details fixed during planning: package names, a fused-onto creature keeps its attacked state, `createMatch` throws on an invalid deck, the `position set` event, the greedy bot's rule.
 - **[docs]** Wrote design decision records `docs/ddr/0001` to `0008`.
 - **[docs]** Added `HISTORY.md` and `CLAUDE.md`.
+- **[decision]** Write plans 2 and 3 now instead of after plan 1 is implemented.
+- **[docs]** Wrote plan 2, `docs/plans/2026-11-12-protocol-and-server.md` (4 tasks). Its code was run in scratch on top of plan 1: 49 server and 34 protocol tests pass.
+- **[docs]** Wrote plan 3, `docs/plans/2026-11-12-browser-client.md` (4 tasks). Its code was run in scratch: 59 client tests pass, the build succeeds, and two headless Chrome players finished a match through the real server.
+- **[fix]** Found while testing plan 3 in the browser: the clock briefly showed more time than the bank (10:01). The countdown now ignores display ticks older than the message.
+- **[decision]** Planning details now in the spec: `welcome` carries the seated room, clocks are sent as remaining banks plus which one runs, ready is allowed while alone, leaving a running match is a surrender, `room.closed` message, close code 4000 for a replaced connection, 6-character room codes, a built-in starter deck.
+- **[docs]** Updated DDR-0003, 0004, 0005 and 0007 to point at the planned files and tests.

@@ -246,9 +246,15 @@ Client to server: `hello { token, nickname }`, `lobby.subscribe`,
 `room.leave`, `room.ready { deck }`, `room.unready`, `match.action { action }`,
 `match.preview { action }`, `room.rematch`.
 
-Server to client: `welcome`, `lobby.rooms { rooms }`, `room.state { room }`,
-`match.view { view, events, clocks }`, `match.preview { card }`,
+Server to client: `welcome { nickname, roomCode }`, `lobby.rooms { rooms }`,
+`room.state { room }`, `room.closed { code, reason }`,
+`match.view { view, events, clocks }`, `match.preview { action, card, error }`,
 `error { code, message }`.
+
+`roomCode` in `welcome` is the room the player is still seated in, or null.
+`clocks` is `{ remainingMs: [p0, p1], running: PlayerId | null }`: both banks at
+the moment the message is sent. Server messages are TypeScript types only; client
+messages also have zod schemas.
 
 ## 7. Server (`apps/server`)
 
@@ -266,18 +272,20 @@ creator nickname, time control) whenever it changes.
 ### 7.3 Rooms
 
 Options at creation: visibility (`public` | `private`) and time control (5, 10, or
-15 minutes per player). Each room has a short random code and is reachable at
-`/room/<code>`. Private rooms never appear in the lobby.
+15 minutes per player). Each room has a 6-character random code (no 0, O, 1, I or L)
+and is reachable at `/room/<code>`. Private rooms never appear in the lobby.
 
 Lifecycle:
 
 - `waiting`: creator alone. Deleted if the creator is disconnected for 60 seconds.
+  The creator may already choose a deck and mark ready.
 - `ready-check`: two players present. Each submits a deck (validated by the
-  engine) and marks ready. A player leaving returns the room to `waiting`.
-- `playing`: a match is running. Nobody else can join.
+  engine) and marks ready; the match starts when both are ready. A player
+  leaving returns the room to `waiting`.
+- `playing`: a match is running. Nobody else can join. Leaving is a surrender.
 - `finished`: result shown. If both players send `room.rematch`, a new match
-  starts with the same options and a new seed. Deleted when both leave or after
-  10 idle minutes.
+  starts with the same options, the same decks and a new seed. Deleted when both
+  leave or after 10 idle minutes; anyone still seated gets `room.closed`.
 
 A third player trying to join a full room gets an error.
 
@@ -286,16 +294,19 @@ A third player trying to join a full room gets an error.
 Each player has a time bank in milliseconds. The server records when the current
 turn started; when the turn ends, elapsed time is subtracted from that player's
 bank. A timer is scheduled for the moment the active player's bank reaches zero;
-when it fires, the server calls `applyTimeout` and ends the match. Every
-`match.view` carries both banks and the server timestamp of the turn start;
-clients only render a countdown.
+when it fires, the server calls `applyTimeout` and ends the match. An action that
+arrives after the bank is empty is refused and the match ends on time. Every
+`match.view` carries both banks as of sending and which one is running; clients
+count down from when they received the message and only render it.
 
 ### 7.5 Reconnect
 
 On disconnect the match continues and the player's clock keeps running on their
 turn. A `hello` with the same token followed by `room.join` on the same code
-re-attaches the socket and re-sends the current room state and match view. A new
-connection with the same token replaces the old one.
+re-attaches the socket and re-sends the current room state and match view; the
+`roomCode` in `welcome` tells the client which room to rejoin. A new connection
+with the same token replaces the old one, which is closed with WebSocket close
+code 4000; a client that receives that code stops reconnecting.
 
 ### 7.6 Errors
 
@@ -318,7 +329,8 @@ All room and match state is held in memory and lost on restart.
 | Result | Winner and reason, rematch and leave buttons |
 
 Routes: `/`, `/decks`, `/room/<code>`. Opening a room link without a nickname
-asks for one, then joins.
+asks for one, then joins. The Room screen also offers a built-in starter deck
+(3 copies of the 10 strongest base cards), so a new player can play at once.
 
 The client holds no rules logic beyond card data for display; every board state
 comes from `match.view`. A dropped socket shows a reconnecting banner and retries.

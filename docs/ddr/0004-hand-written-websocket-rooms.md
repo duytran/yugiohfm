@@ -29,13 +29,13 @@ We write the room lifecycle (`waiting` → `ready-check` → `playing` → `fini
 
 ## Implementation
 
-No code exists yet. Message names and the room lifecycle are in spec sections 6 and 7.3; the detailed plan is plan 2.
+No code exists yet. Plan 2 (`docs/plans/2026-11-12-protocol-and-server.md`): schemas in `packages/protocol/src/client.ts`, the network-free `Hub` in `apps/server/src/hub.ts`, the room lifecycle in `apps/server/src/room.ts`, and the only socket code in `apps/server/src/wsServer.ts`.
 
 ## Consequences
 
 - **Positive:** every moving part is understood and testable with two in-process WebSocket clients.
 - **Negative / trade-off:** reconnection, cleanup timers and lobby broadcasts are ours to get right — **mitigated by** server integration tests listed in spec section 9.
-- **Known gap:** not implemented; plan 2 not written.
+- **Known gap:** not implemented yet; planned in plan 2.
 
 ## Compliance
 

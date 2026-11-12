@@ -30,7 +30,7 @@ The server records when each turn starts, subtracts the elapsed time from the ac
 
 ## Implementation
 
-No code exists yet. `applyTimeout` is plan 1, task 8. Clock behaviour is in spec section 7.4.
+No code exists yet. `applyTimeout` is plan 1, task 8. The banks are pure functions in `apps/server/src/banks.ts`, the `Clock` interface is in `apps/server/src/clock.ts`, and `Room` schedules and checks the flag (plan 2, tasks 2 and 3). The client's countdown is `liveRemaining` in `apps/client/src/duel/clock.ts` (plan 3, task 2).
 
 ## Consequences
 
@@ -40,7 +40,7 @@ No code exists yet. `applyTimeout` is plan 1, task 8. Clock behaviour is in spec
 
 ## Compliance
 
-Plan 2 must include a server test that advances fake time past a bank and expects a `timeout` result. The engine independence test forbids time APIs in the engine.
+`apps/server/test/match.test.ts` ("chess clock") advances a fake clock past a bank and expects a `timeout` result; `reconnect.test.ts` checks the clock keeps running while the player is away. The engine independence test forbids time APIs in the engine.
 
 ## Revisit when
 

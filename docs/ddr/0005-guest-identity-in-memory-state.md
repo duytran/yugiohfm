@@ -29,7 +29,7 @@ The client generates a random token, keeps it in `localStorage`, and sends it wi
 
 ## Implementation
 
-No code exists yet. See spec sections 7.1 and 7.5.
+No code exists yet. Server: `Hub.hello` in `apps/server/src/hub.ts` (plan 2, task 3). Client: `loadToken` in `apps/client/src/storage.ts` (plan 3, task 1).
 
 ## Consequences
 
