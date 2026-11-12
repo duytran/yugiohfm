@@ -83,6 +83,9 @@ When a decision changes, edit its DDR in place and log the change in
 
 - Do not write code until the owner asks for it; planning comes first.
 - Implement plans task by task, test first, one commit per task.
+- Always have a GitHub issue before starting to implement. Every plan task has
+  one (#3 to #24, grouped in one milestone per plan). Work that has
+  no issue gets one first. Say `Closes #N` in the commit or PR.
 
 ## Commands
 
