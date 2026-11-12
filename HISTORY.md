@@ -45,3 +45,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added applyAction with SET_POSITION, END_TURN, SURRENDER and applyTimeout (plan 1, task 8, #10).
 - **[code]** Added viewFor, which hides the opponent hand and both deck orders (plan 1, task 9, #11).
 - **[code]** Added legalActions (plan 1, task 10, #12).
+- **[code]** Added the engine public API, a 200-match random property test and the independence check (plan 1, task 11, #13).
