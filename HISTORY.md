@@ -40,3 +40,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added deck validation and the engine test helpers (plan 1, task 3, #5).
 - **[code]** Added fusion of pairs and chains (plan 1, task 4, #6).
 - **[code]** Added match creation, drawing and deck-out (plan 1, task 5, #7).
+- **[code]** Added the PLAY action with fusion onto the field and preview (plan 1, task 6, #8).
