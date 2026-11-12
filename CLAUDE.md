@@ -22,13 +22,47 @@ independent of the GUI and network so bots can play-test it headlessly.
 
 ## Rules
 
-### Keep HISTORY.md up to date
+### Project history rule
 
-After every action (a decision, a document, a code change, a fix, a config
-change), append one line to `HISTORY.md` under today's date, creating the
-`## YYYY-MM-DD` heading if it is missing. Use the format at the top of that
-file. Put the line in the same commit as the change. Never rewrite or delete
-old entries; add a new line that corrects them.
+The docs in this repo are the project's memory. Every change must leave a
+written trace, committed to git together with the change itself.
+
+#### Where things go
+
+| Path | Holds | File name |
+|---|---|---|
+| `docs/specs/` | Designs: what we are building and why | `YYYY-MM-DD-<topic>-design.md` |
+| `docs/plans/` | Implementation plans made from a spec | `YYYY-MM-DD-<topic>.md` |
+| `docs/ddr/` | Design decision records: one decision per file | `NNNN-<topic>.md`, numbered in order |
+| `HISTORY.md` (repo root) | The running log of every action | single file |
+
+#### What to do on every change
+
+1. **Log it.** Append one line to `HISTORY.md` under today's date (create the
+   `## YYYY-MM-DD` heading if missing), in the format at the top of that file.
+   Do this for every action: a decision, a document, a code change, a fix, a
+   config change, and edits to docs themselves. Name the doc or DDR involved
+   in the line, e.g. `docs/ddr/0007-...` or `DDR-0007`.
+2. **Record decisions.** If the change picks between options (stack, data
+   model, a rule, a library, a way of working), write a new DDR or edit the one
+   it changes. Use the `ddr` skill.
+3. **Keep the spec and plans in step.** If the change alters behaviour the spec
+   or a plan describes, update them in the same commit.
+4. **Commit together.** The history line goes in the same commit as the change.
+   A change without its history line is not finished.
+
+#### Never lose the past
+
+- **DDRs state what is true now.** When a decision changes, edit its DDR in
+  place, and write in the `HISTORY.md` line what it said before and why it
+  changed. Git keeps the old text.
+- **Specs and plans are dated snapshots.** For a later redesign, write a new
+  dated file and link back to the earlier one. Small corrections go in a
+  `Revisions` section at the bottom of the file, with the date.
+- **Do not delete specs or plans.** Mark them superseded, with a link to what
+  replaced them.
+- **`HISTORY.md` is append-only.** Never rewrite or delete old lines; add a new
+  line that corrects them.
 
 ### Follow the design decision records
 

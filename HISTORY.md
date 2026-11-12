@@ -32,3 +32,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[docs]** Updated DDR-0003, 0004, 0005 and 0007 to point at the planned files and tests.
 - **[docs]** Updated plan 1's header to link plans 2 and 3.
 - **[chore]** Pushed the first spec commit as `main` on GitHub and opened a pull request with the rest of the design, plans and DDRs.
+- **[docs]** Expanded the history rule in `CLAUDE.md`, adapted from another project: a where-things-go table, the four steps for every change, and "never lose the past" (DDRs edited in place with the old text noted in the log, specs and plans as dated snapshots, `HISTORY.md` append-only). Before, it was one short paragraph.
