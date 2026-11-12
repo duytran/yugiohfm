@@ -16,6 +16,10 @@ advantage).
 A secondary goal is learning: every layer (rules, rooms, clock, sync) is written
 by hand rather than taken from a multiplayer framework.
 
+A specific learning goal is a rules engine that is fully independent of the GUI
+and the network, so that bots can play complete matches headlessly for play-testing
+and balancing.
+
 ## 2. Scope
 
 ### In version one
@@ -27,10 +31,11 @@ by hand rather than taken from a multiplayer framework.
 - Duel rules: creatures, fusion, positions, element advantage
 - Reconnect to a match in progress
 - Rematch in the same room
+- Headless bots and a simulation command for play-testing (not playable online)
 
 ### Not in version one
 
-AI opponent, spectators, ratings, chat, card rewards or collections, spell/equip/trap
+Playing against a bot in a room, spectators, ratings, chat, card rewards or collections, spell/equip/trap
 cards, accounts, persistence across server restarts, deployment setup, mobile layout.
 
 ## 3. Architecture
@@ -40,6 +45,7 @@ A pnpm TypeScript monorepo.
 | Part | Job | Depends on |
 |---|---|---|
 | `packages/engine` | Duel rules as pure functions. No network, clock, or UI. | nothing |
+| `packages/bots` | Bot interface, sample bots, and a headless match runner with a CLI. | engine |
 | `packages/protocol` | Client/server message types and zod schemas. | engine types |
 | `apps/server` | Node + `ws`: lobby, rooms, clocks, reconnects. Runs the engine. | engine, protocol |
 | `apps/client` | React + Vite: screens and duel board. | protocol, engine card data |
@@ -51,7 +57,11 @@ The server is authoritative. Clients send intended actions; the server validates
 them through the engine and sends each player a view containing only what that
 player may see.
 
-Build order: engine, then protocol and server, then client.
+The engine imports nothing from any other part and uses no DOM, network, timer,
+or wall-clock API. The GUI, the server, and the bots are three independent
+consumers of the same engine API.
+
+Build order: engine, then bots, then protocol and server, then client.
 
 ## 4. Rules engine (`packages/engine`)
 
@@ -166,14 +176,63 @@ applyTimeout(state, player): { state, events }
 viewFor(state, player): PlayerView   // own hand; opponent hand size; both fields,
                                      // life points, deck sizes; turn; result
 validateDeck(cardIds): { ok: true } | { ok: false, error }
+legalActions(state, player): Action[]   // every action applyAction would accept now
 ```
+
+`legalActions` returns an empty list for the player who is not on turn, except
+that `SURRENDER` is never listed (it is always legal and never useful to a bot).
+For `PLAY` it enumerates every ordered selection of hand cards, target slot and
+position. Every action it returns must be accepted by `applyAction`, and every
+action `applyAction` accepts (other than `SURRENDER`) must be in the list.
 
 State is immutable from the caller's side. `events` (drew, played, fused, fusion
 failed, attacked, destroyed, damage, turn ended, match ended) drive the client's
 event log and animations. The same seed and action list always produce the same
 match.
 
-## 5. Protocol (`packages/protocol`)
+## 5. Bots and simulation (`packages/bots`)
+
+### 5.1 Bot interface
+
+```ts
+type Bot = {
+  name: string;
+  buildDeck(cards: Card[], rng: Rng): CardId[];
+  chooseAction(view: PlayerView, legal: Action[], rng: Rng): Action;
+};
+```
+
+A bot sees only its `PlayerView`, the same information a human player gets, so it
+cannot cheat by reading the opponent's hand or deck order. It must return one of
+the `legal` actions. Bots receive a seeded RNG and must not use `Math.random`, so
+simulations are reproducible.
+
+### 5.2 Sample bots
+
+- `random`: a random valid deck; picks a uniformly random legal action.
+- `greedy`: plays the highest-ATK result available, attacks whenever the battle
+  is favourable or the opponent's field is empty, otherwise ends the turn.
+
+New bots are added as one file each implementing `Bot`.
+
+### 5.3 Match runner
+
+`runMatch(botA, botB, seed, { maxTurns })` builds both decks, creates the match
+and loops: compute `legalActions`, ask the bot on turn, `applyAction`. It returns
+the winner, the reason, the turn count and the full action list. An illegal
+action from a bot, or reaching `maxTurns` (default 200), ends the match as an
+error result rather than throwing. There is no clock in simulation.
+
+### 5.4 CLI
+
+`pnpm sim --a greedy --b random --games 1000 --seed 1` runs matches with seeds
+`seed`, `seed+1`, ... alternating which bot is passed first, and prints: wins per
+bot, win rate of the player who moved first, average and maximum turns, wins by
+reason (life points, deck-out), error count, and the cards most often played and
+most often produced by fusion. `--replay <seed>` prints the event log of a single
+match.
+
+## 6. Protocol (`packages/protocol`)
 
 JSON messages over one WebSocket, each `{ type, ...payload }`, validated with zod
 on the server.
@@ -187,20 +246,20 @@ Server to client: `welcome`, `lobby.rooms { rooms }`, `room.state { room }`,
 `match.view { view, events, clocks }`, `match.preview { card }`,
 `error { code, message }`.
 
-## 6. Server (`apps/server`)
+## 7. Server (`apps/server`)
 
-### 6.1 Identity
+### 7.1 Identity
 
 The client generates a random token, stores it in `localStorage`, and sends it
 with a nickname (1-16 characters) in `hello`. The token identifies the player
 across reconnects. It is never sent to other players.
 
-### 6.2 Lobby
+### 7.2 Lobby
 
 Subscribed clients receive the list of public rooms in `waiting` status (code,
 creator nickname, time control) whenever it changes.
 
-### 6.3 Rooms
+### 7.3 Rooms
 
 Options at creation: visibility (`public` | `private`) and time control (5, 10, or
 15 minutes per player). Each room has a short random code and is reachable at
@@ -218,7 +277,7 @@ Lifecycle:
 
 A third player trying to join a full room gets an error.
 
-### 6.4 Clock
+### 7.4 Clock
 
 Each player has a time bank in milliseconds. The server records when the current
 turn started; when the turn ends, elapsed time is subtracted from that player's
@@ -227,14 +286,14 @@ when it fires, the server calls `applyTimeout` and ends the match. Every
 `match.view` carries both banks and the server timestamp of the turn start;
 clients only render a countdown.
 
-### 6.5 Reconnect
+### 7.5 Reconnect
 
 On disconnect the match continues and the player's clock keeps running on their
 turn. A `hello` with the same token followed by `room.join` on the same code
 re-attaches the socket and re-sends the current room state and match view. A new
 connection with the same token replaces the old one.
 
-### 6.6 Errors
+### 7.6 Errors
 
 - Message fails schema validation: dropped, `error` returned.
 - Action illegal per the engine, or sent out of turn: `error` to that player,
@@ -243,7 +302,7 @@ connection with the same token replaces the old one.
 
 All room and match state is held in memory and lost on restart.
 
-## 7. Client (`apps/client`)
+## 8. Client (`apps/client`)
 
 | Screen | Contents |
 |---|---|
@@ -262,13 +321,18 @@ comes from `match.view`. A dropped socket shows a reconnecting banner and retrie
 
 Card art is a generated placeholder: element colour and an icon per tag.
 
-## 8. Testing
+## 9. Testing
 
 - **Engine:** Vitest unit tests for deck validation, drawing and deck-out, every
   play and fusion case (success, failure, chain, onto a field creature), every
   battle outcome including element bonus and equal values, action limits per
   turn, all win conditions, `viewFor` hiding the opponent's hand and deck order,
   and determinism for a fixed seed.
+- **Engine property test:** many random-bot matches across seeds; every action
+  from `legalActions` is accepted, every match terminates, and life points, hand
+  sizes and card counts stay within their invariants.
+- **Bots:** `runMatch` is deterministic for a fixed seed, reports an illegal bot
+  action as an error result, and stops at `maxTurns`.
 - **Server:** integration tests with two real WebSocket clients against an
   in-process server: create and join (public and by code), lobby updates, ready
   check with an invalid deck, a full short match, illegal and out-of-turn
