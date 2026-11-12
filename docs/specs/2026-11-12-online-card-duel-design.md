@@ -1,7 +1,7 @@
 # Online Card Duel — Design
 
 Date: 2026-11-12
-Status: approved design, awaiting spec review
+Status: approved
 
 ## 1. Goal
 
@@ -44,8 +44,8 @@ A pnpm TypeScript monorepo.
 
 | Part | Job | Depends on |
 |---|---|---|
-| `packages/engine` | Duel rules as pure functions. No network, clock, or UI. | nothing |
-| `packages/bots` | Bot interface, sample bots, and a headless match runner with a CLI. | engine |
+| `packages/engine` (`@duel/engine`) | Duel rules as pure functions. No network, clock, or UI. | nothing |
+| `packages/bots` (`@duel/bots`) | Bot interface, sample bots, and a headless match runner with a CLI. | engine |
 | `packages/protocol` | Client/server message types and zod schemas. | engine types |
 | `apps/server` | Node + `ws`: lobby, rooms, clocks, reconnects. Runs the engine. | engine, protocol |
 | `apps/client` | React + Vite: screens and duel board. | protocol, engine card data |
@@ -97,7 +97,7 @@ A deck is valid when it has exactly 30 cards, no fusion-only cards, and at most
 
 `createMatch(deckA, deckB, seed)` shuffles both decks with a seeded RNG, picks the
 first player from the seed, sets both players to 4000 life points, and starts the
-first player's turn.
+first player's turn. It throws if either deck is invalid.
 
 ### 4.4 Turn
 
@@ -125,6 +125,8 @@ and deck order.
 - Materials fuse left to right: the result of each pair becomes the left side of
   the next pair.
 - The final card is placed in the slot in the chosen position.
+- A creature that was fused onto keeps its "already attacked this turn" state, so
+  fusing onto a creature never grants a second attack.
 
 Fusing a pair (A, B):
 
@@ -186,7 +188,7 @@ position. Every action it returns must be accepted by `applyAction`, and every
 action `applyAction` accepts (other than `SURRENDER`) must be in the list.
 
 State is immutable from the caller's side. `events` (drew, played, fused, fusion
-failed, attacked, destroyed, damage, turn ended, match ended) drive the client's
+failed, position set, attacked, destroyed, damage, turn ended, match ended) drive the client's
 event log and animations. The same seed and action list always produce the same
 match.
 
@@ -210,8 +212,10 @@ simulations are reproducible.
 ### 5.2 Sample bots
 
 - `random`: a random valid deck; picks a uniformly random legal action.
-- `greedy`: plays the highest-ATK result available, attacks whenever the battle
-  is favourable or the opponent's field is empty, otherwise ends the turn.
+- `greedy`: a deck of the strongest base cards; each turn it makes the play with
+  the largest ATK gain (the result's ATK minus the ATK of any creature it
+  replaces), then attacks whenever it would win the battle or the opponent's
+  field is empty, then ends the turn.
 
 New bots are added as one file each implementing `Bot`.
 
