@@ -41,3 +41,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added fusion of pairs and chains (plan 1, task 4, #6).
 - **[code]** Added match creation, drawing and deck-out (plan 1, task 5, #7).
 - **[code]** Added the PLAY action with fusion onto the field and preview (plan 1, task 6, #8).
+- **[code]** Added the ATTACK action, element bonus and life-point win (plan 1, task 7, #9).
