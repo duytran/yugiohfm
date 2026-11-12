@@ -38,3 +38,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Set up the pnpm workspace; added engine types, seeded RNG and rule constants (plan 1, task 1, #3).
 - **[code]** Added the 60-card pool and the fusion rule table (plan 1, task 2, #4).
 - **[code]** Added deck validation and the engine test helpers (plan 1, task 3, #5).
+- **[code]** Added fusion of pairs and chains (plan 1, task 4, #6).
