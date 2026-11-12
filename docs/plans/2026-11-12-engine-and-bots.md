@@ -15,10 +15,10 @@
 | Plan | Covers | Status |
 |---|---|---|
 | 1 (this file) | `packages/engine`, `packages/bots` | ready |
-| 2 | `packages/protocol`, `apps/server` (lobby, rooms, clock, reconnect) | written after plan 1 is implemented |
-| 3 | `apps/client` (React screens and duel board) | written after plan 2 is implemented |
+| 2 | `packages/protocol`, `apps/server` (lobby, rooms, clock, reconnect): `docs/plans/2026-11-12-protocol-and-server.md` | ready, needs plan 1 |
+| 3 | `apps/client` (React screens and duel board): `docs/plans/2026-11-12-browser-client.md` | ready, needs plans 1 and 2 |
 
-Plans 2 and 3 are written later because their code depends on the engine's real types and on what play-testing with the bots changes in the rules.
+If play-testing with the bots changes a rule or an engine type, update plans 2 and 3 before implementing them.
 
 All code in this plan was run in a scratch workspace before the plan was written: 164 tests pass, `tsc` is clean, and the simulator runs (TypeScript 7.0.2, Vitest 5.1.0, tsx 4.23.15, pnpm 11.10.0, Node 22.22.0).
 
@@ -3618,7 +3618,7 @@ git commit -m "feat(bots): statistics, replay and the sim command"
 
 - Use `pnpm sim` to play-test. The first runs already show a balance problem worth looking at before the server is built: Ancient Tyrant is the most played card by a wide margin, and greedy-vs-random matches end in under five turns on average.
 - Write a new bot by adding one file in `packages/bots/src/` that exports a `Bot`, and registering it in `BOTS` in `packages/bots/src/index.ts`.
-- Then write plan 2 (`packages/protocol`, `apps/server`).
+- Then implement plan 2, `docs/plans/2026-11-12-protocol-and-server.md`.
 
 ## Spec coverage
 
