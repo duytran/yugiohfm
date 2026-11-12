@@ -35,3 +35,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[docs]** Expanded the history rule in `CLAUDE.md`, adapted from another project: a where-things-go table, the four steps for every change, and "never lose the past" (DDRs edited in place with the old text noted in the log, specs and plans as dated snapshots, `HISTORY.md` append-only). Before, it was one short paragraph.
 - **[chore]** Created GitHub milestones "Plan 1: Engine and bots", "Plan 2: Protocol and server" and "Plan 3: Browser client" and 22 issues, #3 to #24, one per plan task, each linking its plan section.
 - **[decision]** Always have a GitHub issue before starting to implement; added to the working style in `CLAUDE.md`.
+- **[code]** Set up the pnpm workspace; added engine types, seeded RNG and rule constants (plan 1, task 1, #3).
