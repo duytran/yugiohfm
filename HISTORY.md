@@ -46,3 +46,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added viewFor, which hides the opponent hand and both deck orders (plan 1, task 9, #11).
 - **[code]** Added legalActions (plan 1, task 10, #12).
 - **[code]** Added the engine public API, a 200-match random property test and the independence check (plan 1, task 11, #13).
+- **[code]** Added the bots package with the Bot interface, a random bot and a greedy bot (plan 1, task 12, #14).
