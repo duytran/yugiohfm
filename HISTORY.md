@@ -36,3 +36,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[chore]** Created GitHub milestones "Plan 1: Engine and bots", "Plan 2: Protocol and server" and "Plan 3: Browser client" and 22 issues, #3 to #24, one per plan task, each linking its plan section.
 - **[decision]** Always have a GitHub issue before starting to implement; added to the working style in `CLAUDE.md`.
 - **[code]** Set up the pnpm workspace; added engine types, seeded RNG and rule constants (plan 1, task 1, #3).
+- **[code]** Added the 60-card pool and the fusion rule table (plan 1, task 2, #4).
