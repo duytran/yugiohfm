@@ -44,3 +44,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added the ATTACK action, element bonus and life-point win (plan 1, task 7, #9).
 - **[code]** Added applyAction with SET_POSITION, END_TURN, SURRENDER and applyTimeout (plan 1, task 8, #10).
 - **[code]** Added viewFor, which hides the opponent hand and both deck orders (plan 1, task 9, #11).
+- **[code]** Added legalActions (plan 1, task 10, #12).
