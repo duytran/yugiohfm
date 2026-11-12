@@ -47,3 +47,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added legalActions (plan 1, task 10, #12).
 - **[code]** Added the engine public API, a 200-match random property test and the independence check (plan 1, task 11, #13).
 - **[code]** Added the bots package with the Bot interface, a random bot and a greedy bot (plan 1, task 12, #14).
+- **[code]** Added runMatch, which plays a whole match with no GUI, server or clock (plan 1, task 13, #15).
