@@ -102,6 +102,9 @@ export type AttackAction = { type: "ATTACK"; attackerSlot: number; target: numbe
 export type RevealAction = { type: "REVEAL"; slot: number };
 export type EndTurnAction = { type: "END_TURN" };
 export type SurrenderAction = { type: "SURRENDER" };
+/** An opponent's face-down creature as a player sees it: only that it is there, and its position (F2). */
+export type HiddenCreature = { hidden: true; position: Position };
+
 export type Action = PlayAction | SetPositionAction | AttackAction | RevealAction | EndTurnAction | SurrenderAction;
 
 export type GameEvent =
@@ -132,5 +135,5 @@ export type PlayerView = {
   result: MatchResult | null;
   rules: Rules;
   self: { hand: CardId[]; deckCount: number; field: (ViewCreature | null)[]; lifePoints: number };
-  opponent: { handCount: number; deckCount: number; field: (ViewCreature | null)[]; lifePoints: number };
+  opponent: { handCount: number; deckCount: number; field: (ViewCreature | HiddenCreature | null)[]; lifePoints: number };
 };

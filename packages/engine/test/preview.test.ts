@@ -4,7 +4,7 @@ import { previewAttack, previewAttacks, stateFromView, viewAfterPlay } from "../
 import { DEFAULT_RULES } from "../src/rules";
 import type { AttackAction, MatchState } from "../src/types";
 import { viewFor } from "../src/view";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 function attack(attackerSlot: number, target: number | "direct"): AttackAction {
   return { type: "ATTACK", attackerSlot, target };
@@ -169,5 +169,20 @@ describe("viewAfterPlay", () => {
       error: "invalid hand index",
     });
     expect(before).toEqual(copy);
+  });
+});
+
+describe("previews and hidden creatures", () => {
+  const state = makeState({
+    p0: { field: field({ 0: creature("ash-duelist"), 1: creature("ember-fox") }) },
+    p1: { field: field({ 0: creature("seedling"), 1: hidden("thorn-sprite") }) },
+  });
+
+  it("cannot preview an attack on a hidden creature", () => {
+    expect(previewAttack(viewFor(state, 0), attack(0, 1))).toEqual({ error: "the target is face-down" });
+  });
+
+  it("previews the visible creatures exactly, with the hidden one still on the board", () => {
+    expect(previewAttack(viewFor(state, 0), attack(0, 0))).toEqual(resolveAttack(structuredClone(state), 0, attack(0, 0), []));
   });
 });

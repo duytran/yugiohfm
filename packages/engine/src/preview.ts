@@ -1,11 +1,28 @@
 import { resolveAttack, type BattleOutcome } from "./battle";
 import { playError, resolvePlay } from "./play";
 import { opponent } from "./rules";
-import type { AttackAction, Creature, MatchState, PlayAction, PlayerState, PlayerView, ViewCreature } from "./types";
+import type {
+  AttackAction,
+  Creature,
+  HiddenCreature,
+  MatchState,
+  PlayAction,
+  PlayerState,
+  PlayerView,
+  ViewCreature,
+} from "./types";
 import { viewFor } from "./view";
 
-function toCreature(creature: ViewCreature | null): Creature | null {
+/** Stands in for a card the viewer cannot see. The rules never read a face-down creature's card outside its own battle. */
+const HIDDEN_CARD = "";
+
+function hiddenCreature(creature: HiddenCreature): Creature {
+  return { cardId: HIDDEN_CARD, position: creature.position, hasAttacked: false, wear: 0, faceDown: true };
+}
+
+function toCreature(creature: ViewCreature | HiddenCreature | null): Creature | null {
   if (!creature) return null;
+  if (creature.hidden) return hiddenCreature(creature);
   return {
     cardId: creature.cardId,
     position: creature.position,
@@ -64,6 +81,9 @@ export function previewAttacks(
     if (!state.players[me].field[action.attackerSlot]) return { error: "no creature in that slot", index };
     if (action.target !== "direct" && !state.players[enemy].field[action.target]) {
       return { error: "no creature in the target slot", index };
+    }
+    if (action.target !== "direct" && state.players[enemy].field[action.target]!.cardId === HIDDEN_CARD) {
+      return { error: "the target is face-down", index };
     }
     outcomes.push(resolveAttack(state, me, action, []));
   }

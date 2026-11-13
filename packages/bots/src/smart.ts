@@ -13,7 +13,7 @@ import type { Bot } from "./types";
 
 /** The highest current ATK among the opponent's creatures; 0 with none. */
 export function threat(view: PlayerView): number {
-  return Math.max(0, ...view.opponent.field.map((creature) => (creature ? creature.atk : 0)));
+  return Math.max(0, ...view.opponent.field.map((creature) => (creature && !creature.hidden ? creature.atk : 0)));
 }
 
 type Option = { action: PlayAction; cards: number; after: PlayerView; atk: number; def: number; board: number };
@@ -120,7 +120,8 @@ export function planScore(view: PlayerView, plan: readonly AttackAction[]): numb
     const action = plan[i]!;
     dealt += preview.damageToOpponent;
     taken += preview.damageToSelf;
-    if (preview.targetDestroyed && action.target !== "direct") value += view.opponent.field[action.target]!.atk;
+    const target = action.target === "direct" ? null : view.opponent.field[action.target];
+    if (preview.targetDestroyed && target && !target.hidden) value += target.atk;
     if (preview.attackerDestroyed) value -= view.self.field[action.attackerSlot]!.atk;
   });
   if (dealt >= view.opponent.lifePoints) return Infinity;
