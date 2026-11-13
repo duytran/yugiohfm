@@ -75,3 +75,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[decision]** Owner approved `docs/plans/2026-11-13-tactics-phase-0-measurement.md` and asked for it to be implemented.
 - **[chore]** Created the milestone "Tactics phase 0: Measurement", the label `tactics-phase-0` and issues #41 to #49, one per plan task; listed them in the plan's `Revisions`. Work is on the branch `feat/tactics-phase-0`, one commit per task.
 
+- **[code]** fusePair now remembers its results; 20 greedy-vs-greedy matches went from about 9 s to about 1 s with identical output (tactics phase 0, task 1, #41).
