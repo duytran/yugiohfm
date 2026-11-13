@@ -1,10 +1,10 @@
 import {
   DECK_SIZE,
   MAX_COPIES,
-  battleValues,
   fuseChain,
   getCard,
   playMaterials,
+  previewAttack,
   type Action,
   type AttackAction,
   type CardId,
@@ -23,11 +23,8 @@ export function playGain(view: PlayerView, action: PlayAction): number {
 /** True for a direct attack or a battle the attacker wins outright. */
 export function isFavourable(view: PlayerView, action: AttackAction): boolean {
   if (action.target === "direct") return true;
-  const attacker = view.self.field[action.attackerSlot];
-  const target = view.opponent.field[action.target];
-  if (!attacker || !target) return false;
-  const { attack, defense } = battleValues(getCard(attacker.cardId), getCard(target.cardId), target.position, view.rules);
-  return attack > defense;
+  const preview = previewAttack(view, action);
+  return !("error" in preview) && preview.attack > preview.defense;
 }
 
 function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null {

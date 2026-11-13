@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { attackError, battleValues, resolveAttack } from "../src/battle";
+import { attackError, battleOutcome, battleValues, previewAttack, resolveAttack } from "../src/battle";
 import { getCard } from "../src/cards";
 import { DEFAULT_RULES } from "../src/rules";
 import type { AttackAction, GameEvent, MatchState } from "../src/types";
+import { viewFor } from "../src/view";
 import { creature, field, makeState } from "./helpers";
 
 function attack(attackerSlot: number, target: number | "direct"): AttackAction {
@@ -214,5 +215,112 @@ describe("resolveAttack direct", () => {
     });
     resolveAttack(state, 0, attack(0, 0), []);
     expect(state.result).toEqual({ winner: 1, reason: "life-points" });
+  });
+});
+
+describe("battleOutcome", () => {
+  const strong = { atk: 2000, def: 1000, element: "flame" as const };
+  const weak = { atk: 1500, def: 1800, element: "flame" as const };
+
+  it("against attack position: the lower value is destroyed and its owner takes the difference", () => {
+    expect(battleOutcome(strong, { combatant: weak, position: "attack" }, DEFAULT_RULES)).toEqual({
+      attack: 2000,
+      defense: 1500,
+      attackerDestroyed: false,
+      targetDestroyed: true,
+      damageToSelf: 0,
+      damageToOpponent: 500,
+    });
+    expect(battleOutcome(weak, { combatant: strong, position: "attack" }, DEFAULT_RULES)).toMatchObject({
+      attackerDestroyed: true,
+      targetDestroyed: false,
+      damageToSelf: 500,
+      damageToOpponent: 0,
+    });
+  });
+
+  it("against attack position: equal values destroy both with no damage", () => {
+    expect(battleOutcome(strong, { combatant: strong, position: "attack" }, DEFAULT_RULES)).toMatchObject({
+      attackerDestroyed: true,
+      targetDestroyed: true,
+      damageToSelf: 0,
+      damageToOpponent: 0,
+    });
+  });
+
+  it("against defense position: no damage to the defender, and the attacker is never destroyed", () => {
+    expect(battleOutcome(strong, { combatant: weak, position: "defense" }, DEFAULT_RULES)).toEqual({
+      attack: 2000,
+      defense: 1800,
+      attackerDestroyed: false,
+      targetDestroyed: true,
+      damageToSelf: 0,
+      damageToOpponent: 0,
+    });
+    expect(battleOutcome(weak, { combatant: weak, position: "defense" }, DEFAULT_RULES)).toMatchObject({
+      attackerDestroyed: false,
+      targetDestroyed: false,
+      damageToSelf: 300,
+      damageToOpponent: 0,
+    });
+  });
+
+  it("direct: the attacker's value goes to the opponent", () => {
+    expect(battleOutcome(strong, null, DEFAULT_RULES)).toEqual({
+      attack: 2000,
+      defense: 0,
+      attackerDestroyed: false,
+      targetDestroyed: false,
+      damageToSelf: 0,
+      damageToOpponent: 2000,
+    });
+  });
+});
+
+describe("previewAttack", () => {
+  it("reads the creatures' values from the view, not from the cards", () => {
+    const view = viewFor(duel("ember-fox", "ash-duelist"), 0);
+    expect(previewAttack(view, attack(0, 0))).toMatchObject({ attack: 1200, defense: 1500, attackerDestroyed: true });
+    view.self.field[0]!.atk = 1900;
+    expect(previewAttack(view, attack(0, 0))).toMatchObject({ attack: 1900, defense: 1500, targetDestroyed: true });
+    expect(previewAttack(view, attack(0, "direct"))).toMatchObject({ damageToOpponent: 1900 });
+  });
+
+  it("uses the view's rules for the element bonus", () => {
+    const state = makeState({
+      rules: { elementBonus: 1000 },
+      p0: { field: field({ 0: creature("ember-fox") }) },
+      p1: { field: field({ 0: creature("moss-boar") }) },
+    });
+    expect(previewAttack(viewFor(state, 0), attack(0, 0))).toMatchObject({ attack: 2200, defense: 1300 });
+  });
+
+  it("returns an error when a creature is missing", () => {
+    const view = viewFor(duel("ember-fox", "ash-duelist"), 0);
+    expect(previewAttack(view, attack(3, 0))).toEqual({ error: "no creature in that slot" });
+    expect(previewAttack(view, attack(9, 0))).toEqual({ error: "no creature in that slot" });
+    expect(previewAttack(view, attack(0, 2))).toEqual({ error: "no creature in the target slot" });
+  });
+
+  it("agrees with what resolveAttack then does", () => {
+    const cases: [string, string, "attack" | "defense"][] = [
+      ["ash-duelist", "ember-fox", "attack"],
+      ["ember-fox", "ash-duelist", "attack"],
+      ["ash-duelist", "burrow-drake", "attack"],
+      ["ember-fox", "moss-boar", "attack"],
+      ["ash-duelist", "ember-fox", "defense"],
+      ["ember-fox", "furnace-drone", "defense"],
+      ["ash-duelist", "furnace-drone", "defense"],
+    ];
+    for (const [mine, theirs, position] of cases) {
+      const state = duel(mine, theirs, position);
+      const preview = previewAttack(viewFor(state, 0), attack(0, 0));
+      if ("error" in preview) throw new Error(preview.error);
+      resolveAttack(state, 0, attack(0, 0), []);
+      expect(state.players[0].field[0] === null, `${mine} -> ${theirs}`).toBe(preview.attackerDestroyed);
+      expect(state.players[1].field[0] === null, `${mine} -> ${theirs}`).toBe(preview.targetDestroyed);
+      expect(4000 - state.players[0].lifePoints).toBe(preview.damageToSelf);
+      expect(4000 - state.players[1].lifePoints).toBe(preview.damageToOpponent);
+    }
   });
 });

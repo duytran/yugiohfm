@@ -78,3 +78,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** fusePair now remembers its results; 20 greedy-vs-greedy matches went from about 9 s to about 1 s with identical output (tactics phase 0, task 1, #41).
 - **[code]** Rule settings are now a Rules object stored in each match (createMatch takes overrides; views carry it); ELEMENT_BONUS became DEFAULT_RULES.elementBonus so one simulator run can compare values (tactics phase 0, task 2, DDR-0009, #42).
 - **[code]** Views now have their own creature type, ViewCreature, carrying effective ATK and DEF from the new engine function effectiveStats (printed values for now) (tactics phase 0, task 3, DDR-0010, #43).
+- **[code]** Added battleOutcome, shared by resolveAttack and the new public previewAttack(view, action); a direct attack now goes through effectiveStats; battleValues left the public API and the greedy bot uses previewAttack (tactics phase 0, task 4, DDR-0010, #44).
