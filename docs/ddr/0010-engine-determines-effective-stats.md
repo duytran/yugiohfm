@@ -23,7 +23,7 @@ The engine owns one value calculation. `viewFor` puts each visible creature's ef
 
 - **Always** take a creature's current ATK or DEF from the engine: from `PlayerView`, or from an engine preview for a specific attack.
 - **Always** use the same engine function for the view, for `resolveAttack` (direct attacks included) and for previews.
-- **Never** add, subtract or compare stat bonuses in `apps/client`, `apps/server`, `packages/protocol` or `packages/bots`.
+- **Never** work out a creature's current value or a battle result in `apps/client`, `apps/server`, `packages/protocol` or `packages/bots`. A bot may score its options with numbers the engine gave it.
 - **Never** put an effective value in the view for a creature the viewer may not see (an opponent's face-down creature).
 - **Never** store an effective value in `MatchState`; it is derived when read.
 
@@ -40,7 +40,7 @@ No code exists yet. Today `battleValues(attacker, target, position)` in `package
 
 ## Compliance
 
-Review check: no arithmetic on `atk` or `def` outside `packages/engine`. A view test asserts effective values are present for visible creatures and absent for hidden ones.
+Review check: no element, synergy or wear arithmetic outside `packages/engine`. A view test asserts effective values are present for visible creatures and absent for hidden ones.
 
 ## Revisit when
 

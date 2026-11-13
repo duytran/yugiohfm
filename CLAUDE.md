@@ -16,10 +16,11 @@ independent of the GUI and network so bots can play-test it headlessly.
 | `docs/specs/2026-11-12-online-card-duel-design.md` | The approved design. |
 | `docs/specs/2026-11-13-engine-high-level-design.md` | How the implemented engine works. |
 | `docs/specs/2026-11-13-tactics-rules-design.md` | Approved rule changes: combination over raw stats. |
-| `docs/specs/2026-11-13-face-down-play-design.md` | Draft: face-down play. |
+| `docs/specs/2026-11-13-face-down-play-design.md` | Approved: face-down play, for deception only. |
 | `docs/plans/2026-11-12-engine-and-bots.md` | Plan 1 of 3: rules engine and bots. |
 | `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
+| `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. Not implemented. |
 | `docs/ddr/` | Design decision records. Read the ones that cover the area you are about to change; their "Constraints & Rules" are binding. |
 | `HISTORY.md` | Log of every action on the project. |
 

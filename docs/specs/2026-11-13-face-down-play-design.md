@@ -1,6 +1,6 @@
 # Face-down play: design proposal
 
-> **Date:** 2026-11-13 · **Status:** draft for discussion, not approved.
+> **Date:** 2026-11-13 · **Status:** approved by the owner on 2026-11-13.
 > Builds on `2026-11-13-tactics-rules-design.md` (R6), approved the same day.
 > Binding rules: DDR-0003 (per-player views), DDR-0009 (face-down is deception
 > only), DDR-0010 (the engine determines effective stats).
@@ -27,20 +27,20 @@ hidden zones were the hands and the deck orders.
 
 ## 3. Proposed rules
 
-Each line marked *proposed* is mine and needs the owner's answer (section 8).
+The owner accepted every proposed line on 2026-11-13 (section 8).
 
 | # | Rule | Status |
 |---|---|---|
-| F1 | `PLAY` has `faceDown: boolean`. Any position may be combined with it. | settled / shape proposed |
-| F2 | The **position** of a face-down creature is public. The opponent must know whether an attack meets ATK or DEF, or the attack is a blind guess, not a calculation. | proposed |
-| F3 | A creature that **survives** being attacked is face-up afterwards. | proposed (open question 1) |
-| F4 | **Guard** does nothing while face-down. Forcing attacks onto it would give it away. | proposed (open question 2) |
-| F5 | **Rally** applies while face-down. It depends only on life points, which are public, and the value stays hidden with the card. | proposed (open question 2) |
-| F6 | **Once face-up, always face-up.** No action turns a creature face-down again. A `PLAY` onto a face-up creature is face-up. | proposed (open question 3) |
-| F7 | A `PLAY` onto your own face-down creature may stay face-down. The opponent learns only how many hand cards were used. | proposed (open question 3) |
-| F8 | A new free action `REVEAL { slot }` turns your own creature face-up on your turn. Without it, the only way to get a formation's Banner and Pack bonuses back is to attack. | proposed (open question 4) |
-| F9 | A face-down creature counts as a creature: it blocks direct attacks and can be the target of any attack. | proposed |
-| F10 | `SET_POSITION` does not reveal. | proposed |
+| F1 | `PLAY` has `faceDown: boolean`. Any position may be combined with it. | settled |
+| F2 | The **position** of a face-down creature is public. The opponent must know whether an attack meets ATK or DEF, or the attack is a blind guess, not a calculation. | settled |
+| F3 | A creature that **survives** being attacked is face-up afterwards. | settled |
+| F4 | **Guard** does nothing while face-down. Forcing attacks onto it would give it away. | settled |
+| F5 | **Rally** applies while face-down. It depends only on life points, which are public, and the value stays hidden with the card. | settled |
+| F6 | **Once face-up, always face-up.** No action turns a creature face-down again. A `PLAY` onto a face-up creature is face-up. | settled |
+| F7 | A `PLAY` onto your own face-down creature may stay face-down. The opponent learns only how many hand cards were used. | settled |
+| F8 | A new free action `REVEAL { slot }` turns your own creature face-up on your turn. Without it, the only way to get a formation's Banner and Pack bonuses back is to attack. | settled |
+| F9 | A face-down creature counts as a creature: it blocks direct attacks and can be the target of any attack. | settled |
+| F10 | `SET_POSITION` does not reveal. | settled |
 | F11 | Wear applies normally. By the time a creature can be worn it has been attacked, so it is already face-up. | follows from F3 |
 
 ### Turn example: the lure
@@ -144,7 +144,7 @@ The simulator keeps the full list, so statistics and replays stay complete.
 ### Actions
 
 - `PlayAction` gains `faceDown: boolean`.
-- `RevealAction { type: "REVEAL"; slot }` if F8 is accepted.
+- `RevealAction { type: "REVEAL"; slot }` (F8).
 - `legalActions` lists both faces of every play. That doubles its `PLAY`
   candidates (about 6,500 for a five-card hand), so the phase 0 speed work
   comes before this.
@@ -162,9 +162,8 @@ weakest attacker).
   steps, Guard check ignores hidden creatures), `view.ts` (new types, hiding),
   new `eventsFor`, `legal.ts`, tests for every row of the tables above.
 - **Approved spec:** section 4.4 says "All creatures on the field are face-up".
-  It gets a `Revisions` entry when this spec is approved.
-- **DDR-0003:** gains "events are filtered per player by the engine" when this
-  spec is approved.
+  It has a `Revisions` entry pointing here.
+- **DDR-0003:** now says events are filtered per player by the engine.
 - **Plan 2:** `broadcastMatch` sends `eventsFor(events, seat)`; the zod schema
   for `PLAY` gains `faceDown`. Revised after the engine shape is implemented.
 - **Plan 3:** a card back, a face-down toggle in the play selection, text for
@@ -178,12 +177,13 @@ hiding, and it is the largest change to views and events. Its shape (section 5)
 is decided now so phases 0 to 4 do not build on types that phase 5 must break:
 the view gets its own creature type from phase 0.
 
-## 8. Open questions for the owner
+## 8. Questions settled by the owner (2026-11-13)
 
-1. F3: is a creature that survives an attack turned face-up? (My reading of
-   "no other advantage": yes.)
-2. F4 and F5: Guard off and Rally on while face-down?
-3. F6 and F7: never back to face-down, but a play onto a hidden creature may
-   stay hidden?
-4. F8: add a free `REVEAL` action, or is attacking the only way to turn up?
-5. F2: is the position of a hidden creature public?
+1. F3: a creature that survives an attack is turned face-up. Yes.
+2. F4 and F5: Guard is off and Rally is on while face-down. Yes.
+3. F6 and F7: a creature never goes back to face-down; a play onto your own
+   hidden creature may stay hidden. Yes.
+4. F8: a free `REVEAL` action on your own turn. Yes.
+5. F2: the position of a hidden creature is public. Yes.
+
+No question is open.

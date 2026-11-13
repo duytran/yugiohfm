@@ -1,6 +1,6 @@
 # DDR-0003: The server is authoritative and sends each player only their own view
 
-> **Status:** Accepted · **Last updated:** 2026-11-12
+> **Status:** Accepted · **Last updated:** 2026-11-13
 > Clients send intended actions; the server runs the engine and replies with a per-player view that omits hidden information.
 
 ## Context
@@ -9,7 +9,7 @@ Online duels have hidden information: each hand and the order of each deck. A br
 
 ## Decision
 
-We keep the only real `MatchState` on the server. A client message carries an action; the server applies it with `applyAction` and sends each player `viewFor(state, player)` plus the events. The full state never leaves the server.
+We keep the only real `MatchState` on the server. A client message carries an action; the server applies it with `applyAction` and sends each player `viewFor(state, player)` plus the events that player may see, filtered by the engine's `eventsFor(events, player)`. The full state never leaves the server.
 
 ## Rationale
 
@@ -24,7 +24,8 @@ We keep the only real `MatchState` on the server. A client message carries an ac
 - **Always** check an incoming action through the engine on the server before changing anything.
 - **Always** build outgoing match messages from `viewFor`; send a player only their own view.
 - **Never** send `MatchState`, a deck order, or the opponent's hand contents to a client.
-- **Never** put information in a `GameEvent` that only one player may know (events go to both players).
+- **Always** pass events through the engine's `eventsFor(events, player)` before sending them; never send the raw event list. What is hidden is a game rule, so the filter lives in the engine (face-down play).
+- **Never** send a player the card id, element, traits or stats of an opponent's face-down creature, in a view or in an event.
 - **Never** let the client decide legality, fusion results, battle outcomes or the winner; it only displays.
 
 ## Implementation
@@ -35,7 +36,7 @@ No code exists yet. `viewFor` is plan 1, task 9 (`packages/engine/src/view.ts`).
 
 - **Positive:** modified clients cannot see hidden cards or make illegal moves.
 - **Negative / trade-off:** every action costs a round trip before the board updates — **mitigated by** small messages and `match.preview` for fusion previews; no client-side prediction in version one, accepted.
-- **Known gap:** not implemented yet; planned in plans 2 and 3.
+- **Known gap:** not implemented yet; planned in plans 2 and 3. `eventsFor` does not exist yet (tactics phase 5), and plan 2 as written still sends one event list to both players; it is revised before it is implemented.
 
 ## Compliance
 

@@ -391,7 +391,7 @@ Still open (for the face-down spec):
   the face-down spec. Revising plans full of code against types that do not
   exist yet would mean revising them twice. Plan 2 is still not implemented
   before its revision.
-  1. Face-down spec: `2026-11-13-face-down-play-design.md` (draft written).
+  1. Face-down spec: `2026-11-13-face-down-play-design.md` (approved 2026-11-13).
   2. Phase 0, then the engine shape for R1 to R6 (types, events, views). Card
      values may stay rough.
   3. Revise plans 2 and 3 against the real types, then implement them.

@@ -365,6 +365,7 @@ can control time.
 
 The duel rules in sections 4.4 to 4.6 and the bots in section 5 are being
 changed by `2026-11-13-tactics-rules-design.md` (approved, DDR-0009) and
-`2026-11-13-face-down-play-design.md` (draft). Until those rules are
+`2026-11-13-face-down-play-design.md` (approved; section 4.4's "all creatures
+are face-up" will no longer hold). Until those rules are
 implemented this file still describes the engine as built. Section 8's "the
 client holds no rules logic" now also covers effective stats (DDR-0010).
