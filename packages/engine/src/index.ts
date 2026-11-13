@@ -12,7 +12,7 @@ export {
   opponent,
   playsAllowed,
 } from "./rules";
-export { CARDS, FUSION_RULES, findCard, getCard } from "./cards";
+export { CARDS, FUSION_RULES, findCard, getCard, hasTrait } from "./cards";
 export { validateDeck, type DeckCheck } from "./deck";
 export { fuseChain, fusePair, type FusionStep } from "./fusion";
 export { createMatch } from "./match";

@@ -4,6 +4,10 @@ export type Element = (typeof ELEMENTS)[number];
 export const TAGS = ["beast", "dragon", "warrior", "mage", "plant", "machine", "aqua", "bird"] as const;
 export type Tag = (typeof TAGS)[number];
 
+/** Keywords printed on some cards (R4). A creature has exactly the traits of its card. */
+export const TRAITS = ["venom", "guard", "pierce"] as const;
+export type Trait = (typeof TRAITS)[number];
+
 export type CardId = string;
 
 export type Card = {
@@ -13,6 +17,8 @@ export type Card = {
   tags: Tag[];
   atk: number;
   def: number;
+  /** printed on the card; a fusion result has its own and inherits none */
+  traits: Trait[];
   /** true: reachable only by fusion, never legal in a deck */
   fusionOnly: boolean;
 };
