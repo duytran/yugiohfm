@@ -7,13 +7,16 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Plans 2 and 3 (server, client) are written but not implemented.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
 
 ## Read first
 
 | File | What it is |
 |---|---|
 | `docs/specs/2026-11-12-online-card-duel-design.md` | The approved design. |
+| `docs/specs/2026-11-13-engine-high-level-design.md` | How the implemented engine works. |
+| `docs/specs/2026-11-13-tactics-rules-design.md` | Approved rule changes: combination over raw stats. |
+| `docs/specs/2026-11-13-face-down-play-design.md` | Draft: face-down play. |
 | `docs/plans/2026-11-12-engine-and-bots.md` | Plan 1 of 3: rules engine and bots. |
 | `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
@@ -75,6 +78,9 @@ written trace, committed to git together with the change itself.
 - The chess clock belongs to the server, not the engine (DDR-0007).
 - All game content is original; never add names, cards or art from an existing
   game (DDR-0008).
+- Duel rules reward combination over raw stats; a rule value is accepted only
+  by simulator results (DDR-0009).
+- Only the engine works out effective ATK and DEF; views carry them (DDR-0010).
 
 When a decision changes, edit its DDR in place and log the change in
 `HISTORY.md`.

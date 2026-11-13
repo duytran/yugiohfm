@@ -1,7 +1,8 @@
 # Tactics rules: design proposal
 
-> **Date:** 2026-11-13 · **Status:** draft for discussion, not approved. Nothing
-> here is decided and no code changes until the owner approves a phase.
+> **Date:** 2026-11-13 · **Status:** approved by the owner on 2026-11-13
+> (direction and rules; the numbers are settings chosen by simulator runs).
+> Binding rules: DDR-0009, DDR-0010. See `Revisions` at the bottom.
 > Builds on `2026-11-12-online-card-duel-design.md` (section 4, duel rules) and
 > on the engine as described in `2026-11-13-engine-high-level-design.md`.
 
@@ -379,3 +380,38 @@ Still open (for the face-down spec):
 3. Revise plans 2 and 3 for face-down play and the new state and event shapes.
 4. Write the plan for phase 0 (bots, settings, faster simulator), with GitHub
    issues, then implement phase by phase.
+
+## Revisions
+
+### 2026-11-13: approved, after a review of the plans and the plan 1 code
+
+- **Approved** by the owner. DDR-0009 records the direction.
+- **Next steps reordered** (replaces steps 3 and 4 of section 10). Plans 2 and
+  3 are revised once, after the engine shape is implemented, not right after
+  the face-down spec. Revising plans full of code against types that do not
+  exist yet would mean revising them twice. Plan 2 is still not implemented
+  before its revision.
+  1. Face-down spec: `2026-11-13-face-down-play-design.md` (draft written).
+  2. Phase 0, then the engine shape for R1 to R6 (types, events, views). Card
+     values may stay rough.
+  3. Revise plans 2 and 3 against the real types, then implement them.
+  4. Tune numbers and the card pool with the simulator, alongside step 3.
+- **Phase 0 gains four items** found in the review (section 8):
+  - Rule settings become a rules object held per match, not module constants,
+    so one run can compare settings.
+  - `runMatch` takes decks separately from bots. The target "themed deck versus
+    highest-ATK deck, same bot" cannot be measured while `Bot.buildDeck` is the
+    only source of a deck.
+  - An attack preview that works on view data, so a bot can look one attack
+    ahead without `MatchState` (DDR-0006).
+  - Per-turn life totals, lead changes, comebacks and fusion share, computed
+    from the events `runMatch` already records.
+- **Effective stats** (corrects section 7, "the client board must show wear and
+  traits"): the engine determines them and the view carries them; the client
+  only displays (owner's decision, DDR-0010). A direct attack must use the
+  effective ATK too; today it reads the printed value.
+- **Card pool kept as it is** (owner's decision): the 40 base cards are tested
+  first. Known limit: one element or tag covers at most 21 of 30 deck cards,
+  so themed decks are two-theme for now.
+- **Plan 3's starter deck** ("3 copies of the 10 strongest base cards") works
+  against goal 1; it is replaced when plan 3 is revised.

@@ -1,0 +1,51 @@
+# DDR-0010: The engine determines every effective stat; views carry them
+
+> **Status:** Accepted · **Last updated:** 2026-11-13
+> A creature's current ATK and DEF (printed value, synergy, wear) are worked out only in `packages/engine` and delivered inside `PlayerView`. The client, server and bots never calculate them.
+
+## Context
+
+With wear, Banner, Pack and Rally (DDR-0009) a creature's value on the board is no longer the number printed on its card. The board must show the current value, and bots must read it, but the client holds no rules logic (DDR-0001) and bots see only a `PlayerView` (DDR-0006).
+
+## Decision
+
+The engine owns one value calculation. `viewFor` puts each visible creature's effective ATK and DEF into the view. A value that depends on a pairing (the element bonus, the outcome of one attack) comes from an engine preview function, the same way `previewPlay` works today. Owner's decision, 2026-11-13: "the engine should be the one to determine them".
+
+## Rationale
+
+**Decided on:** one source of truth for rules (DDR-0001); no hidden information leaking (DDR-0003); the same numbers for a human, a bot and the battle itself.
+
+- **Rejected: the client calculates effective stats from the view** — duplicates rules outside the engine and drifts when a trait changes.
+- **Rejected: the client imports and calls the engine's value function itself** — still engine code, but the client would need inputs a view may hide (a face-down neighbour), and every consumer would have to remember to call it.
+- **Rejected: store effective values on `Creature` in `MatchState`** — DDR-0009 forbids stored bonuses; they go stale when a Banner is destroyed mid-turn.
+
+## Constraints & Rules
+
+- **Always** take a creature's current ATK or DEF from the engine: from `PlayerView`, or from an engine preview for a specific attack.
+- **Always** use the same engine function for the view, for `resolveAttack` (direct attacks included) and for previews.
+- **Never** add, subtract or compare stat bonuses in `apps/client`, `apps/server`, `packages/protocol` or `packages/bots`.
+- **Never** put an effective value in the view for a creature the viewer may not see (an opponent's face-down creature).
+- **Never** store an effective value in `MatchState`; it is derived when read.
+
+## Implementation
+
+No code exists yet. Today `battleValues(attacker, target, position)` in `packages/engine/src/battle.ts` takes two cards, the greedy bot calls it, and a direct attack reads the printed ATK (`battle.ts`, `resolveAttack`). Phase 0 of the tactics spec replaces these with a value function over the fields and life totals, view fields, and an attack preview that works on view data.
+
+## Consequences
+
+- **Positive:** the client stays a pure display; a bot and a human read identical numbers; a rule change touches one function.
+- **Negative / trade-off:** `PlayerView` grows and `viewFor` does more work per action — **mitigated by** the phase 0 simulator speed work; accepted otherwise.
+- **Negative / trade-off:** an attack forecast in the client needs a round trip to the server — **mitigated by** reusing the `match.preview` pattern; to be settled when plans 2 and 3 are revised.
+- **Known gap:** not implemented; `battleValues` and the greedy bot still work on printed values.
+
+## Compliance
+
+Review check: no arithmetic on `atk` or `def` outside `packages/engine`. A view test asserts effective values are present for visible creatures and absent for hidden ones.
+
+## Revisit when
+
+Attack forecasts over the network feel too slow in play, or a search bot needs thousands of value lookups per move.
+
+## Related
+
+- [DDR-0001](0001-engine-independent-of-gui-and-network.md), [DDR-0003](0003-authoritative-server-per-player-views.md), [DDR-0006](0006-bots-play-through-the-public-api.md), [DDR-0009](0009-tactics-combination-over-raw-stats.md).
