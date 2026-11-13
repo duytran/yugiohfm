@@ -1,5 +1,5 @@
 import { CARDS } from "../src/cards";
-import { FIELD_SLOTS, STARTING_LIFE } from "../src/rules";
+import { DEFAULT_RULES, FIELD_SLOTS, STARTING_LIFE } from "../src/rules";
 import type { CardId, Creature, MatchState, PlayerId, PlayerState, Position } from "../src/types";
 
 /** A valid 30-card deck: 3 copies of each of the first 10 base cards. */
@@ -34,6 +34,7 @@ export function makeState(
     turn: 2,
     hasPlayed: false,
     result: null,
+    rules: { ...DEFAULT_RULES },
     ...rest,
   });
 }

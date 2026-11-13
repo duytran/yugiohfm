@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { beats, opponent } from "../src/rules";
+import { DEFAULT_RULES, beats, makeRules, opponent } from "../src/rules";
 import { ELEMENTS } from "../src/types";
 
 describe("beats", () => {
@@ -28,5 +28,27 @@ describe("opponent", () => {
   it("swaps 0 and 1", () => {
     expect(opponent(0)).toBe(1);
     expect(opponent(1)).toBe(0);
+  });
+});
+
+describe("makeRules", () => {
+  it("defaults to an element bonus of 500", () => {
+    expect(makeRules()).toEqual({ elementBonus: 500 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500 });
+  });
+
+  it("applies overrides without changing the defaults", () => {
+    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000 });
+    expect(DEFAULT_RULES.elementBonus).toBe(500);
+  });
+
+  it("returns a new object each time", () => {
+    expect(makeRules()).not.toBe(makeRules());
+  });
+
+  it("rejects a value that is not a whole number of 0 or more", () => {
+    expect(() => makeRules({ elementBonus: -100 })).toThrow("invalid rule elementBonus: -100");
+    expect(() => makeRules({ elementBonus: 0.5 })).toThrow("invalid rule elementBonus: 0.5");
+    expect(makeRules({ elementBonus: 0 })).toEqual({ elementBonus: 0 });
   });
 });

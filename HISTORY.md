@@ -76,3 +76,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[chore]** Created the milestone "Tactics phase 0: Measurement", the label `tactics-phase-0` and issues #41 to #49, one per plan task; listed them in the plan's `Revisions`. Work is on the branch `feat/tactics-phase-0`, one commit per task.
 
 - **[code]** fusePair now remembers its results; 20 greedy-vs-greedy matches went from about 9 s to about 1 s with identical output (tactics phase 0, task 1, #41).
+- **[code]** Rule settings are now a Rules object stored in each match (createMatch takes overrides; views carry it); ELEMENT_BONUS became DEFAULT_RULES.elementBonus so one simulator run can compare values (tactics phase 0, task 2, DDR-0009, #42).

@@ -1,16 +1,21 @@
 import { getCard } from "./cards";
 import { endMatch } from "./match";
-import { ELEMENT_BONUS, FIELD_SLOTS, beats, opponent, turnError } from "./rules";
-import type { AttackAction, Card, GameEvent, MatchState, PlayerId, Position } from "./types";
+import { FIELD_SLOTS, beats, opponent, turnError } from "./rules";
+import type { AttackAction, Card, GameEvent, MatchState, PlayerId, Position, Rules } from "./types";
 
 /**
  * The two numbers a battle compares, element bonus included: the attacker's ATK
  * against the target's ATK (attack position) or DEF (defense position).
  */
-export function battleValues(attacker: Card, target: Card, targetPosition: Position): { attack: number; defense: number } {
-  const attack = attacker.atk + (beats(attacker.element, target.element) ? ELEMENT_BONUS : 0);
+export function battleValues(
+  attacker: Card,
+  target: Card,
+  targetPosition: Position,
+  rules: Rules,
+): { attack: number; defense: number } {
+  const attack = attacker.atk + (beats(attacker.element, target.element) ? rules.elementBonus : 0);
   const base = targetPosition === "attack" ? target.atk : target.def;
-  const defense = base + (beats(target.element, attacker.element) ? ELEMENT_BONUS : 0);
+  const defense = base + (beats(target.element, attacker.element) ? rules.elementBonus : 0);
   return { attack, defense };
 }
 
@@ -63,7 +68,7 @@ export function resolveAttack(draft: MatchState, player: PlayerId, action: Attac
   }
 
   const target = draft.players[enemy].field[action.target]!;
-  const { attack, defense } = battleValues(getCard(attacker.cardId), getCard(target.cardId), target.position);
+  const { attack, defense } = battleValues(getCard(attacker.cardId), getCard(target.cardId), target.position, draft.rules);
 
   if (target.position === "attack") {
     if (attack > defense) {

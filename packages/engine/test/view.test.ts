@@ -29,6 +29,7 @@ describe("viewFor", () => {
       turn: 4,
       hasPlayed: true,
       result: null,
+      rules: { elementBonus: 500 },
       self: {
         hand: ["ember-fox", "ash-duelist"],
         deckCount: 3,

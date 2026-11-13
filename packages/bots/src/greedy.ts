@@ -26,7 +26,7 @@ export function isFavourable(view: PlayerView, action: AttackAction): boolean {
   const attacker = view.self.field[action.attackerSlot];
   const target = view.opponent.field[action.target];
   if (!attacker || !target) return false;
-  const { attack, defense } = battleValues(getCard(attacker.cardId), getCard(target.cardId), target.position);
+  const { attack, defense } = battleValues(getCard(attacker.cardId), getCard(target.cardId), target.position, view.rules);
   return attack > defense;
 }
 

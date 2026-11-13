@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { attackError, battleValues, resolveAttack } from "../src/battle";
 import { getCard } from "../src/cards";
+import { DEFAULT_RULES } from "../src/rules";
 import type { AttackAction, GameEvent, MatchState } from "../src/types";
 import { creature, field, makeState } from "./helpers";
 
@@ -19,22 +20,32 @@ function duel(mine: string, theirs: string, theirPosition: "attack" | "defense" 
 describe("battleValues", () => {
   it("uses plain ATK against ATK with no element advantage", () => {
     // flame vs flame
-    expect(battleValues(getCard("ash-duelist"), getCard("ember-fox"), "attack")).toEqual({ attack: 1500, defense: 1200 });
+    expect(battleValues(getCard("ash-duelist"), getCard("ember-fox"), "attack", DEFAULT_RULES)).toEqual({ attack: 1500, defense: 1200 });
   });
 
   it("uses DEF for a target in defense position", () => {
-    expect(battleValues(getCard("ash-duelist"), getCard("ember-fox"), "defense")).toEqual({ attack: 1500, defense: 800 });
+    expect(battleValues(getCard("ash-duelist"), getCard("ember-fox"), "defense", DEFAULT_RULES)).toEqual({ attack: 1500, defense: 800 });
   });
 
   it("gives the attacker +500 when its element beats the target's", () => {
     // flame beats forest
-    expect(battleValues(getCard("ember-fox"), getCard("moss-boar"), "attack")).toEqual({ attack: 1700, defense: 1300 });
+    expect(battleValues(getCard("ember-fox"), getCard("moss-boar"), "attack", DEFAULT_RULES)).toEqual({ attack: 1700, defense: 1300 });
   });
 
   it("gives the target +500 when its element beats the attacker's", () => {
     // water beats flame
-    expect(battleValues(getCard("ember-fox"), getCard("mist-oracle"), "attack")).toEqual({ attack: 1200, defense: 1700 });
-    expect(battleValues(getCard("ember-fox"), getCard("mist-oracle"), "defense")).toEqual({ attack: 1200, defense: 1900 });
+    expect(battleValues(getCard("ember-fox"), getCard("mist-oracle"), "attack", DEFAULT_RULES)).toEqual({ attack: 1200, defense: 1700 });
+    expect(battleValues(getCard("ember-fox"), getCard("mist-oracle"), "defense", DEFAULT_RULES)).toEqual({ attack: 1200, defense: 1900 });
+  });
+});
+
+describe("battleValues with other rules", () => {
+  it("uses the element bonus from the rules it is given", () => {
+    // flame beats forest
+    expect(battleValues(getCard("ember-fox"), getCard("moss-boar"), "attack", { elementBonus: 1000 })).toEqual({
+      attack: 2200,
+      defense: 1300,
+    });
   });
 });
 
@@ -137,6 +148,19 @@ describe("resolveAttack against attack position", () => {
     resolveAttack(state, 0, attack(0, 0), []);
     expect(state.players[1].field[0]).toBeNull();
     expect(state.players[1].lifePoints).toBe(3600);
+  });
+});
+
+describe("resolveAttack with other rules", () => {
+  it("uses the match's own element bonus", () => {
+    // flame 1200 + 1000 vs forest 1300
+    const state = makeState({
+      rules: { elementBonus: 1000 },
+      p0: { field: field({ 0: creature("ember-fox") }) },
+      p1: { field: field({ 0: creature("moss-boar") }) },
+    });
+    resolveAttack(state, 0, attack(0, 0), []);
+    expect(state.players[1].lifePoints).toBe(3100);
   });
 });
 

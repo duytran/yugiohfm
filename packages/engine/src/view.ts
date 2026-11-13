@@ -15,6 +15,7 @@ export function viewFor(state: MatchState, player: PlayerId): PlayerView {
     turn: state.turn,
     hasPlayed: state.hasPlayed,
     result: state.result,
+    rules: state.rules,
     self: { hand: me.hand, deckCount: me.deck.length, field: me.field, lifePoints: me.lifePoints },
     opponent: {
       handCount: them.hand.length,

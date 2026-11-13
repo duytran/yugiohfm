@@ -23,6 +23,7 @@ function view(overrides: { hand?: string[]; mine?: PlayerView["self"]["field"]; 
     turn: 2,
     hasPlayed: false,
     result: null,
+    rules: { elementBonus: 500 },
     self: { hand: overrides.hand ?? [], deckCount: 20, field: overrides.mine ?? EMPTY_FIELD, lifePoints: 4000 },
     opponent: { handCount: 5, deckCount: 20, field: overrides.theirs ?? EMPTY_FIELD, lifePoints: 4000 },
   };
