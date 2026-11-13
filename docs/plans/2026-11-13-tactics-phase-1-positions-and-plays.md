@@ -580,3 +580,11 @@ Closes #N"
 - R3 (wear) and later rules. Phase 2 is the next plan.
 - Any change to the bots' strategy. The greedy, wide and smart bots already ask again while a play is legal, so they use a second play without changes. If task 3 shows a bot wasting its second play, that is noted in the results, not fixed here.
 - Plans 2 and 3.
+
+## Revisions
+
+### 2026-11-13
+
+- Approved by the owner after the phase 0 PR (#50) and the docs PR (#40) were merged. Issues: task 1 is #51, task 2 #52, task 3 #53 (milestone "Tactics phase 1: Positions and plays"). Read `#N` in a task as that task's issue.
+- Implemented on one branch, `feat/tactics-phase-1`, one commit per task.
+
