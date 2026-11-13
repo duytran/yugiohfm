@@ -60,6 +60,33 @@ describe("attackError", () => {
     expect(attackError(state, 0, attack(0, 0))).toBe("the first player cannot attack on the first turn");
   });
 
+  it("makes attacks go to a Guard creature in defense position first", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("ember-fox"), 1: creature("clay-sentinel", "defense") }) },
+    });
+    expect(attackError(state, 0, attack(0, 0))).toBe("a Guard creature must be attacked first");
+    expect(attackError(state, 0, attack(0, 1))).toBeNull();
+  });
+
+  it("lets the attacker pick between two Guards", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("pearl-clam", "defense"), 1: creature("clay-sentinel", "defense"), 2: creature("ember-fox") }) },
+    });
+    expect(attackError(state, 0, attack(0, 0))).toBeNull();
+    expect(attackError(state, 0, attack(0, 1))).toBeNull();
+    expect(attackError(state, 0, attack(0, 2))).toBe("a Guard creature must be attacked first");
+  });
+
+  it("forces nothing while the Guard is in attack position", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("ember-fox"), 1: creature("clay-sentinel", "attack") }) },
+    });
+    expect(attackError(state, 0, attack(0, 0))).toBeNull();
+  });
+
   it("allows the second player to attack on turn 2", () => {
     const state = makeState({
       active: 1,

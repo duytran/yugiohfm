@@ -1,4 +1,4 @@
-import { getCard } from "./cards";
+import { getCard, hasTrait } from "./cards";
 import { endMatch } from "./match";
 import { FIELD_SLOTS, beats, opponent, turnError } from "./rules";
 import type {
@@ -101,6 +101,11 @@ export function attackError(state: MatchState, player: PlayerId, action: AttackA
   }
   if (!Number.isInteger(target) || target < 0 || target >= FIELD_SLOTS) return "invalid target slot";
   if (!enemyField[target]) return "no creature in the target slot";
+  // Guard (R4): while a Guard stands in defense position, attacks go to a Guard first
+  const guards = enemyField.flatMap((creature, slot) =>
+    creature && creature.position === "defense" && hasTrait(creature.cardId, "guard") ? [slot] : [],
+  );
+  if (guards.length > 0 && !guards.includes(target)) return "a Guard creature must be attacked first";
   return null;
 }
 

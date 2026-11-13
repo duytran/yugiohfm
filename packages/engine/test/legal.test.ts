@@ -21,6 +21,16 @@ describe("orderedSelections", () => {
 });
 
 describe("legalActions", () => {
+  it("lists only attacks on a Guard in defense position while there is one", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("ember-fox"), 3: creature("clay-sentinel", "defense") }) },
+    });
+    expect(legalActions(state, 0).filter((a) => a.type === "ATTACK")).toEqual([
+      { type: "ATTACK", attackerSlot: 0, target: 3 },
+    ]);
+  });
+
   it("is empty for the player who is not on turn", () => {
     expect(legalActions(makeState(), 1)).toEqual([]);
   });
