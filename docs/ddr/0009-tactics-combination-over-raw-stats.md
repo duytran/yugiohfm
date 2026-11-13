@@ -9,7 +9,7 @@ Under the plan 1 rules the whole game was "fuse the biggest creature, then win":
 
 ## Decision
 
-The duel rules follow `docs/specs/2026-11-13-tactics-rules-design.md`, approved by the owner on 2026-11-13: free position changes (R1), two plays per turn (R2), wear from ganging up (R3), answer traits (R4), synergy traits and slot adjacency (R5), and face-down play for deception (R6, own spec). The direction is fixed; the numbers (`PLAYS_PER_TURN`, `WEAR_RATIO`, `ELEMENT_BONUS`, trait bonuses) are settings chosen by simulator runs against the targets in section 6 of that spec.
+The duel rules follow `docs/specs/2026-11-13-tactics-rules-design.md`, approved by the owner on 2026-11-13: free position changes (R1), two plays per turn (R2), wear from ganging up (R3), answer traits (R4), synergy traits and slot adjacency (R5), and face-down play for deception (R6, own spec). The direction is fixed; the numbers (`PLAYS_PER_TURN`, `FIRST_TURN_PLAYS`, `WEAR_RATIO`, `ELEMENT_BONUS`, trait bonuses) are settings chosen by simulator runs against the targets in section 6 of that spec.
 
 ## Rationale
 
@@ -27,7 +27,7 @@ The duel rules follow `docs/specs/2026-11-13-tactics-rules-design.md`, approved 
 - **Always** keep these pillars: draw up to 5 every turn; the first player cannot attack on turn 1; the full card pool for everyone.
 - **Always** put answers and synergy on creatures; the game stays creatures only.
 - **Always** give a creature exactly the traits printed on its own card; a fusion result inherits nothing.
-- **Always** work out synergy, element and wear values at the moment they are needed; never store a bonus on a creature. Order: base value, plus synergy, plus element bonus, minus wear, never below 0.
+- **Always** work out synergy, element and wear values at the moment they are needed; never store a bonus on a creature. Order: base value, plus synergy, minus wear, never below 0, which is the current value a view shows; a battle adds the element bonus on top of it (owner, 2026-11-13), so every battle is "shown value + bonus".
 - **Always** make a new rule value a setting the simulator can vary, and judge it against the targets before accepting it.
 - **Never** add randomness after the shuffle (DDR-0002); swings come from interactions a player can calculate.
 - **Never** add a bonus that a player gets automatically for being behind.
@@ -36,7 +36,7 @@ The duel rules follow `docs/specs/2026-11-13-tactics-rules-design.md`, approved 
 
 ## Implementation
 
-R1 (free position changes) and R2 (`playsPerTurn`) are implemented in `packages/engine/src/actions.ts`, `play.ts` and `rules.ts`. R3 to R6 are not. Phases 2 to 5 in section 8 of the tactics spec each get issues and a plan before code.
+R1 (free position changes) and R2 (`playsPerTurn`) are implemented in `packages/engine/src/actions.ts`, `play.ts` and `rules.ts`. R3 to R6 are not; their plans are `docs/plans/2026-11-13-tactics-phase-2-wear.md`, `...-phase-3-answer-traits.md`, `...-phase-4-synergy.md` and `...-phase-5-face-down.md`, each task with a GitHub issue.
 
 ## Consequences
 

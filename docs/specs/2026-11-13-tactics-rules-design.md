@@ -521,3 +521,26 @@ What the numbers say:
 - A planning decision, recorded in the phase 1 plan: a `PLAY` onto a creature
   that already attacked must keep its position, and any other position is
   rejected.
+
+### 2026-11-13: plans for phases 2 to 5, and two owner decisions
+
+The owner asked for every tactics rule (R3 to R6) to be implemented before
+plans 2 and 3. The plans are
+`docs/plans/2026-11-13-tactics-phase-2-wear.md`,
+`docs/plans/2026-11-13-tactics-phase-3-answer-traits.md`,
+`docs/plans/2026-11-13-tactics-phase-4-synergy.md` and
+`docs/plans/2026-11-13-tactics-phase-5-face-down.md`.
+
+- **Order of a value** (replaces the order in R5, "base value, plus synergy
+  bonuses, plus the element bonus, minus wear"): printed value, plus synergy,
+  minus wear, never below 0. That is the current value the view shows; a battle
+  adds the element bonus on top of it. The two orders differ only when wear
+  brings a creature to 0 or below. The owner chose this one so that every
+  battle is "shown value + bonus", which a player can calculate from the board.
+- **`firstTurnPlays`** joins the settings of section 6: the plays the first
+  player gets on turn 1. Its default equals `playsPerTurn`, so nothing changes
+  until the owner picks a value; phase 2 measures 1 against 2. It answers the
+  first-player edge found in the phase 1 results (60.0%).
+- The phase plans propose which cards print which trait (phase 3 for Venom,
+  Guard and Pierce; phase 4 for Banner, Pack and Rally). Only traits are added;
+  the 40 base cards keep their names, tags and stats.

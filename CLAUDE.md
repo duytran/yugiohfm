@@ -7,7 +7,7 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phase 0 (measurement) and phase 1 (R1 free position changes, R2 plays per turn) are implemented; R3 to R6 are not. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phase 0 (measurement) and phase 1 (R1 free position changes, R2 plays per turn) are implemented; R3 to R6 are planned (phases 2 to 5, issues #55 to #72) and are all implemented before plans 2 and 3 (owner, 2026-11-13). Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
 
 ## Read first
 
@@ -22,6 +22,10 @@ independent of the GUI and network so bots can play-test it headlessly.
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
 | `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. |
 | `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` | Tactics phase 1: free position changes, plays per turn. |
+| `docs/plans/2026-11-13-tactics-phase-2-wear.md` | Tactics phase 2: R3 wear, attack-series previews, `firstTurnPlays`. |
+| `docs/plans/2026-11-13-tactics-phase-3-answer-traits.md` | Tactics phase 3: R4 Venom, Guard, Pierce. |
+| `docs/plans/2026-11-13-tactics-phase-4-synergy.md` | Tactics phase 4: R5 Banner, Pack, Rally. |
+| `docs/plans/2026-11-13-tactics-phase-5-face-down.md` | Tactics phase 5: R6 face-down play, hidden views, `eventsFor`. |
 | `docs/ddr/` | Design decision records. Read the ones that cover the area you are about to change; their "Constraints & Rules" are binding. |
 | `HISTORY.md` | Log of every action on the project. |
 
@@ -92,7 +96,7 @@ When a decision changes, edit its DDR in place and log the change in
 - Do not write code until the owner asks for it; planning comes first.
 - Implement plans task by task, test first, one commit per task.
 - Always have a GitHub issue before starting to implement. Every plan task has
-  one (#3 to #24 and #41 to #49, grouped in one milestone per plan). Work that has
+  one (#3 to #24, #41 to #49, #51 to #53 and #55 to #72, grouped in one milestone per plan). Work that has
   no issue gets one first. Say `Closes #N` in the commit or PR.
 
 ## Commands
