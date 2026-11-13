@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getCard } from "../src/cards";
 import { DEFAULT_RULES } from "../src/rules";
 import { effectiveStats, sharesTheme } from "../src/values";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 describe("effectiveStats", () => {
   const state = makeState({
@@ -98,5 +98,25 @@ describe("synergy (R5)", () => {
     });
     // 1500 + 300 - 1700, and 1400 + 300 - 1700
     expect(effectiveStats(state, 0, 0)).toEqual({ atk: 100, def: 0 });
+  });
+});
+
+describe("face-down creatures and synergy (R6)", () => {
+  it("a hidden Banner gives nothing, and a hidden creature receives no Banner", () => {
+    const hiddenBanner = makeState({ p0: { field: field({ 0: creature("burrow-drake"), 1: hidden("iron-digger") }) } });
+    expect(effectiveStats(hiddenBanner, 0, 0)).toEqual({ atk: 1500, def: 1400 });
+    const hiddenNeighbour = makeState({ p0: { field: field({ 0: hidden("burrow-drake"), 1: creature("iron-digger") }) } });
+    expect(effectiveStats(hiddenNeighbour, 0, 0)).toEqual({ atk: 1500, def: 1400 });
+  });
+
+  it("a hidden creature neither counts for Pack nor gets Pack", () => {
+    const state = makeState({ p0: { field: field({ 0: creature("dust-jackal"), 2: hidden("gale-falcon"), 4: hidden("dust-jackal") }) } });
+    expect(effectiveStats(state, 0, 0)).toEqual({ atk: 1100, def: 900 });
+    expect(effectiveStats(state, 0, 4)).toEqual({ atk: 1100, def: 900 });
+  });
+
+  it("Rally still applies while hidden (F5)", () => {
+    const state = makeState({ p0: { field: field({ 0: hidden("pebble-tortoise") }), lifePoints: 1000 } });
+    expect(effectiveStats(state, 0, 0)).toEqual({ atk: 1000, def: 2200 });
   });
 });

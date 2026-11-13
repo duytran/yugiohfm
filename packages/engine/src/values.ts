@@ -22,16 +22,22 @@ export function effectiveStats(state: MatchState, player: PlayerId, slot: number
   const { rules } = state;
 
   let bonus = 0;
-  for (const next of [slot - 1, slot + 1]) {
-    const neighbour = own.field[next];
-    if (!neighbour) continue;
-    const banner = getCard(neighbour.cardId);
-    if (banner.traits.includes("banner") && sharesTheme(card, banner)) bonus += rules.bannerBonus;
+  // R6: a face-down creature gives and receives no Banner or Pack bonus and does not count for Pack
+  if (!creature.faceDown) {
+    for (const next of [slot - 1, slot + 1]) {
+      const neighbour = own.field[next];
+      if (!neighbour || neighbour.faceDown) continue;
+      const banner = getCard(neighbour.cardId);
+      if (banner.traits.includes("banner") && sharesTheme(card, banner)) bonus += rules.bannerBonus;
+    }
+    if (card.traits.includes("pack")) {
+      const kin = own.field.filter(
+        (other, i) => other && !other.faceDown && i !== slot && sharesTheme(card, getCard(other.cardId)),
+      ).length;
+      bonus += kin * rules.packBonus;
+    }
   }
-  if (card.traits.includes("pack")) {
-    const kin = own.field.filter((other, i) => other && i !== slot && sharesTheme(card, getCard(other.cardId))).length;
-    bonus += kin * rules.packBonus;
-  }
+  // Rally depends only on life points, which are public (F5)
   if (card.traits.includes("rally") && own.lifePoints < state.players[opponent(player)].lifePoints) {
     bonus += rules.rallyBonus;
   }
