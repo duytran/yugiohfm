@@ -97,6 +97,16 @@ describe("previewAttacks", () => {
       p1: { field: field({ 0: creature("ancient-tyrant") }) },
     });
 
+  it("follows a Banner's loss from one attack to the next", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist"), 1: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("iron-digger"), 1: creature("burrow-drake") }) },
+    });
+    const result = previewAttacks(viewFor(state, 0), [attack(0, 0), attack(1, 1)]);
+    if ("error" in result) throw new Error(result.error);
+    expect(result[1]).toMatchObject({ attack: 1500, defense: 1500 });
+  });
+
   it("lets each attack see the wear, losses and damage of the ones before it", () => {
     const result = previewAttacks(viewFor(titan(), 0), [attack(0, 0), attack(1, 0), attack(2, 0)]);
     if ("error" in result) throw new Error(result.error);

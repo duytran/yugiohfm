@@ -98,4 +98,9 @@ describe("viewFor", () => {
     const over = makeState({ result: { winner: 1, reason: "timeout" } });
     expect(viewFor(over, 0).result).toEqual({ winner: 1, reason: "timeout" });
   });
+
+  it("shows values with synergy", () => {
+    const formed = makeState({ p0: { field: field({ 0: creature("burrow-drake"), 1: creature("iron-digger") }) } });
+    expect(viewFor(formed, 1).opponent.field[0]).toMatchObject({ atk: 1800, def: 1700 });
+  });
 });

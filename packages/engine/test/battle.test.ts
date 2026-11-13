@@ -448,3 +448,18 @@ describe("Pierce (R4)", () => {
     expect(state.players[1].lifePoints).toBe(3700);
   });
 });
+
+describe("synergy in battle (R5)", () => {
+  it("destroying a Banner changes the next battle in the same turn", () => {
+    // flame against earth, no bonus. Burrow Drake is 1500 + 300 next to the Iron Digger Banner.
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist"), 1: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("iron-digger"), 1: creature("burrow-drake") }) },
+    });
+    expect(effectiveStats(state, 1, 1).atk).toBe(1800);
+    resolveAttack(state, 0, attack(0, 0), []); // 1500 vs 1300: the Banner falls
+    expect(effectiveStats(state, 1, 1).atk).toBe(1500);
+    const outcome = resolveAttack(state, 0, attack(1, 1), []); // 1500 vs 1500 now
+    expect(outcome).toMatchObject({ attackerDestroyed: true, targetDestroyed: true });
+  });
+});
