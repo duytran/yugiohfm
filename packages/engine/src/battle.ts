@@ -7,10 +7,8 @@ import type {
   GameEvent,
   MatchState,
   PlayerId,
-  PlayerView,
   Position,
   Rules,
-  ViewCreature,
 } from "./types";
 import { effectiveStats } from "./values";
 
@@ -88,23 +86,6 @@ export function battleOutcome(
     damageToOpponent: 0,
     targetWear: targetDestroyed ? 0 : wearIfSurvives,
   };
-}
-
-function fromView(creature: ViewCreature): Combatant {
-  return { atk: creature.atk, def: creature.def, element: getCard(creature.cardId).element };
-}
-
-/**
- * What `action` would do, worked out from a view. It checks only that the
- * creatures exist; whether the attack is legal now is for legalActions.
- */
-export function previewAttack(view: PlayerView, action: AttackAction): BattleOutcome | { error: string } {
-  const attacker = view.self.field[action.attackerSlot];
-  if (!attacker) return { error: "no creature in that slot" };
-  if (action.target === "direct") return battleOutcome(fromView(attacker), null, view.rules);
-  const target = view.opponent.field[action.target];
-  if (!target) return { error: "no creature in the target slot" };
-  return battleOutcome(fromView(attacker), { combatant: fromView(target), position: target.position }, view.rules);
 }
 
 export function attackError(state: MatchState, player: PlayerId, action: AttackAction): string | null {
