@@ -9,6 +9,7 @@ import {
   type PlayerView,
 } from "@duel/engine";
 import { strongestDeck } from "./decks";
+import { probe } from "./probe";
 import type { Bot } from "./types";
 
 /** ATK gained by a play: the result's ATK minus the ATK of the creature it replaces. */
@@ -30,7 +31,7 @@ export function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction
   let best: PlayAction | null = null;
   let bestGain = -Infinity;
   for (const action of legal) {
-    if (action.type !== "PLAY" || action.position !== "attack") continue;
+    if (action.type !== "PLAY" || action.position !== "attack" || action.faceDown) continue;
     const gain = playGain(view, action);
     const better =
       gain > bestGain || (gain === bestGain && best !== null && action.handIndexes.length < best.handIndexes.length);
@@ -57,6 +58,8 @@ export const greedyBot: Bot = {
     if (play) return play;
     const attack = legal.find((a): a is AttackAction => a.type === "ATTACK" && isFavourable(view, a));
     if (attack) return attack;
+    const look = probe(view, legal);
+    if (look) return look;
     return legal.find((a) => a.type === "END_TURN")!;
   },
 };

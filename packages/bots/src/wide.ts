@@ -1,6 +1,7 @@
 import { getCard, type Action, type AttackAction, type PlayAction, type PlayerView } from "@duel/engine";
 import { strongestDeck } from "./decks";
 import { bestPlay, isFavourable } from "./greedy";
+import { probe } from "./probe";
 import type { Bot } from "./types";
 
 /**
@@ -11,7 +12,7 @@ export function widePlay(view: PlayerView, legal: readonly Action[]): PlayAction
   let best: PlayAction | null = null;
   let bestAtk = -1;
   for (const action of legal) {
-    if (action.type !== "PLAY" || action.position !== "attack" || action.handIndexes.length !== 1) continue;
+    if (action.type !== "PLAY" || action.position !== "attack" || action.handIndexes.length !== 1 || action.faceDown) continue;
     if (view.self.field[action.slot]) continue;
     const atk = getCard(view.self.hand[action.handIndexes[0]!]!).atk;
     if (atk > bestAtk) {
@@ -36,6 +37,8 @@ export const wideBot: Bot = {
     if (play) return play;
     const attack = legal.find((a): a is AttackAction => a.type === "ATTACK" && isFavourable(view, a));
     if (attack) return attack;
+    const look = probe(view, legal);
+    if (look) return look;
     return legal.find((a) => a.type === "END_TURN")!;
   },
 };
