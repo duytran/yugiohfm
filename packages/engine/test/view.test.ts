@@ -29,16 +29,29 @@ describe("viewFor", () => {
       turn: 4,
       hasPlayed: true,
       result: null,
+      rules: { elementBonus: 500 },
       self: {
         hand: ["ember-fox", "ash-duelist"],
         deckCount: 3,
-        field: field({ 1: creature("cinder-whelp") }),
+        field: [
+          null,
+          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, positionChanged: false, atk: 1400, def: 1000 },
+          null,
+          null,
+          null,
+        ],
         lifePoints: 3200,
       },
       opponent: {
         handCount: 3,
         deckCount: 2,
-        field: field({ 0: creature("stone-ram", "defense") }),
+        field: [
+          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, positionChanged: false, atk: 1400, def: 1500 },
+          null,
+          null,
+          null,
+          null,
+        ],
         lifePoints: 1500,
       },
     });

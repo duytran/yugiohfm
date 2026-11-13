@@ -7,16 +7,21 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Plans 2 and 3 (server, client) are written but not implemented.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phase 0 (measurement) is implemented; no tactics rule is implemented yet. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
 
 ## Read first
 
 | File | What it is |
 |---|---|
 | `docs/specs/2026-11-12-online-card-duel-design.md` | The approved design. |
+| `docs/specs/2026-11-13-engine-high-level-design.md` | How the implemented engine works. |
+| `docs/specs/2026-11-13-tactics-rules-design.md` | Approved rule changes: combination over raw stats. |
+| `docs/specs/2026-11-13-face-down-play-design.md` | Approved: face-down play, for deception only. |
 | `docs/plans/2026-11-12-engine-and-bots.md` | Plan 1 of 3: rules engine and bots. |
 | `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
+| `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. |
+| `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` | Tactics phase 1: free position changes, plays per turn. Not approved, not implemented. |
 | `docs/ddr/` | Design decision records. Read the ones that cover the area you are about to change; their "Constraints & Rules" are binding. |
 | `HISTORY.md` | Log of every action on the project. |
 
@@ -75,6 +80,9 @@ written trace, committed to git together with the change itself.
 - The chess clock belongs to the server, not the engine (DDR-0007).
 - All game content is original; never add names, cards or art from an existing
   game (DDR-0008).
+- Duel rules reward combination over raw stats; a rule value is accepted only
+  by simulator results (DDR-0009).
+- Only the engine works out effective ATK and DEF; views carry them (DDR-0010).
 
 When a decision changes, edit its DDR in place and log the change in
 `HISTORY.md`.
@@ -84,7 +92,7 @@ When a decision changes, edit its DDR in place and log the change in
 - Do not write code until the owner asks for it; planning comes first.
 - Implement plans task by task, test first, one commit per task.
 - Always have a GitHub issue before starting to implement. Every plan task has
-  one (#3 to #24, grouped in one milestone per plan). Work that has
+  one (#3 to #24 and #41 to #49, grouped in one milestone per plan). Work that has
   no issue gets one first. Say `Closes #N` in the commit or PR.
 
 ## Commands
@@ -94,5 +102,5 @@ Available now (plan 1):
 - `pnpm test` runs every test.
 - `pnpm typecheck` runs `tsc --noEmit`.
 - `pnpm vitest run <file>` runs one test file.
-- `pnpm sim --a greedy --b random --games 100` runs bot matches.
+- `pnpm sim --a smart --b greedy --games 100` runs bot matches. Bots: random, greedy, wide, smart. `--deck-a`/`--deck-b` pick a deck (strongest, random or an element); `--element-bonus` sets that rule.
 - `pnpm dev` starts the server on :8787 (after plan 2) and the client on :5173 (after plan 3).

@@ -51,6 +51,23 @@ describe("runMatch", () => {
     });
   });
 
+  it("passes rule overrides to the match", () => {
+    const seen: unknown[] = [];
+    const spy: Bot = {
+      ...randomBot,
+      name: "spy",
+      chooseAction(view, legal, rng) {
+        seen.push(view.rules);
+        return randomBot.chooseAction(view, legal, rng);
+      },
+    };
+    expect(runMatch(spy, spy, 1, { rules: { elementBonus: 1000 } }).status).toBe("finished");
+    expect(seen[0]).toEqual({ elementBonus: 1000 });
+    seen.length = 0;
+    runMatch(spy, spy, 1);
+    expect(seen[0]).toEqual({ elementBonus: 500 });
+  });
+
   it("stops at maxTurns when nobody ever finishes", () => {
     const passer: Bot = { ...randomBot, name: "passer", chooseAction: () => ({ type: "END_TURN" }) };
     const outcome = runMatch(passer, passer, 1, { maxTurns: 10 });

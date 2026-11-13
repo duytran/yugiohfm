@@ -1,36 +1,32 @@
 import {
-  DECK_SIZE,
-  MAX_COPIES,
-  battleValues,
   fuseChain,
   getCard,
   playMaterials,
+  previewAttack,
   type Action,
   type AttackAction,
-  type CardId,
   type PlayAction,
   type PlayerView,
 } from "@duel/engine";
+import { strongestDeck } from "./decks";
 import type { Bot } from "./types";
 
 /** ATK gained by a play: the result's ATK minus the ATK of the creature it replaces. */
 export function playGain(view: PlayerView, action: PlayAction): number {
   const result = getCard(fuseChain(playMaterials(view.self.field, view.self.hand, action)).result);
   const replaced = view.self.field[action.slot];
-  return result.atk - (replaced ? getCard(replaced.cardId).atk : 0);
+  return result.atk - (replaced ? replaced.atk : 0);
 }
 
 /** True for a direct attack or a battle the attacker wins outright. */
 export function isFavourable(view: PlayerView, action: AttackAction): boolean {
   if (action.target === "direct") return true;
-  const attacker = view.self.field[action.attackerSlot];
-  const target = view.opponent.field[action.target];
-  if (!attacker || !target) return false;
-  const { attack, defense } = battleValues(getCard(attacker.cardId), getCard(target.cardId), target.position);
-  return attack > defense;
+  const preview = previewAttack(view, action);
+  return !("error" in preview) && preview.attack > preview.defense;
 }
 
-function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null {
+/** The attack-position play with the largest ATK gain (fewest cards on a tie), or null if no play is legal. */
+export function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null {
   let best: PlayAction | null = null;
   let bestGain = -Infinity;
   for (const action of legal) {
@@ -54,15 +50,7 @@ function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null
 export const greedyBot: Bot = {
   name: "greedy",
 
-  buildDeck(cards) {
-    const strongest = cards
-      .filter((c) => !c.fusionOnly)
-      .sort((x, y) => y.atk - x.atk || (x.id < y.id ? -1 : 1))
-      .slice(0, DECK_SIZE / MAX_COPIES);
-    const deck: CardId[] = [];
-    for (const c of strongest) for (let i = 0; i < MAX_COPIES; i++) deck.push(c.id);
-    return deck;
-  },
+  buildDeck: strongestDeck,
 
   chooseAction(view, legal) {
     const play = bestPlay(view, legal);

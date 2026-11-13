@@ -11,6 +11,7 @@ import {
   type GameEvent,
   type MatchState,
   type PlayerId,
+  type Rules,
 } from "@duel/engine";
 import type { Bot } from "./types";
 
@@ -31,7 +32,7 @@ export type MatchOutcome =
   | (Common & { status: "finished"; winner: PlayerId; reason: EndReason })
   | (Common & { status: "error"; error: string });
 
-export type RunOptions = { maxTurns?: number };
+export type RunOptions = { maxTurns?: number; rules?: Partial<Rules> };
 
 /**
  * Plays one whole match with no GUI, server or clock. Never throws for a bot's
@@ -58,7 +59,7 @@ export function runMatch(botA: Bot, botB: Bot, seed: number, options: RunOptions
     if (!check.ok) return { ...common, status: "error", error: `${bots[i]!.name} built an invalid deck: ${check.error}` };
   }
 
-  let state: MatchState = createMatch(decks[0]!, decks[1]!, seed);
+  let state: MatchState = createMatch(decks[0]!, decks[1]!, seed, options.rules);
   common.firstPlayer = state.firstPlayer;
 
   while (!state.result) {

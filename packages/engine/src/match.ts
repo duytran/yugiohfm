@@ -1,7 +1,7 @@
 import { validateDeck } from "./deck";
 import { createRng, shuffle } from "./rng";
-import { FIELD_SLOTS, HAND_SIZE, STARTING_LIFE, opponent } from "./rules";
-import type { CardId, GameEvent, MatchState, PlayerId, PlayerState } from "./types";
+import { FIELD_SLOTS, HAND_SIZE, STARTING_LIFE, makeRules, opponent } from "./rules";
+import type { CardId, GameEvent, MatchState, PlayerId, PlayerState, Rules } from "./types";
 
 function newPlayer(deck: CardId[]): PlayerState {
   return {
@@ -48,7 +48,13 @@ export function startTurn(draft: MatchState, events: GameEvent[]): void {
 }
 
 /** Shuffles both decks, picks who goes first, and starts the first turn. */
-export function createMatch(deckA: readonly CardId[], deckB: readonly CardId[], seed: number): MatchState {
+export function createMatch(
+  deckA: readonly CardId[],
+  deckB: readonly CardId[],
+  seed: number,
+  rules: Partial<Rules> = {},
+): MatchState {
+  const matchRules = makeRules(rules);
   for (const deck of [deckA, deckB]) {
     const check = validateDeck(deck);
     if (!check.ok) throw new Error(`invalid deck: ${check.error}`);
@@ -64,6 +70,7 @@ export function createMatch(deckA: readonly CardId[], deckB: readonly CardId[], 
     turn: 1,
     hasPlayed: false,
     result: null,
+    rules: matchRules,
   };
   startTurn(state, []);
   return state;

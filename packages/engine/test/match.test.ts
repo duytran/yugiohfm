@@ -22,6 +22,15 @@ describe("createMatch", () => {
     }
   });
 
+  it("stores the default rules, or the overrides it was given", () => {
+    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500 });
+    expect(createMatch(sampleDeck(), sampleDeck(), 1, { elementBonus: 1000 }).rules).toEqual({ elementBonus: 1000 });
+  });
+
+  it("throws for an invalid rule value", () => {
+    expect(() => createMatch(sampleDeck(), sampleDeck(), 1, { elementBonus: -1 })).toThrow("invalid rule elementBonus: -1");
+  });
+
   it("shuffles: the deck order differs from the input but holds the same cards", () => {
     const deck = sampleDeck();
     const state = createMatch(deck, deck, 1);

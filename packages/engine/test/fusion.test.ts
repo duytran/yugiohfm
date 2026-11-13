@@ -52,6 +52,23 @@ describe("fusePair", () => {
     // beast+plant -> briar-stag 1900 (not above 1900), dragon+warrior -> dragon-knight 2200
     expect(fusePair("beast-rider", "bramble-wyrm").result).toBe("dragon-knight");
   });
+  it("gives the same answer on every call and a fresh object each time", () => {
+    const first = fusePair("ember-fox", "ash-duelist");
+    first.result = "seedling";
+    first.success = false;
+    expect(fusePair("ember-fox", "ash-duelist")).toEqual({
+      a: "ember-fox",
+      b: "ash-duelist",
+      result: "beast-rider",
+      success: true,
+    });
+    expect(fusePair("furnace-drone", "pearl-clam")).toEqual(fusePair("furnace-drone", "pearl-clam"));
+  });
+
+  it("still throws for an unknown card id, every time", () => {
+    expect(() => fusePair("no-such-card", "ember-fox")).toThrow("unknown card id: no-such-card");
+    expect(() => fusePair("no-such-card", "ember-fox")).toThrow("unknown card id: no-such-card");
+  });
 });
 
 describe("fuseChain", () => {

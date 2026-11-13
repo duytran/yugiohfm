@@ -1,8 +1,10 @@
 import { parseArgs } from "node:util";
-import { BOTS, formatReplay, formatSummary, runMatch, summarize, type MatchOutcome } from "./index";
+import { BOTS, DECKS, formatReplay, formatSummary, runMatch, summarize, withDeck, type Bot, type MatchOutcome } from "./index";
 
-const USAGE = `Usage: pnpm sim [--a <bot>] [--b <bot>] [--games <n>] [--seed <n>] [--replay <seed>]
-Bots: ${Object.keys(BOTS).join(", ")}`;
+const USAGE = `Usage: pnpm sim [--a <bot>] [--b <bot>] [--deck-a <deck>] [--deck-b <deck>]
+                [--games <n>] [--seed <n>] [--element-bonus <n>] [--replay <seed>]
+Bots: ${Object.keys(BOTS).join(", ")}
+Decks: ${Object.keys(DECKS).join(", ")} (default: the bot's own deck)`;
 
 function fail(message: string): never {
   console.error(`${message}\n\n${USAGE}`);
@@ -15,12 +17,21 @@ function wholeNumber(text: string, flag: string): number {
   return value;
 }
 
+function pickBot(botName: string, deckName: string | undefined): Bot {
+  const bot = BOTS[botName] ?? fail(`unknown bot "${botName}"`);
+  if (deckName === undefined) return bot;
+  return withDeck(bot, deckName, DECKS[deckName] ?? fail(`unknown deck "${deckName}"`));
+}
+
 const { values } = parseArgs({
   options: {
     a: { type: "string", default: "greedy" },
     b: { type: "string", default: "random" },
+    "deck-a": { type: "string" },
+    "deck-b": { type: "string" },
     games: { type: "string", default: "100" },
     seed: { type: "string", default: "1" },
+    "element-bonus": { type: "string" },
     replay: { type: "string" },
     help: { type: "boolean", default: false },
   },
@@ -31,19 +42,21 @@ if (values.help) {
   process.exit(0);
 }
 
-const botA = BOTS[values.a] ?? fail(`unknown bot "${values.a}"`);
-const botB = BOTS[values.b] ?? fail(`unknown bot "${values.b}"`);
+const botA = pickBot(values.a, values["deck-a"]);
+const botB = pickBot(values.b, values["deck-b"]);
+const rules =
+  values["element-bonus"] === undefined ? {} : { elementBonus: wholeNumber(values["element-bonus"], "element-bonus") };
 
 if (values.replay !== undefined) {
-  console.log(formatReplay(runMatch(botA, botB, wholeNumber(values.replay, "replay"))));
+  console.log(formatReplay(runMatch(botA, botB, wholeNumber(values.replay, "replay"), { rules })));
 } else {
   const games = wholeNumber(values.games, "games");
   const seed = wholeNumber(values.seed, "seed");
   const outcomes: MatchOutcome[] = [];
   for (let i = 0; i < games; i++) {
     // alternate seats so neither bot is always player 0
-    outcomes.push(i % 2 === 0 ? runMatch(botA, botB, seed + i) : runMatch(botB, botA, seed + i));
+    outcomes.push(i % 2 === 0 ? runMatch(botA, botB, seed + i, { rules }) : runMatch(botB, botA, seed + i, { rules }));
   }
-  console.log(`${botA.name} vs ${botB.name}, seeds ${seed}..${seed + games - 1}\n`);
+  console.log(`${botA.name} vs ${botB.name}, seeds ${seed}..${seed + games - 1}, rules ${JSON.stringify(rules)}\n`);
   console.log(formatSummary(summarize(outcomes)));
 }
