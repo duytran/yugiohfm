@@ -29,14 +29,14 @@ The engine owns one value calculation. `viewFor` puts each visible creature's ef
 
 ## Implementation
 
-`packages/engine/src/values.ts` has `effectiveStats(state, player, slot)`, the only place a creature's current ATK and DEF are worked out. `view.ts` puts them on every `ViewCreature`. `battle.ts` builds both sides of a battle from them in `resolveAttack` (direct attacks included). `preview.ts` has the public `previewAttack(view, action)` and `previewAttacks(view, actions)`: they rebuild a `MatchState` from the view (`stateFromView`) and run `resolveAttack` itself, so a preview cannot disagree with the match. Bots read `atk` and `def` from the view and call the previews.
+`packages/engine/src/values.ts` has `effectiveStats(state, player, slot)`, the only place a creature's current ATK and DEF are worked out. `view.ts` puts them on every `ViewCreature`. `battle.ts` builds both sides of a battle from them in `resolveAttack` (direct attacks included). `preview.ts` has the public `previewAttack(view, action)` and `previewAttacks(view, actions)`: they rebuild a `MatchState` from the view (`stateFromView`) and run `resolveAttack` itself, so a preview cannot disagree with the match. `viewAfterPlay(view, action)` gives the board after a play, by the real play code, so the smart bot ranks plays by values the engine worked out. Bots read `atk` and `def` from the view and call the previews.
 
 ## Consequences
 
 - **Positive:** the client stays a pure display; a bot and a human read identical numbers; a rule change touches one function.
 - **Negative / trade-off:** `PlayerView` grows and `viewFor` does more work per action — **mitigated by** the phase 0 simulator speed work; accepted otherwise.
 - **Negative / trade-off:** an attack forecast in the client needs a round trip to the server — **mitigated by** reusing the `match.preview` pattern; to be settled when plans 2 and 3 are revised.
-- **Known gap:** effective values equal the printed values minus wear; synergy is not implemented, and there are no hidden creatures yet. The client and its attack forecast do not exist yet.
+- **Known gap:** effective values include synergy and wear; there are no hidden creatures yet. The client and its attack forecast do not exist yet.
 
 ## Compliance
 

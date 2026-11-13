@@ -7,7 +7,7 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phases 0 to 3 are implemented (measurement; R1 free position changes, R2 plays per turn; R3 wear, series previews, `firstTurnPlays`; R4 Venom, Guard, Pierce); R5 and R6 are planned (phases 4 and 5, issues #64 to #72) and are all implemented before plans 2 and 3 (owner, 2026-11-13). Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phases 0 to 4 are implemented (measurement; R1 free position changes, R2 plays per turn; R3 wear, series previews, `firstTurnPlays`; R4 Venom, Guard, Pierce; R5 Banner, Pack, Rally); R6 is planned (phase 5, issues #68 to #72) and are all implemented before plans 2 and 3 (owner, 2026-11-13). Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
 
 ## Read first
 
@@ -106,5 +106,5 @@ Available now (plan 1):
 - `pnpm test` runs every test.
 - `pnpm typecheck` runs `tsc --noEmit`.
 - `pnpm vitest run <file>` runs one test file.
-- `pnpm sim --a smart --b greedy --games 100` runs bot matches. Bots: random, greedy, wide, smart. `--deck-a`/`--deck-b` pick a deck (strongest, random, answers or an element); `--element-bonus`, `--plays`, `--wear` and `--first-plays` set those rules.
+- `pnpm sim --a smart --b greedy --games 100` runs bot matches. Bots: random, greedy, wide, smart. `--deck-a`/`--deck-b` pick a deck (strongest, random, answers, synergy, an element or a tag); `--element-bonus`, `--plays`, `--wear`, `--first-plays`, `--banner`, `--pack` and `--rally` set those rules.
 - `pnpm dev` starts the server on :8787 (after plan 2) and the client on :5173 (after plan 3).

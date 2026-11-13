@@ -402,3 +402,19 @@ client holds no rules logic" now also covers effective stats (DDR-0010).
 - Section 4.4: Guard: while the opponent has a Guard creature in defense
   position, an attack must target a Guard creature (any of them).
 - Source: `2026-11-13-tactics-rules-design.md` (R4), DDR-0009.
+
+### 2026-11-13: R5 implemented
+
+- Cards may print Banner, Pack or Rally (one trait per card). Section 4.5:
+  a creature's current ATK and DEF are its printed values, plus synergy, minus
+  wear, never below 0; a battle adds the element bonus on top.
+  - Banner: each neighbouring creature (slot n-1 and n+1, same owner) that
+    shares a tag or the element with the Banner gets +300. Banners stack.
+  - Pack: +200 per other creature of its owner that shares a tag or the
+    element with it, each counted once.
+  - Rally: +500 while its owner has fewer life points than the opponent.
+  Bonuses are worked out from the board each time they are read, never stored,
+  so destroying a Banner changes the next battle. The three amounts are rule
+  settings (`bannerBonus`, `packBonus`, `rallyBonus`).
+- Section 4.8: the view shows these values in each creature's `atk` and `def`.
+- Source: `2026-11-13-tactics-rules-design.md` (R5), DDR-0009, DDR-0010.

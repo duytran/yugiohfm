@@ -342,3 +342,20 @@ R4 (see the tactics spec). The sections above describe the earlier engine.
   so `resolveAttack` and every preview share them. Guard is a check in
   `attackError`, so `legalActions` follows.
 - `packages/bots`: `traitDeck(traits)` and the `answers` deck.
+
+### 2026-11-13: after tactics phase 4
+
+R5 (see the tactics spec). The sections above describe the earlier engine.
+
+- `TRAITS` has six entries: venom, guard, pierce, banner, pack, rally. `Rules`
+  gained `bannerBonus` (300), `packBonus` (200) and `rallyBonus` (500).
+- `effectiveStats` now reads the whole own field (neighbours, other creatures)
+  and both life totals, and adds Banner, Pack and Rally before wear. Its
+  signature is unchanged. `sharesTheme(a, b)` (a shared tag or the element,
+  counted once) is in `values.ts` and is not exported from the package.
+- `preview.ts` gained `viewAfterPlay(view, action)`: the viewer's view after a
+  play, worked out by `playError` and `resolvePlay` on a state rebuilt from the
+  view, with the counts the viewer cannot rebuild kept from the input view.
+- `packages/bots`: the smart bot ranks plays by the total current ATK of its
+  field after the play (from `viewAfterPlay`) and previews each (result card,
+  slot, position) once; `tagDeck` and the `synergy` deck.

@@ -691,3 +691,95 @@ What the numbers say:
   destruction by battle with the Venom creature; Pierce deals attack minus
   defense when it destroys a defense-position creature; Guard binds only in
   defense position, and the attacker picks among several Guards.
+
+### 2026-11-13: phase 4 results (R5)
+
+R5 (Banner, Pack, Rally), `viewAfterPlay` and the smart bot's formation play are
+implemented, with `tagDeck`, the `synergy` deck (every Banner and Pack base card)
+and one deck per tag. 500 matches per row, seeds 1 to 500, 2 plays per turn,
+`wearRatio` 1, default bonuses (Banner +300, Pack +200, Rally +500), smart bot
+on both sides unless noted. Two settings: the defaults (`firstTurnPlays` 2) and
+the phase 2 recommendation (`firstTurnPlays` 1). 0 errors in every run. With
+`--banner 0 --pack 0 --rally 0` the greedy bot reproduces its phase 3 numbers.
+
+Synergy traits printed (the plan's proposal, unchanged by the numbers):
+
+| Trait | Base cards | Fusion result |
+|---|---|---|
+| Banner | Flare Hawk, Canopy Owl, Zephyr Monk, Iron Digger, Tesla Turret, Reef Guard (one per element) | Bloom Witch |
+| Pack | Dust Jackal, Stone Ram, Tide Otter, Kelp Lurker | Twin-Fang Chimera |
+| Rally | Kite Glider, Grove Sage, Pebble Tortoise, Harbor Gull | none |
+
+Smart versus smart (the strongest deck holds no synergy card, so these rows
+should match phase 3, and do):
+
+| Run | First-turn plays | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|---|
+| phase 3 | 2 | 65.8% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| phase 4 | 2 | 66.0% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| phase 3 | 1 | 44.2% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+| phase 4 | 1 | 44.0% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+
+Themed deck versus the strongest deck (smart on both sides; the themed deck's
+win rate):
+
+| Themed deck | First-turn plays 2 | First-turn plays 1 | Bonuses 500 / 300 (plays 2) | All bonuses 0 (plays 2) |
+|---|---|---|---|---|
+| flame | 55.6% | 51.8% | | 54.6% |
+| water | 49.0% | 54.8% | 49.4% | |
+| earth | 45.0% | 36.6% | 46.6% | 43.8% |
+| beast (tag) | 25.4% | 20.8% | 29.2% | |
+| synergy (Banner and Pack cards) | 22.6% | 14.6% | 22.8% | |
+| answers (phase 3 cards) | 21.6% | 24.6% | | |
+
+Other matchups (first-named bot): tall vs wide 100% / 100%, smart vs wide 100% /
+100%, smart vs greedy 83.8% / 79.0% (first-turn plays 2 / 1). With Banner 150,
+Pack 100, Rally 250, the flame deck wins 55.0% and the synergy deck 21.6%.
+
+Against the targets of section 6 (smart versus smart, first-turn plays 1):
+
+| Measure | Target | Phase 3 | Phase 4 | |
+|---|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | tall 100% | missed, unchanged |
+| Average turns | 8 to 14 | 4.8 | 4.8 | missed |
+| First-player win rate | 45% to 55% | 44.2% | 44.0% | missed by 1 point (noise) |
+| Deck-out | under 5% | 0% | 0% | met |
+| Fusion share of plays | 30% to 70% | 90.5% | 90.5% | missed, unchanged |
+| Themed (flame) versus strongest deck | at least 50% | 51.8% | 51.8% | met for flame and water, missed for earth, tags and synergy |
+| Comebacks | 20% to 35% | 2.6% | 2.6% | missed |
+| Lead changes per match | at least 2 | 0.5 | 0.5 | missed |
+
+What the numbers say:
+
+- **R5 as printed has almost no effect.** Flame wins 54.6% with every bonus at
+  0 and 55.6% with the defaults, earth 43.8% and 45.0%: inside the noise of 500
+  matches (about 4 points either way). Raising Banner and Pack to 500 and 300
+  moves earth to 46.6% and beast to 29.2%, still short of 50%. No theme
+  dominates (the best is 55.6%), so the spec's "lower values if one theme
+  dominates" does not apply.
+- **The reason is the same as for R4: fusion.** A themed deck plays about 85% to
+  93% fusions, and a fusion result has its own traits and mostly none. Banner
+  and Pack cards are fused away within a turn or two, so a formation of
+  neighbours that share a theme seldom stands on the board. The synergy deck,
+  made only of Banner and Pack base cards, is the worst deck measured (22.6%,
+  and 14.6% at first-turn plays 1), because its bodies are small and it fuses
+  them like any other deck.
+- **Comebacks and lead changes did not move.** The strongest deck, which every
+  headline measure uses, holds no synergy card, so those rows could not move.
+  Rally is the rule meant to help the player who is behind, and it is printed
+  only on four small base cards.
+- **The smart bot does build formations when it can**: a test shows it placing
+  a creature beside a Banner it shares a theme with. It ranks plays by the total
+  ATK of its board after the play, which also changes a few fallback choices;
+  the smart-against-greedy rows are unchanged within noise (83.8%, was 83.8%).
+- Suggestions for the owner, not decisions: (1) decide whether a fusion result
+  should keep a trait of one ingredient, which both R4 and R5 need to matter
+  and which reverses a DDR-0009 decision; (2) put Banner, Pack or Rally on
+  fusion results with ATK up to 2100 (a fusion is what bots play); (3) leave
+  the bonus values at +300 / +200 / +500, since neither halving nor raising
+  them changes the picture; (4) judge R4 and R5 again after R6, which changes
+  what is on the board.
+- Planning decisions, recorded in the phase 4 plan: Banners stack; a Pack
+  creature counts each other own creature that shares a tag or element once;
+  Rally reads life points when the value is read; the smart bot ranks plays by
+  its whole board after the play.
