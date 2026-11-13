@@ -2,12 +2,12 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_RULES } from "../src/rules";
 import { playError, playMaterials, previewPlay, resolvePlay } from "../src/play";
 import type { GameEvent, PlayAction } from "../src/types";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 const HAND = ["ember-fox", "ash-duelist", "cinder-whelp", "furnace-drone", "pearl-clam"];
 
-function play(handIndexes: number[], slot = 0, position: PlayAction["position"] = "attack"): PlayAction {
-  return { type: "PLAY", handIndexes, slot, position };
+function play(handIndexes: number[], slot = 0, position: PlayAction["position"] = "attack", faceDown?: boolean): PlayAction {
+  return faceDown === undefined ? { type: "PLAY", handIndexes, slot, position } : { type: "PLAY", handIndexes, slot, position, faceDown };
 }
 
 describe("playError", () => {
@@ -100,7 +100,7 @@ describe("resolvePlay", () => {
     expect(state.players[0].hand).toEqual(["ember-fox", "cinder-whelp", "furnace-drone", "pearl-clam"]);
     expect(state.players[0].field[2]).toEqual(creature("ash-duelist", "defense"));
     expect(state.playsUsed).toBe(1);
-    expect(events).toEqual([{ type: "played", player: 0, slot: 2, cardId: "ash-duelist", position: "defense" }]);
+    expect(events).toEqual([{ type: "played", player: 0, slot: 2, cardId: "ash-duelist", position: "defense", faceDown: false, handCards: 1 }]);
   });
 
   it("fuses several hand cards and removes all of them from the hand", () => {
@@ -112,7 +112,7 @@ describe("resolvePlay", () => {
     expect(events).toEqual([
       { type: "fused", player: 0, a: "ember-fox", b: "ash-duelist", result: "beast-rider" },
       { type: "fused", player: 0, a: "beast-rider", b: "cinder-whelp", result: "dragon-knight" },
-      { type: "played", player: 0, slot: 0, cardId: "dragon-knight", position: "attack" },
+      { type: "played", player: 0, slot: 0, cardId: "dragon-knight", position: "attack", faceDown: false, handCards: 3 },
     ]);
   });
 
@@ -149,5 +149,37 @@ describe("resolvePlay", () => {
     const state = makeState({ p0: { hand: HAND, field: field({ 1: attacked }) } });
     resolvePlay(state, 0, play([1], 1), []);
     expect(state.players[0].field[1]?.hasAttacked).toBe(true);
+  });
+});
+
+describe("face-down plays (R6)", () => {
+  it("puts a creature face-down in either position (F1)", () => {
+    for (const position of ["attack", "defense"] as const) {
+      const state = makeState({ p0: { hand: HAND } });
+      const events: GameEvent[] = [];
+      resolvePlay(state, 0, play([0], 1, position, true), events);
+      expect(state.players[0].field[1]).toEqual(hidden("ember-fox", position));
+      expect(events).toEqual([{ type: "played", player: 0, slot: 1, cardId: "ember-fox", position, faceDown: true, handCards: 1 }]);
+    }
+  });
+
+  it("never turns a face-up creature face-down (F6)", () => {
+    const state = makeState({ p0: { hand: HAND, field: field({ 0: creature("moss-boar") }) } });
+    expect(playError(state, 0, play([0], 0, "attack", true))).toBe("a face-up creature stays face-up");
+    expect(playError(state, 0, play([0], 0, "attack", false))).toBeNull();
+  });
+
+  it("lets a play onto your own face-down creature stay face-down, or turn it face-up (F7)", () => {
+    const down = makeState({ p0: { hand: HAND, field: field({ 0: hidden("moss-boar") }) } });
+    resolvePlay(down, 0, play([1], 0, "defense", true), []);
+    expect(down.players[0].field[0]?.faceDown).toBe(true);
+    const up = makeState({ p0: { hand: HAND, field: field({ 0: hidden("moss-boar") }) } });
+    resolvePlay(up, 0, play([1], 0, "defense"), []);
+    expect(up.players[0].field[0]?.faceDown).toBe(false);
+  });
+
+  it("rejects a face that is not a boolean", () => {
+    const state = makeState({ p0: { hand: HAND } });
+    expect(playError(state, 0, { ...play([0]), faceDown: "yes" as unknown as boolean })).toBe("invalid face");
   });
 });

@@ -13,7 +13,11 @@ export function formatEvent(event: GameEvent, bots: readonly [string, string]): 
     case "fusion-failed":
       return `${who(event.player)} failed to fuse ${name(event.a)} + ${name(event.b)}; ${name(event.b)} stands`;
     case "played":
-      return `${who(event.player)} played ${name(event.cardId)} in slot ${event.slot} (${event.position})`;
+      return `${who(event.player)} played ${event.cardId ? name(event.cardId) : `a face-down card (${event.handCards} from hand)`} in slot ${
+        event.slot
+      } (${event.position}${event.faceDown ? ", face-down" : ""})`;
+    case "revealed":
+      return `  ${who(event.player)} revealed ${name(event.cardId)} in slot ${event.slot}`;
     case "position-set":
       return `${who(event.player)} set slot ${event.slot} to ${event.position}`;
     case "attacked":

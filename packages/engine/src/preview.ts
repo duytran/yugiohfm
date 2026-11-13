@@ -6,7 +6,13 @@ import { viewFor } from "./view";
 
 function toCreature(creature: ViewCreature | null): Creature | null {
   if (!creature) return null;
-  return { cardId: creature.cardId, position: creature.position, hasAttacked: creature.hasAttacked, wear: creature.wear };
+  return {
+    cardId: creature.cardId,
+    position: creature.position,
+    hasAttacked: creature.hasAttacked,
+    wear: creature.wear,
+    faceDown: creature.faceDown,
+  };
 }
 
 /**

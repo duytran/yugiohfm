@@ -32,6 +32,7 @@ const on = (cardId: string, position: "attack" | "defense" = "attack") => ({
   position,
   hasAttacked: false,
   wear: 0,
+  faceDown: false,
   atk: getCard(cardId).atk,
   def: getCard(cardId).def,
 });
