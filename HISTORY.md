@@ -42,3 +42,11 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added match creation, drawing and deck-out (plan 1, task 5, #7).
 - **[code]** Added the PLAY action with fusion onto the field and preview (plan 1, task 6, #8).
 - **[code]** Added the ATTACK action, element bonus and life-point win (plan 1, task 7, #9).
+- **[code]** Added applyAction with SET_POSITION, END_TURN, SURRENDER and applyTimeout (plan 1, task 8, #10).
+- **[code]** Added viewFor, which hides the opponent hand and both deck orders (plan 1, task 9, #11).
+- **[code]** Added legalActions (plan 1, task 10, #12).
+- **[code]** Added the engine public API, a 200-match random property test and the independence check (plan 1, task 11, #13).
+- **[code]** Added the bots package with the Bot interface, a random bot and a greedy bot (plan 1, task 12, #14).
+- **[code]** Added runMatch, which plays a whole match with no GUI, server or clock (plan 1, task 13, #15).
+- **[code]** Added match statistics, replay output and the `pnpm sim` command (plan 1, task 14, #16).
+- **[docs]** Updated the status and commands in `CLAUDE.md`: plan 1 is implemented, so `pnpm test`, `pnpm typecheck` and `pnpm sim` all work (#16).
