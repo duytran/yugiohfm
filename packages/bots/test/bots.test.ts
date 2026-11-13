@@ -3,6 +3,7 @@ import {
   CARDS,
   createMatch,
   createRng,
+  getCard,
   legalActions,
   validateDeck,
   viewFor,
@@ -30,10 +31,13 @@ function view(overrides: { hand?: string[]; mine?: PlayerView["self"]["field"]; 
 }
 
 const on = (cardId: string, position: "attack" | "defense" = "attack") => ({
+  hidden: false as const,
   cardId,
   position,
   hasAttacked: false,
   positionChanged: false,
+  atk: getCard(cardId).atk,
+  def: getCard(cardId).def,
 });
 
 describe("randomBot", () => {

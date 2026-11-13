@@ -35,6 +35,20 @@ export type Creature = {
   positionChanged: boolean;
 };
 
+/**
+ * A creature as a player sees it. `atk` and `def` are its current values,
+ * worked out by the engine; consumers never calculate them (DDR-0010).
+ */
+export type ViewCreature = {
+  hidden: false;
+  cardId: CardId;
+  position: Position;
+  hasAttacked: boolean;
+  positionChanged: boolean;
+  atk: number;
+  def: number;
+};
+
 export type PlayerState = {
   /** top of the deck is index 0 */
   deck: CardId[];
@@ -90,6 +104,6 @@ export type PlayerView = {
   hasPlayed: boolean;
   result: MatchResult | null;
   rules: Rules;
-  self: { hand: CardId[]; deckCount: number; field: (Creature | null)[]; lifePoints: number };
-  opponent: { handCount: number; deckCount: number; field: (Creature | null)[]; lifePoints: number };
+  self: { hand: CardId[]; deckCount: number; field: (ViewCreature | null)[]; lifePoints: number };
+  opponent: { handCount: number; deckCount: number; field: (ViewCreature | null)[]; lifePoints: number };
 };

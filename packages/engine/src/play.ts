@@ -1,7 +1,7 @@
 import { getCard } from "./cards";
 import { fuseChain } from "./fusion";
 import { FIELD_SLOTS, turnError } from "./rules";
-import type { Card, CardId, Creature, GameEvent, MatchState, PlayAction, PlayerId } from "./types";
+import type { Card, CardId, GameEvent, MatchState, PlayAction, PlayerId } from "./types";
 
 /** Why this PLAY is illegal for a player holding `hand`, or null if it is legal. */
 export function playShapeError(handSize: number, action: PlayAction): string | null {
@@ -21,7 +21,7 @@ export function playShapeError(handSize: number, action: PlayAction): string | n
  * (if any), then the chosen hand cards. Works on a view as well as a state.
  */
 export function playMaterials(
-  ownField: readonly (Creature | null)[],
+  ownField: readonly ({ cardId: CardId } | null)[],
   hand: readonly CardId[],
   action: PlayAction,
 ): CardId[] {

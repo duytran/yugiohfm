@@ -17,7 +17,7 @@ import type { Bot } from "./types";
 export function playGain(view: PlayerView, action: PlayAction): number {
   const result = getCard(fuseChain(playMaterials(view.self.field, view.self.hand, action)).result);
   const replaced = view.self.field[action.slot];
-  return result.atk - (replaced ? getCard(replaced.cardId).atk : 0);
+  return result.atk - (replaced ? replaced.atk : 0);
 }
 
 /** True for a direct attack or a battle the attacker wins outright. */
