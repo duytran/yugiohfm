@@ -415,3 +415,44 @@ Still open (for the face-down spec):
   so themed decks are two-theme for now.
 - **Plan 3's starter deck** ("3 copies of the 10 strongest base cards") works
   against goal 1; it is replaced when plan 3 is revised.
+
+### 2026-11-13: phase 0 baseline
+
+Rules of plan 1 (no tactics rule yet), 500 matches each, seeds 1 to 500,
+element bonus 500 unless noted. Produced by `pnpm sim` after
+`docs/plans/2026-11-13-tactics-phase-0-measurement.md` was implemented. The
+smart, greedy and wide bots all use the "strongest" deck unless a deck is named.
+
+| Matchup | First-named wins | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|---|
+| greedy vs greedy | n/a | 55.2% | 9.1 | 0% | 3.0% | 0.9 | 99.9% |
+| smart vs smart | n/a | 53.2% | 8.8 | 7.0% | 11.4% | 0.3 | 99.6% |
+| greedy (tall) vs wide | 100% | 49.4% | 4.5 | 0% | 0.0% | 0.0 | 55.4% |
+| smart vs greedy | 72.8% | 54.2% | 8.8 | 0.4% | 8.8% | 0.2 | 99.6% |
+| smart, flame deck vs strongest deck | 46.0% | 47.8% | 8.4 | 3.8% | 9.2% | 0.3 | 99.8% |
+| smart vs smart, element bonus 1000 | n/a | 53.4% | 8.3 | 2.8% | 5.2% | 0.6 | 96.4% |
+| smart, flame deck vs strongest deck, element bonus 1000 | 50.6% | 50.0% | 7.8 | 1.0% | 6.0% | 0.5 | 96.7% |
+
+Against the targets of section 6 (smart versus smart unless noted):
+
+| Measure | Target | Baseline | |
+|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | missed |
+| Average turns | 8 to 14 | 8.8 | met |
+| First-player win rate | 45% to 55% | 53.2% | met |
+| Deck-out | under 5% | 7.0% | missed |
+| Fusion share of plays | 30% to 70% | 99.6% | missed |
+| Themed deck versus highest-ATK deck | themed at least 50% | 46.0% (flame only) | missed |
+| Comebacks | 20% to 35% | 11.4% | missed |
+| Lead changes per match | at least 2 | 0.3 | missed |
+
+What the baseline shows:
+
+- The diagnosis of section 2 holds in numbers: the wide plan never wins, and
+  nearly every play is a fusion.
+- Raising the element bonus to 1000 on its own does not help: it lifts the
+  flame deck to 50.6% but lowers comebacks (11.4% to 5.2%).
+- Limits of this baseline: only the flame deck was run as "themed", and an
+  element deck is a stand-in until traits exist (phase 3). The smart bot looks
+  one attack ahead and beats greedy 72.8%; it is not a strong player, so the
+  numbers compare rule sets, they do not predict human play.

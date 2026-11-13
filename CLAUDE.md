@@ -7,7 +7,7 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phase 0 (measurement) is implemented; no tactics rule is implemented yet. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
 
 ## Read first
 
@@ -101,5 +101,5 @@ Available now (plan 1):
 - `pnpm test` runs every test.
 - `pnpm typecheck` runs `tsc --noEmit`.
 - `pnpm vitest run <file>` runs one test file.
-- `pnpm sim --a greedy --b random --games 100` runs bot matches.
+- `pnpm sim --a smart --b greedy --games 100` runs bot matches. Bots: random, greedy, wide, smart. `--deck-a`/`--deck-b` pick a deck (strongest, random or an element); `--element-bonus` sets that rule.
 - `pnpm dev` starts the server on :8787 (after plan 2) and the client on :5173 (after plan 3).

@@ -29,14 +29,14 @@ The engine owns one value calculation. `viewFor` puts each visible creature's ef
 
 ## Implementation
 
-No code exists yet. Today `battleValues(attacker, target, position)` in `packages/engine/src/battle.ts` takes two cards, the greedy bot calls it, and a direct attack reads the printed ATK (`battle.ts`, `resolveAttack`). Phase 0 of the tactics spec replaces these with a value function over the fields and life totals, view fields, and an attack preview that works on view data.
+`packages/engine/src/values.ts` has `effectiveStats(state, player, slot)`, the only place a creature's current ATK and DEF are worked out. `view.ts` puts them on every `ViewCreature`. `battle.ts` builds both sides of a battle from them in `resolveAttack` (direct attacks included) and in the public `previewAttack(view, action)`, which share `battleOutcome`. Bots read `atk` and `def` from the view and call `previewAttack`.
 
 ## Consequences
 
 - **Positive:** the client stays a pure display; a bot and a human read identical numbers; a rule change touches one function.
 - **Negative / trade-off:** `PlayerView` grows and `viewFor` does more work per action — **mitigated by** the phase 0 simulator speed work; accepted otherwise.
 - **Negative / trade-off:** an attack forecast in the client needs a round trip to the server — **mitigated by** reusing the `match.preview` pattern; to be settled when plans 2 and 3 are revised.
-- **Known gap:** not implemented; `battleValues` and the greedy bot still work on printed values.
+- **Known gap:** effective values equal the printed values until wear and synergy are implemented, and there are no hidden creatures yet. The client and its attack forecast do not exist yet.
 
 ## Compliance
 

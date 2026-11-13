@@ -278,3 +278,27 @@ only a `PlayerView` and use the public API, exactly like a remote client.
 4. **Action list growth.** `legalActions` enumerates ordered hand subsets
    (up to 325 for a 5-card hand) x 10; fine now, but would need pruning if the
    hand size or richer actions grow.
+
+## Revisions
+
+### 2026-11-13: after tactics phase 0
+
+Changed by `docs/plans/2026-11-13-tactics-phase-0-measurement.md`. No duel rule
+changed. The sections above describe the engine before these changes.
+
+- **Rules per match.** `MatchState.rules` and `PlayerView.rules` hold a `Rules`
+  object (`{ elementBonus }`). `createMatch(deckA, deckB, seed, rules?)` takes
+  overrides; `DEFAULT_RULES` and `makeRules` replace the `ELEMENT_BONUS`
+  constant.
+- **Views have their own creature type.** `PlayerView` fields hold
+  `ViewCreature` (`hidden: false`, the creature's flags, and `atk` and `def`).
+  The values come from `effectiveStats` in the new `values.ts`, the one place a
+  creature's current value is worked out (DDR-0010). They equal the printed
+  values until wear and synergy exist.
+- **One battle outcome.** `battleOutcome` in `battle.ts` returns the whole
+  result of an attack. `resolveAttack` applies it, direct attacks included, and
+  the new public `previewAttack(view, action)` returns it from a view.
+  `battleValues` is no longer public.
+- **`fusePair` remembers its results** in a module-level map. It is a pure
+  function of two card ids over constant data, so this does not affect
+  determinism (DDR-0002).

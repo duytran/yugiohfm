@@ -1,6 +1,6 @@
 # DDR-0006: Bots see only a player view and act only through the engine's public API
 
-> **Status:** Accepted · **Last updated:** 2026-11-12
+> **Status:** Accepted · **Last updated:** 2026-11-13
 > A bot is `{ name, buildDeck, chooseAction(view, legal, rng) }`; it gets the same information as a human and must return a legal action.
 
 ## Context
@@ -30,13 +30,13 @@ Bots live in `packages/bots`. The match runner gives a bot `viewFor(state, playe
 
 ## Implementation
 
-No code exists yet. See plan 1, tasks 12 to 14 (`packages/bots/src/types.ts`, `runMatch.ts`, `cli.ts`).
+In `packages/bots/src`: `types.ts` (the `Bot` type), `runMatch.ts` (the runner), `decks.ts` (deck builders, and `withDeck` to give a bot another deck), `random.ts`, `greedy.ts`, `wide.ts`, `smart.ts` (the bots), `stats.ts` (summary and measures), `replay.ts`, `cli.ts` (`pnpm sim`). A bot that needs to know what an attack would do calls the engine's `previewAttack(view, action)`.
 
 ## Consequences
 
 - **Positive:** `pnpm sim` gives balance data (win rates, first-player advantage, card usage) before any screen exists.
-- **Negative / trade-off:** enumerating every legal play (up to 3250 per turn) makes simple bots slow, about 0.1 s per greedy match — **mitigated by** nothing yet; accepted.
-- **Known gap:** not implemented. Bots cannot be played against online.
+- **Negative / trade-off:** every legal play is enumerated (up to 3250 per turn) — **mitigated by** remembering fusion results in the engine; measured on 2026-11-13 at about 0.02 s per greedy match and 0.03 s per smart match.
+- **Known gap:** bots cannot be played against online. The smart bot looks only one attack ahead.
 
 ## Compliance
 
