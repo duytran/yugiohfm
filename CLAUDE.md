@@ -21,6 +21,7 @@ independent of the GUI and network so bots can play-test it headlessly.
 | `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
 | `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. |
+| `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` | Tactics phase 1: free position changes, plays per turn. Not approved, not implemented. |
 | `docs/ddr/` | Design decision records. Read the ones that cover the area you are about to change; their "Constraints & Rules" are binding. |
 | `HISTORY.md` | Log of every action on the project. |
 
