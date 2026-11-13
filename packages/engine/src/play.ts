@@ -34,7 +34,14 @@ export function playError(state: MatchState, player: PlayerId, action: PlayActio
   const turn = turnError(state, player);
   if (turn) return turn;
   if (state.hasPlayed) return "already played a card this turn";
-  return playShapeError(state.players[player].hand.length, action);
+  const shape = playShapeError(state.players[player].hand.length, action);
+  if (shape) return shape;
+  // fusing onto a creature that attacked must not move it out of harm's way
+  const onField = state.players[player].field[action.slot];
+  if (onField?.hasAttacked && onField.position !== action.position) {
+    return "a creature that already attacked keeps its position";
+  }
+  return null;
 }
 
 /** The card a PLAY would put on the field, without changing anything. */
@@ -67,7 +74,6 @@ export function resolvePlay(draft: MatchState, player: PlayerId, action: PlayAct
     position: action.position,
     // a creature that already attacked cannot attack again by being fused onto
     hasAttacked: previous?.hasAttacked ?? false,
-    positionChanged: false,
   };
   draft.hasPlayed = true;
   events.push({ type: "played", player, slot: action.slot, cardId: chain.result, position: action.position });

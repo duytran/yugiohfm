@@ -26,6 +26,19 @@ describe("playError", () => {
     );
   });
 
+  it("makes a play onto a creature that already attacked keep its position", () => {
+    const attacked = { ...creature("moss-boar"), hasAttacked: true };
+    const after = makeState({ p0: { hand: HAND, field: field({ 1: attacked }) } });
+    expect(playError(after, 0, play([1], 1, "defense"))).toBe("a creature that already attacked keeps its position");
+    expect(playError(after, 0, play([1], 1, "attack"))).toBeNull();
+  });
+
+  it("lets a play onto a creature that has not attacked choose any position", () => {
+    const fresh = makeState({ p0: { hand: HAND, field: field({ 1: creature("moss-boar") }) } });
+    expect(playError(fresh, 0, play([1], 1, "defense"))).toBeNull();
+    expect(playError(fresh, 0, play([1], 1, "attack"))).toBeNull();
+  });
+
   it("rejects a finished match", () => {
     const over = makeState({ result: { winner: 1, reason: "surrender" }, p0: { hand: HAND } });
     expect(playError(over, 0, play([0]))).toBe("match is over");

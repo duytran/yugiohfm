@@ -32,7 +32,6 @@ export type Creature = {
   cardId: CardId;
   position: Position;
   hasAttacked: boolean;
-  positionChanged: boolean;
 };
 
 /**
@@ -44,7 +43,6 @@ export type ViewCreature = {
   cardId: CardId;
   position: Position;
   hasAttacked: boolean;
-  positionChanged: boolean;
   atk: number;
   def: number;
 };

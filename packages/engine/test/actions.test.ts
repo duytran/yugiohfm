@@ -58,16 +58,16 @@ describe("SET_POSITION", () => {
 
   it("changes the position and reports it", () => {
     const result = ok(state, 0, toDefense);
-    expect(result.state.players[0].field[0]).toMatchObject({ position: "defense", positionChanged: true });
+    expect(result.state.players[0].field[0]).toMatchObject({ position: "defense" });
     expect(result.events).toEqual([{ type: "position-set", player: 0, slot: 0, position: "defense" }]);
   });
 
-  it("allows only one change per creature per turn", () => {
-    const once = ok(state, 0, toDefense).state;
-    expect(applyAction(once, 0, { type: "SET_POSITION", slot: 0, position: "attack" })).toEqual({
-      ok: false,
-      error: "position already changed this turn",
-    });
+  it("allows any number of changes before the creature attacks", () => {
+    const toAttack: Action = { type: "SET_POSITION", slot: 0, position: "attack" };
+    let next = ok(state, 0, toDefense).state;
+    next = ok(next, 0, toAttack).state;
+    next = ok(next, 0, toDefense).state;
+    expect(next.players[0].field[0]?.position).toBe("defense");
   });
 
   it("rejects a change after the creature attacked", () => {

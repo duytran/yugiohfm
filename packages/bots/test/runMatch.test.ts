@@ -68,6 +68,19 @@ describe("runMatch", () => {
     expect(seen[0]).toEqual({ elementBonus: 500 });
   });
 
+  it("stops at maxActions when a bot never ends its turn", () => {
+    // plays once, then turns its creature back and forth forever
+    const toggler: Bot = {
+      ...randomBot,
+      name: "toggler",
+      chooseAction: (_view, legal) =>
+        legal.find((a) => a.type === "PLAY") ?? legal.find((a) => a.type === "SET_POSITION") ?? legal[0]!,
+    };
+    const outcome = runMatch(toggler, toggler, 1, { maxActions: 50 });
+    expect(outcome).toMatchObject({ status: "error", error: "no result after 50 actions", turns: 1 });
+    expect(outcome.actions).toHaveLength(50);
+  });
+
   it("stops at maxTurns when nobody ever finishes", () => {
     const passer: Bot = { ...randomBot, name: "passer", chooseAction: () => ({ type: "END_TURN" }) };
     const outcome = runMatch(passer, passer, 1, { maxTurns: 10 });

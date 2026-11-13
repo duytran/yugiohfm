@@ -46,13 +46,12 @@ describe("legalActions", () => {
     expect(count(actions, "PLAY")).toBe(0);
   });
 
-  it("lists one position change per creature that may still change", () => {
+  it("lists a position change for every creature that has not attacked", () => {
     const state = makeState({
       p0: {
         field: field({
           0: creature("ember-fox"),
           1: { ...creature("moss-boar"), hasAttacked: true },
-          2: { ...creature("seedling", "defense"), positionChanged: true },
           3: creature("pearl-clam", "defense"),
         }),
       },
@@ -61,6 +60,15 @@ describe("legalActions", () => {
       { type: "SET_POSITION", slot: 0, position: "defense" },
       { type: "SET_POSITION", slot: 3, position: "attack" },
     ]);
+  });
+
+  it("lists a play onto a creature that already attacked only in that creature's position", () => {
+    const attacked = { ...creature("moss-boar"), hasAttacked: true };
+    const state = makeState({ p0: { hand: ["ember-fox"], field: field({ 0: attacked }) } });
+    const plays = legalActions(state, 0).filter((a) => a.type === "PLAY");
+    // 5 slots x 2 positions, minus defense on slot 0
+    expect(plays).toHaveLength(9);
+    expect(plays).not.toContainEqual({ type: "PLAY", handIndexes: [0], slot: 0, position: "defense" });
   });
 
   it("lists an attack on each enemy creature for each ready attacker", () => {

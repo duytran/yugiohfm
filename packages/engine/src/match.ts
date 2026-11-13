@@ -31,10 +31,7 @@ export function startTurn(draft: MatchState, events: GameEvent[]): void {
   const player = draft.players[draft.active];
   draft.hasPlayed = false;
   for (const creature of player.field) {
-    if (creature) {
-      creature.hasAttacked = false;
-      creature.positionChanged = false;
-    }
+    if (creature) creature.hasAttacked = false;
   }
   const need = HAND_SIZE - player.hand.length;
   if (need > player.deck.length) {

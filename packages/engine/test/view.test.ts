@@ -35,7 +35,7 @@ describe("viewFor", () => {
         deckCount: 3,
         field: [
           null,
-          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, positionChanged: false, atk: 1400, def: 1000 },
+          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, atk: 1400, def: 1000 },
           null,
           null,
           null,
@@ -46,7 +46,7 @@ describe("viewFor", () => {
         handCount: 3,
         deckCount: 2,
         field: [
-          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, positionChanged: false, atk: 1400, def: 1500 },
+          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, atk: 1400, def: 1500 },
           null,
           null,
           null,

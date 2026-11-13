@@ -101,7 +101,7 @@ describe("startTurn", () => {
   });
 
   it("clears the per-turn flags of the active player", () => {
-    const used = { ...creature("ember-fox"), hasAttacked: true, positionChanged: true };
+    const used = { ...creature("ember-fox"), hasAttacked: true };
     const state = makeState({ hasPlayed: true, p0: { field: field({ 0: used }) } });
     startTurn(state, []);
     expect(state.hasPlayed).toBe(false);
