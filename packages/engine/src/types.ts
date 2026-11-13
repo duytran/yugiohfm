@@ -4,8 +4,8 @@ export type Element = (typeof ELEMENTS)[number];
 export const TAGS = ["beast", "dragon", "warrior", "mage", "plant", "machine", "aqua", "bird"] as const;
 export type Tag = (typeof TAGS)[number];
 
-/** Keywords printed on some cards (R4). A creature has exactly the traits of its card. */
-export const TRAITS = ["venom", "guard", "pierce"] as const;
+/** Keywords printed on some cards: answers (R4) and synergy (R5). A creature has exactly the traits of its card. */
+export const TRAITS = ["venom", "guard", "pierce", "banner", "pack", "rally"] as const;
 export type Trait = (typeof TRAITS)[number];
 
 export type CardId = string;
@@ -35,6 +35,12 @@ export type Rules = {
   firstTurnPlays: number;
   /** Share of a withstood attack value that a surviving target loses from ATK and DEF until the turn ends (R3), 0 to 1 */
   wearRatio: number;
+  /** ATK and DEF a Banner gives each neighbouring creature that shares a tag or its element (R5) */
+  bannerBonus: number;
+  /** ATK and DEF a Pack creature gets per other own creature sharing a tag or its element (R5) */
+  packBonus: number;
+  /** ATK and DEF a Rally creature gets while its owner has fewer life points than the opponent (R5) */
+  rallyBonus: number;
 };
 
 export type PlayerId = 0 | 1;

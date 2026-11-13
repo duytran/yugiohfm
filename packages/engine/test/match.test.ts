@@ -23,12 +23,15 @@ describe("createMatch", () => {
   });
 
   it("stores the default rules, or the overrides it was given", () => {
-    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
+    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
     expect(createMatch(sampleDeck(), sampleDeck(), 1, { elementBonus: 1000, playsPerTurn: 1 }).rules).toEqual({
       elementBonus: 1000,
       playsPerTurn: 1,
       firstTurnPlays: 1,
       wearRatio: 1,
+      bannerBonus: 300,
+      packBonus: 200,
+      rallyBonus: 500,
     });
   });
 

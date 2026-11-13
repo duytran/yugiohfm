@@ -11,6 +11,9 @@ export const DEFAULT_RULES: Readonly<Rules> = Object.freeze({
   playsPerTurn: 2,
   firstTurnPlays: 2,
   wearRatio: 1,
+  bannerBonus: 300,
+  packBonus: 200,
+  rallyBonus: 500,
 });
 
 /** DEFAULT_RULES with `overrides` applied, as a new object. Throws for an invalid value. */
@@ -21,8 +24,8 @@ export function makeRules(overrides: Partial<Rules> = {}): Rules {
     firstTurnPlays: overrides.playsPerTurn ?? DEFAULT_RULES.playsPerTurn,
     ...overrides,
   };
-  if (!Number.isInteger(rules.elementBonus) || rules.elementBonus < 0) {
-    throw new Error(`invalid rule elementBonus: ${rules.elementBonus}`);
+  for (const name of ["elementBonus", "bannerBonus", "packBonus", "rallyBonus"] as const) {
+    if (!Number.isInteger(rules[name]) || rules[name] < 0) throw new Error(`invalid rule ${name}: ${rules[name]}`);
   }
   // the hand does not refill during a turn, so HAND_SIZE plays is as many as a turn can hold
   if (!Number.isInteger(rules.playsPerTurn) || rules.playsPerTurn < 1 || rules.playsPerTurn > HAND_SIZE) {
