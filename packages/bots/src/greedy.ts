@@ -25,7 +25,8 @@ export function isFavourable(view: PlayerView, action: AttackAction): boolean {
   return !("error" in preview) && preview.attack > preview.defense;
 }
 
-function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null {
+/** The attack-position play with the largest ATK gain (fewest cards on a tie), or null if no play is legal. */
+export function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null {
   let best: PlayAction | null = null;
   let bestGain = -Infinity;
   for (const action of legal) {
