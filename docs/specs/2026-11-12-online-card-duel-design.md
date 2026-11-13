@@ -433,3 +433,10 @@ client holds no rules logic" now also covers effective stats (DDR-0010).
 - Section 4.8: a view shows an opponent's face-down creature as
   `{ hidden: true, position }`; events for each player come from `eventsFor`.
 - Source: `2026-11-13-face-down-play-design.md`, DDR-0003, DDR-0009.
+
+### 2026-11-13: plans 2 and 3 revised for the tactics engine
+
+- Section 6: a `PLAY` action may carry `faceDown: true`; there is a `REVEAL { slot }` action. `match.preview { action }` takes a PLAY or an ATTACK; the reply is `match.preview { action, preview }` where `preview` is `{ kind: "play", field }` (the asking player's field after the play, values from the engine), `{ kind: "attack", outcome }` (the engine's battle outcome) or `{ kind: "error", error }`. It replaces `match.preview { action, card, error }`.
+- Section 6: `match.view.events` holds only the events the recipient may see (`eventsFor`, DDR-0003).
+- Section 8: the duel board shows field values from the view, an opponent's face-down creature as a card back with its position, a face-down option when playing, a Reveal button, the plays left this turn, and an attack forecast before the attack is confirmed.
+- Plans: `docs/plans/2026-11-13-protocol-and-server.md` and `docs/plans/2026-11-13-browser-client.md` supersede the 2026-11-12 plans 2 and 3. Owner's decision: the attack forecast is a server round trip (DDR-0010).

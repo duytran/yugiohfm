@@ -214,3 +214,7 @@ implementing:
   defense. The lure is unit-tested and never occurred in simulation.
 - Measured: no change in any simulator number (see the tactics spec phase 5
   results), because only the random bot plays face-down.
+
+### 2026-11-13: plans 2 and 3 revised
+
+Section 6's "plans 2 and 3" item is done on paper: the revised plans send each player `viewFor` and `eventsFor`, accept `faceDown` and `REVEAL`, refuse a preview of a hidden target, and draw an opponent's face-down creature as a card back with its position. A two-browser run of the revised code showed the opponent only "a face-down card (1 from hand)".

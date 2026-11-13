@@ -1,5 +1,7 @@
 # Protocol and Server Implementation Plan
 
+> **Superseded** on 2026-11-13 by `docs/plans/2026-11-13-protocol-and-server.md`, revised for the engine after tactics phases 0 to 5. Implement that plan, not this one; this file is kept as the record of the first version.
+
 > **For agentic workers:** Implement this plan task-by-task, in order — one fresh subagent per task (recommended) or inline in one session. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the shared message protocol and the authoritative game server: guest identity, public lobby, private invite rooms, ready check, matches judged by the engine, chess clocks, reconnect, rematch and room cleanup.
@@ -2013,3 +2015,9 @@ git commit -m "feat(server): WebSocket transport and entry point"
 | 7.6 Errors | 1, 3 |
 | 9 Server tests (two real WebSocket clients, fake time) | 3, 4 |
 | 8 Client | plan 3 |
+
+## Revisions
+
+### 2026-11-13
+
+- Superseded by `docs/plans/2026-11-13-protocol-and-server.md`: the engine changed shape in tactics phases 0 to 5 (face-down play, per-player events, effective values in views, `playsUsed`), so this plan's code no longer fits it. The tasks and issues stay the same.
