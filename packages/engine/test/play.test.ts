@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_RULES } from "../src/rules";
 import { playError, playMaterials, previewPlay, resolvePlay } from "../src/play";
 import type { GameEvent, PlayAction } from "../src/types";
 import { creature, field, makeState } from "./helpers";
@@ -20,10 +21,16 @@ describe("playError", () => {
     expect(playError(state, 1, play([0]))).toBe("not your turn");
   });
 
-  it("rejects a second play in the same turn", () => {
-    expect(playError(makeState({ hasPlayed: true, p0: { hand: HAND } }), 0, play([0]))).toBe(
-      "already played a card this turn",
-    );
+  it("rejects a play when the turn's plays are used up", () => {
+    expect(playError(makeState({ playsUsed: 1, p0: { hand: HAND } }), 0, play([0]))).toBeNull();
+    expect(playError(makeState({ playsUsed: 2, p0: { hand: HAND } }), 0, play([0]))).toBe("no plays left this turn");
+  });
+
+  it("takes the number of plays from the match's rules", () => {
+    const onePlay = makeState({ rules: { ...DEFAULT_RULES, playsPerTurn: 1 }, playsUsed: 1, p0: { hand: HAND } });
+    expect(playError(onePlay, 0, play([0]))).toBe("no plays left this turn");
+    const fivePlays = makeState({ rules: { ...DEFAULT_RULES, playsPerTurn: 5 }, playsUsed: 4, p0: { hand: HAND } });
+    expect(playError(fivePlays, 0, play([0]))).toBeNull();
   });
 
   it("rejects a finished match", () => {
@@ -84,7 +91,7 @@ describe("resolvePlay", () => {
     resolvePlay(state, 0, play([1], 2, "defense"), events);
     expect(state.players[0].hand).toEqual(["ember-fox", "cinder-whelp", "furnace-drone", "pearl-clam"]);
     expect(state.players[0].field[2]).toEqual(creature("ash-duelist", "defense"));
-    expect(state.hasPlayed).toBe(true);
+    expect(state.playsUsed).toBe(1);
     expect(events).toEqual([{ type: "played", player: 0, slot: 2, cardId: "ash-duelist", position: "defense" }]);
   });
 

@@ -32,15 +32,16 @@ export type MatchOutcome =
   | (Common & { status: "finished"; winner: PlayerId; reason: EndReason })
   | (Common & { status: "error"; error: string });
 
-export type RunOptions = { maxTurns?: number; rules?: Partial<Rules> };
+export type RunOptions = { maxTurns?: number; maxActions?: number; rules?: Partial<Rules> };
 
 /**
  * Plays one whole match with no GUI, server or clock. Never throws for a bot's
- * mistake: an invalid deck, an illegal action or hitting maxTurns comes back as
+ * mistake: an invalid deck, an illegal action, or hitting maxTurns or maxActions comes back as
  * an "error" outcome.
  */
 export function runMatch(botA: Bot, botB: Bot, seed: number, options: RunOptions = {}): MatchOutcome {
   const maxTurns = options.maxTurns ?? 200;
+  const maxActions = options.maxActions ?? 10_000;
   const bots: [Bot, Bot] = [botA, botB];
   // one independent, reproducible random stream per bot
   const rngs = [createRng(seed * 2 + 1), createRng(seed * 2 + 2)] as const;
@@ -65,6 +66,9 @@ export function runMatch(botA: Bot, botB: Bot, seed: number, options: RunOptions
   while (!state.result) {
     common.turns = state.turn;
     if (state.turn > maxTurns) return { ...common, status: "error", error: `no result after ${maxTurns} turns` };
+    if (common.actions.length >= maxActions) {
+      return { ...common, status: "error", error: `no result after ${maxActions} actions` };
+    }
 
     const player = state.active;
     const bot = bots[player];

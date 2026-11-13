@@ -369,3 +369,14 @@ changed by `2026-11-13-tactics-rules-design.md` (approved, DDR-0009) and
 are face-up" will no longer hold). Until those rules are
 implemented this file still describes the engine as built. Section 8's "the
 client holds no rules logic" now also covers effective stats (DDR-0010).
+
+### 2026-11-13: R1 and R2 implemented
+
+- Section 4.4: `PLAY` is allowed at most `playsPerTurn` times per turn (2 by
+  default, a rule setting from 1 to 5). `SET_POSITION` is allowed any number of
+  times for a creature that has not attacked this turn.
+- Section 4.5: a `PLAY` onto a creature that already attacked must keep that
+  creature's position; another position is rejected.
+- Section 4.8: `MatchState` and `PlayerView` carry `playsUsed` instead of
+  `hasPlayed`.
+- Source: `2026-11-13-tactics-rules-design.md` (R1, R2), DDR-0009.

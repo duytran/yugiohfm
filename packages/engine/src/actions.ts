@@ -13,7 +13,6 @@ export function setPositionError(state: MatchState, player: PlayerId, action: Se
   const creature = state.players[player].field[slot];
   if (!creature) return "no creature in that slot";
   if (creature.hasAttacked) return "creature already attacked this turn";
-  if (creature.positionChanged) return "position already changed this turn";
   if (creature.position === position) return "creature is already in that position";
   return null;
 }
@@ -63,7 +62,6 @@ export function applyAction(state: MatchState, player: PlayerId, action: Action)
     case "SET_POSITION": {
       const creature = draft.players[player].field[action.slot]!;
       creature.position = action.position;
-      creature.positionChanged = true;
       events.push({ type: "position-set", player, slot: action.slot, position: action.position });
       break;
     }

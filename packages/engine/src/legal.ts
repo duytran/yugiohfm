@@ -29,8 +29,8 @@ export function legalActions(state: MatchState, player: PlayerId): Action[] {
   if (state.result || state.active !== player) return [];
 
   const candidates: Action[] = [];
-  // skipping this when the play is used up is only a speed-up; the filter below would drop them anyway
-  if (!state.hasPlayed) {
+  // skipping this when no play is left is only a speed-up; the filter below would drop them anyway
+  if (state.playsUsed < state.rules.playsPerTurn) {
     for (const handIndexes of orderedSelections(state.players[player].hand.length)) {
       for (let slot = 0; slot < FIELD_SLOTS; slot++) {
         for (const position of POSITIONS) candidates.push({ type: "PLAY", handIndexes, slot, position });

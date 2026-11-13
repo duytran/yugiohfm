@@ -27,7 +27,6 @@ function afterPlay(view: PlayerView, option: Option): PlayerView {
           cardId: option.cardId,
           position: option.action.position,
           hasAttacked: false,
-          positionChanged: false,
           atk: option.atk,
           def: option.def,
         }

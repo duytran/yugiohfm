@@ -302,3 +302,15 @@ changed. The sections above describe the engine before these changes.
 - **`fusePair` remembers its results** in a module-level map. It is a pure
   function of two card ids over constant data, so this does not affect
   determinism (DDR-0002).
+
+### 2026-11-13: after tactics phase 1
+
+R1 and R2 (see the tactics spec). The sections above describe the earlier engine.
+
+- `Creature` and `ViewCreature` no longer have `positionChanged`.
+  `SET_POSITION` is limited only by `hasAttacked`.
+- `playError` rejects a `PLAY` onto a creature that already attacked unless it
+  names that creature's position.
+- `MatchState.hasPlayed` is now `playsUsed` (a count). A `PLAY` is legal while
+  `playsUsed < rules.playsPerTurn`; `Rules` gained `playsPerTurn` (default 2).
+- `runMatch` stops after `maxActions` (default 10,000) as well as `maxTurns`.

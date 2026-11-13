@@ -23,6 +23,8 @@ export type FusionRule = { a: Tag; b: Tag; results: CardId[] };
 export type Rules = {
   /** ATK and DEF added for one battle to the creature whose element beats the other's */
   elementBonus: number;
+  /** PLAY actions allowed per turn, 1 to HAND_SIZE */
+  playsPerTurn: number;
 };
 
 export type PlayerId = 0 | 1;
@@ -32,7 +34,6 @@ export type Creature = {
   cardId: CardId;
   position: Position;
   hasAttacked: boolean;
-  positionChanged: boolean;
 };
 
 /**
@@ -44,7 +45,6 @@ export type ViewCreature = {
   cardId: CardId;
   position: Position;
   hasAttacked: boolean;
-  positionChanged: boolean;
   atk: number;
   def: number;
 };
@@ -67,8 +67,8 @@ export type MatchState = {
   firstPlayer: PlayerId;
   /** 1 on the first turn of the match, +1 on every END_TURN */
   turn: number;
-  /** whether the active player has used their PLAY this turn */
-  hasPlayed: boolean;
+  /** PLAY actions the active player has made this turn */
+  playsUsed: number;
   result: MatchResult | null;
   rules: Rules;
 };
@@ -101,7 +101,7 @@ export type PlayerView = {
   active: PlayerId;
   firstPlayer: PlayerId;
   turn: number;
-  hasPlayed: boolean;
+  playsUsed: number;
   result: MatchResult | null;
   rules: Rules;
   self: { hand: CardId[]; deckCount: number; field: (ViewCreature | null)[]; lifePoints: number };

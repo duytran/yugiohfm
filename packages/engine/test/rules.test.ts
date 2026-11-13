@@ -32,23 +32,31 @@ describe("opponent", () => {
 });
 
 describe("makeRules", () => {
-  it("defaults to an element bonus of 500", () => {
-    expect(makeRules()).toEqual({ elementBonus: 500 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500 });
+  it("defaults to an element bonus of 500 and 2 plays per turn", () => {
+    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2 });
   });
 
   it("applies overrides without changing the defaults", () => {
-    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000 });
-    expect(DEFAULT_RULES.elementBonus).toBe(500);
+    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2 });
+    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2 });
   });
 
   it("returns a new object each time", () => {
     expect(makeRules()).not.toBe(makeRules());
   });
 
-  it("rejects a value that is not a whole number of 0 or more", () => {
+  it("rejects an element bonus that is not a whole number of 0 or more", () => {
     expect(() => makeRules({ elementBonus: -100 })).toThrow("invalid rule elementBonus: -100");
     expect(() => makeRules({ elementBonus: 0.5 })).toThrow("invalid rule elementBonus: 0.5");
-    expect(makeRules({ elementBonus: 0 })).toEqual({ elementBonus: 0 });
+    expect(makeRules({ elementBonus: 0 }).elementBonus).toBe(0);
+  });
+
+  it("rejects plays per turn outside 1 to 5", () => {
+    expect(() => makeRules({ playsPerTurn: 0 })).toThrow("invalid rule playsPerTurn: 0");
+    expect(() => makeRules({ playsPerTurn: 6 })).toThrow("invalid rule playsPerTurn: 6");
+    expect(() => makeRules({ playsPerTurn: 1.5 })).toThrow("invalid rule playsPerTurn: 1.5");
+    expect(makeRules({ playsPerTurn: 5 }).playsPerTurn).toBe(5);
   });
 });

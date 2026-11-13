@@ -9,7 +9,7 @@ export function sampleDeck(): CardId[] {
 }
 
 export function creature(cardId: CardId, position: Position = "attack"): Creature {
-  return { cardId, position, hasAttacked: false, positionChanged: false };
+  return { cardId, position, hasAttacked: false };
 }
 
 /** A field of FIELD_SLOTS slots with the given creatures at the given slot numbers. */
@@ -32,7 +32,7 @@ export function makeState(
     active: 0 as PlayerId,
     firstPlayer: 0 as PlayerId,
     turn: 2,
-    hasPlayed: false,
+    playsUsed: 0,
     result: null,
     rules: { ...DEFAULT_RULES },
     ...rest,

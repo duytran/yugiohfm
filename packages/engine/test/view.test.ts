@@ -5,7 +5,7 @@ import { creature, field, makeState } from "./helpers";
 const state = makeState({
   active: 1,
   turn: 4,
-  hasPlayed: true,
+  playsUsed: 1,
   p0: {
     hand: ["ember-fox", "ash-duelist"],
     deck: ["seedling", "moss-boar", "pearl-clam"],
@@ -27,15 +27,15 @@ describe("viewFor", () => {
       active: 1,
       firstPlayer: 0,
       turn: 4,
-      hasPlayed: true,
+      playsUsed: 1,
       result: null,
-      rules: { elementBonus: 500 },
+      rules: { elementBonus: 500, playsPerTurn: 2 },
       self: {
         hand: ["ember-fox", "ash-duelist"],
         deckCount: 3,
         field: [
           null,
-          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, positionChanged: false, atk: 1400, def: 1000 },
+          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, atk: 1400, def: 1000 },
           null,
           null,
           null,
@@ -46,7 +46,7 @@ describe("viewFor", () => {
         handCount: 3,
         deckCount: 2,
         field: [
-          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, positionChanged: false, atk: 1400, def: 1500 },
+          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, atk: 1400, def: 1500 },
           null,
           null,
           null,
