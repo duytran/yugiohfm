@@ -418,3 +418,18 @@ client holds no rules logic" now also covers effective stats (DDR-0010).
   settings (`bannerBonus`, `packBonus`, `rallyBonus`).
 - Section 4.8: the view shows these values in each creature's `atk` and `def`.
 - Source: `2026-11-13-tactics-rules-design.md` (R5), DDR-0009, DDR-0010.
+
+### 2026-11-13: R6 implemented
+
+- Section 4.4: "All creatures on the field are face-up" no longer holds. A
+  `PLAY` may be made face-down (`faceDown: true`, either position); the
+  opponent sees only that a creature is there and its position. A creature
+  never goes back face-down. `REVEAL { slot }` turns your own face-down creature
+  face-up for free. A creature that attacks is revealed before the battle; one
+  that is attacked is revealed by the battle. A face-down creature gives and
+  receives no Banner or Pack bonus, its Guard forces nothing, and Rally applies.
+  A face-down creature still blocks direct attacks. Rules F1 to F11 are in
+  `2026-11-13-face-down-play-design.md`.
+- Section 4.8: a view shows an opponent's face-down creature as
+  `{ hidden: true, position }`; events for each player come from `eventsFor`.
+- Source: `2026-11-13-face-down-play-design.md`, DDR-0003, DDR-0009.

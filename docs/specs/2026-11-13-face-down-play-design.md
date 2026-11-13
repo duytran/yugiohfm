@@ -187,3 +187,30 @@ the view gets its own creature type from phase 0.
 5. F2: the position of a hidden creature is public. Yes.
 
 No question is open.
+
+## Revisions
+
+### 2026-11-13: implemented (tactics phase 5)
+
+R6 is in the engine, as planned in
+`docs/plans/2026-11-13-tactics-phase-5-face-down.md`. Decisions taken while
+implementing:
+
+- `PlayAction.faceDown` is optional; absent means face-up. `legalActions`
+  lists a play without the field and its face-down twin with `faceDown: true`.
+- The `played` event always carries `faceDown` and `handCards`; `cardId` is
+  `null` only in the opponent's copy of a face-down play (`eventsFor`).
+- A face-up `PLAY` onto your own face-down creature turns the result face-up
+  and its fusion events are public; a face-down `PLAY` onto a face-up creature
+  is rejected ("a face-up creature stays face-up", F6).
+- `REVEAL` errors: "no creature in that slot", "creature is already face-up",
+  "invalid slot", plus the usual turn errors.
+- Order inside an attack: `attacked`, `revealed` (hidden attacker), the battle,
+  `revealed` (hidden target), `destroyed`, `worn`, `damage`. A hidden attacker
+  fights with its Banner and Pack bonuses; a hidden target without.
+- Previews of an attack on a hidden creature return "the target is face-down".
+- Bots: greedy and wide probe with their weakest attacker; smart probes only
+  while it has two creatures and lures with a face-down Venom creature in
+  defense. The lure is unit-tested and never occurred in simulation.
+- Measured: no change in any simulator number (see the tactics spec phase 5
+  results), because only the random bot plays face-down.

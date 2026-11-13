@@ -30,13 +30,13 @@ We keep the only real `MatchState` on the server. A client message carries an ac
 
 ## Implementation
 
-No code exists yet. `viewFor` is plan 1, task 9 (`packages/engine/src/view.ts`). The server builds every `match.view` from it in `Room.broadcastMatch` and `Room.sendEverythingTo` (`apps/server/src/room.ts`, plan 2, task 3). The client renders only `match.view` (plan 3).
+`viewFor` (`packages/engine/src/view.ts`) hides an opponent's hand, both decks and an opponent's face-down creatures (shown as `{ hidden: true, position }`). `eventsFor` (`packages/engine/src/events.ts`) filters a face-down play's card and fusion steps out of the opponent's events; a property test checks that nothing leaks over 200 random matches. The server code does not exist yet: The server builds every `match.view` from it in `Room.broadcastMatch` and `Room.sendEverythingTo` (`apps/server/src/room.ts`, plan 2, task 3). The client renders only `match.view` (plan 3).
 
 ## Consequences
 
 - **Positive:** modified clients cannot see hidden cards or make illegal moves.
 - **Negative / trade-off:** every action costs a round trip before the board updates — **mitigated by** small messages and `match.preview` for fusion previews; no client-side prediction in version one, accepted.
-- **Known gap:** not implemented yet; planned in plans 2 and 3. `eventsFor` does not exist yet (tactics phase 5), and plan 2 as written still sends one event list to both players; it is revised before it is implemented.
+- **Known gap:** the server and client are not implemented (plans 2 and 3). The engine side is done: `viewFor` and `eventsFor` exist. Plan 2 as written still sends one event list to both players; it must send `eventsFor(events, player)` to each, and is revised before it is implemented.
 
 ## Compliance
 

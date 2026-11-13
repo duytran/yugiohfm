@@ -359,3 +359,26 @@ R5 (see the tactics spec). The sections above describe the earlier engine.
 - `packages/bots`: the smart bot ranks plays by the total current ATK of its
   field after the play (from `viewAfterPlay`) and previews each (result card,
   slot, position) once; `tagDeck` and the `synergy` deck.
+
+### 2026-11-13: after tactics phase 5
+
+R6 (see the face-down spec). The sections above describe the earlier engine.
+
+- `Creature.faceDown` and `ViewCreature.faceDown`; `HiddenCreature =
+  { hidden: true; position }` in `PlayerView.opponent.field`; `PlayAction`
+  has an optional `faceDown`; `RevealAction`; `revealError` in `actions.ts`;
+  `reveal` in `match.ts`.
+- Events: `played` is `{ ..., cardId: CardId | null, faceDown, handCards }`
+  and there is a new `revealed` event.
+- `resolveAttack` reveals a hidden attacker before the battle and a hidden
+  target after it. `effectiveStats` gives hidden creatures no Banner or Pack
+  part and does not read their card for neighbours.
+- New `events.ts`: `eventsFor(events, viewer)` removes a face-down play's card
+  and its fusion steps from the opponent's copy. The simulator and the server
+  keep the full list.
+- `preview.ts`: a hidden creature becomes a placeholder; an attack on one is
+  an error ("the target is face-down").
+- `legalActions` lists both faces of every play and a `REVEAL` per own
+  face-down creature.
+- `packages/bots`: `probe` (attack a hidden creature with the weakest
+  attacker), `faceDownTwin`; greedy and wide skip face-down plays.
