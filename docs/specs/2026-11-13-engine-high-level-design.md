@@ -330,3 +330,55 @@ R3 (see the tactics spec). The sections above describe the earlier engine.
 - `Rules` gained `wearRatio` (0 to 1, default 1) and `firstTurnPlays` (1 to
   `playsPerTurn`, default `playsPerTurn`); `playsAllowed(state)` reads them.
 - The smart bot plans gang-ups of up to 3 attacks on one target.
+
+### 2026-11-13: after tactics phase 3
+
+R4 (see the tactics spec). The sections above describe the earlier engine.
+
+- `Card.traits` (`Trait`: venom, guard, pierce), printed in `cards.ts`;
+  `hasTrait(cardId, trait)` reads them. `Creature`, views and events do not
+  change: a creature's traits are those of its card.
+- `Combatant` gained `traits`. Venom and Pierce are decided in `battleOutcome`,
+  so `resolveAttack` and every preview share them. Guard is a check in
+  `attackError`, so `legalActions` follows.
+- `packages/bots`: `traitDeck(traits)` and the `answers` deck.
+
+### 2026-11-13: after tactics phase 4
+
+R5 (see the tactics spec). The sections above describe the earlier engine.
+
+- `TRAITS` has six entries: venom, guard, pierce, banner, pack, rally. `Rules`
+  gained `bannerBonus` (300), `packBonus` (200) and `rallyBonus` (500).
+- `effectiveStats` now reads the whole own field (neighbours, other creatures)
+  and both life totals, and adds Banner, Pack and Rally before wear. Its
+  signature is unchanged. `sharesTheme(a, b)` (a shared tag or the element,
+  counted once) is in `values.ts` and is not exported from the package.
+- `preview.ts` gained `viewAfterPlay(view, action)`: the viewer's view after a
+  play, worked out by `playError` and `resolvePlay` on a state rebuilt from the
+  view, with the counts the viewer cannot rebuild kept from the input view.
+- `packages/bots`: the smart bot ranks plays by the total current ATK of its
+  field after the play (from `viewAfterPlay`) and previews each (result card,
+  slot, position) once; `tagDeck` and the `synergy` deck.
+
+### 2026-11-13: after tactics phase 5
+
+R6 (see the face-down spec). The sections above describe the earlier engine.
+
+- `Creature.faceDown` and `ViewCreature.faceDown`; `HiddenCreature =
+  { hidden: true; position }` in `PlayerView.opponent.field`; `PlayAction`
+  has an optional `faceDown`; `RevealAction`; `revealError` in `actions.ts`;
+  `reveal` in `match.ts`.
+- Events: `played` is `{ ..., cardId: CardId | null, faceDown, handCards }`
+  and there is a new `revealed` event.
+- `resolveAttack` reveals a hidden attacker before the battle and a hidden
+  target after it. `effectiveStats` gives hidden creatures no Banner or Pack
+  part and does not read their card for neighbours.
+- New `events.ts`: `eventsFor(events, viewer)` removes a face-down play's card
+  and its fusion steps from the opponent's copy. The simulator and the server
+  keep the full list.
+- `preview.ts`: a hidden creature becomes a placeholder; an attack on one is
+  an error ("the target is face-down").
+- `legalActions` lists both faces of every play and a `REVEAL` per own
+  face-down creature.
+- `packages/bots`: `probe` (attack a hidden creature with the weakest
+  attacker), `faceDownTwin`; greedy and wide skip face-down plays.

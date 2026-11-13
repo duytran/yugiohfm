@@ -9,7 +9,11 @@ export function sampleDeck(): CardId[] {
 }
 
 export function creature(cardId: CardId, position: Position = "attack"): Creature {
-  return { cardId, position, hasAttacked: false, wear: 0 };
+  return { cardId, position, hasAttacked: false, wear: 0, faceDown: false };
+}
+
+export function hidden(cardId: CardId, position: Position = "defense"): Creature {
+  return { ...creature(cardId, position), faceDown: true };
 }
 
 /** A field of FIELD_SLOTS slots with the given creatures at the given slot numbers. */

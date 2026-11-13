@@ -1,11 +1,30 @@
 import { describe, expect, it } from "vitest";
 import { CARDS, createRng, getCard, validateDeck } from "@duel/engine";
-import { DECKS, elementDeck, randomDeck, strongestDeck, withDeck } from "../src/decks";
+import { DECKS, elementDeck, randomDeck, strongestDeck, tagDeck, traitDeck, withDeck } from "../src/decks";
 import { greedyBot } from "../src/greedy";
 
 describe("deck builders", () => {
   it("every named deck is valid", () => {
-    expect(Object.keys(DECKS)).toEqual(["strongest", "random", "flame", "forest", "wind", "earth", "thunder", "water"]);
+    expect(Object.keys(DECKS)).toEqual([
+      "strongest",
+      "random",
+      "answers",
+      "synergy",
+      "flame",
+      "forest",
+      "wind",
+      "earth",
+      "thunder",
+      "water",
+      "beast",
+      "dragon",
+      "warrior",
+      "mage",
+      "plant",
+      "machine",
+      "aqua",
+      "bird",
+    ]);
     for (const [name, build] of Object.entries(DECKS)) {
       expect(validateDeck(build(CARDS, createRng(1))), name).toEqual({ ok: true });
     }
@@ -20,6 +39,27 @@ describe("deck builders", () => {
 
   it("random differs by seed", () => {
     expect(randomDeck(CARDS, createRng(1))).not.toEqual(randomDeck(CARDS, createRng(2)));
+  });
+
+  it("a trait deck holds 3 copies of every base card with one of the traits, then the strongest others", () => {
+    const deck = traitDeck(["venom", "guard", "pierce"])(CARDS, createRng(1));
+    const answers = deck.filter((id) => getCard(id).traits.length > 0);
+    // 9 base cards with an answer trait x 3
+    expect(answers).toHaveLength(27);
+    expect(deck.filter((id) => id === "cloud-serpent")).toHaveLength(3);
+  });
+
+  it("a tag deck holds 3 copies of every base card with that tag, then the strongest others", () => {
+    const deck = tagDeck("beast")(CARDS, createRng(1));
+    const beasts = deck.filter((id) => getCard(id).tags.includes("beast"));
+    // 7 beast base cards x 3
+    expect(beasts).toHaveLength(21);
+  });
+
+  it("the synergy deck is every Banner and Pack base card", () => {
+    const deck = DECKS.synergy!(CARDS, createRng(1));
+    expect(new Set(deck).size).toBe(10);
+    for (const id of deck) expect(getCard(id).traits.some((t) => t === "banner" || t === "pack")).toBe(true);
   });
 
   it("an element deck holds 3 copies of every base card of that element, then the strongest others", () => {

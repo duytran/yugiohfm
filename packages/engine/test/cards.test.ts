@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CARDS, FUSION_RULES, findCard, getCard } from "../src/cards";
-import { ELEMENTS, TAGS } from "../src/types";
+import { CARDS, FUSION_RULES, findCard, getCard, hasTrait } from "../src/cards";
+import { ELEMENTS, TAGS, TRAITS } from "../src/types";
 
 const base = CARDS.filter((c) => !c.fusionOnly);
 const fusions = CARDS.filter((c) => c.fusionOnly);
@@ -70,5 +70,51 @@ describe("lookup", () => {
   it("getCard throws on an unknown id and findCard returns undefined", () => {
     expect(() => getCard("nope")).toThrow("unknown card id: nope");
     expect(findCard("nope")).toBeUndefined();
+  });
+});
+
+describe("traits (R4)", () => {
+  const withTrait = (trait: string) => CARDS.filter((c) => (c.traits as string[]).includes(trait)).map((c) => c.id);
+
+  it("prints Venom, Guard and Pierce on the planned cards", () => {
+    expect(withTrait("venom")).toEqual(["thorn-sprite", "breeze-wisp", "spark-ferret", "briar-stag"]);
+    expect(withTrait("guard")).toEqual(["furnace-drone", "clay-sentinel", "pearl-clam", "iron-vanguard"]);
+    expect(withTrait("pierce")).toEqual(["vine-archer", "gale-falcon", "storm-crow", "sky-lancer"]);
+  });
+
+  it("prints Banner, Pack and Rally on the planned cards (R5)", () => {
+    expect(withTrait("banner")).toEqual([
+      "flare-hawk",
+      "canopy-owl",
+      "zephyr-monk",
+      "iron-digger",
+      "tesla-turret",
+      "reef-guard",
+      "bloom-witch",
+    ]);
+    expect(withTrait("pack")).toEqual(["dust-jackal", "stone-ram", "tide-otter", "kelp-lurker", "twin-fang-chimera"]);
+    expect(withTrait("rally")).toEqual(["grove-sage", "kite-glider", "pebble-tortoise", "harbor-gull"]);
+  });
+
+  it("gives every element exactly one Banner base card", () => {
+    for (const e of ELEMENTS) {
+      expect(base.filter((c) => c.element === e && c.traits.includes("banner")), e).toHaveLength(1);
+    }
+  });
+
+  it("uses only known traits", () => {
+    for (const c of CARDS) for (const t of c.traits) expect(TRAITS).toContain(t);
+  });
+
+  it("follows the balance rule: one trait at most, none on strong cards", () => {
+    for (const c of CARDS) expect(c.traits.length).toBeLessThanOrEqual(1);
+    for (const c of base.filter((c) => c.atk >= 1600)) expect(c.traits, c.id).toEqual([]);
+    for (const c of fusions.filter((c) => c.atk >= 2200)) expect(c.traits, c.id).toEqual([]);
+  });
+
+  it("hasTrait reads the card", () => {
+    expect(hasTrait("thorn-sprite", "venom")).toBe(true);
+    expect(hasTrait("thorn-sprite", "guard")).toBe(false);
+    expect(hasTrait("ancient-tyrant", "venom")).toBe(false);
   });
 });

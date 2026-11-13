@@ -12,13 +12,14 @@ export {
   opponent,
   playsAllowed,
 } from "./rules";
-export { CARDS, FUSION_RULES, findCard, getCard } from "./cards";
+export { CARDS, FUSION_RULES, findCard, getCard, hasTrait } from "./cards";
 export { validateDeck, type DeckCheck } from "./deck";
 export { fuseChain, fusePair, type FusionStep } from "./fusion";
 export { createMatch } from "./match";
 export { playMaterials, previewPlay } from "./play";
 export { type BattleOutcome } from "./battle";
-export { previewAttack, previewAttacks } from "./preview";
+export { previewAttack, previewAttacks, viewAfterPlay } from "./preview";
 export { actionError, applyAction, applyTimeout } from "./actions";
 export { viewFor } from "./view";
+export { eventsFor } from "./events";
 export { legalActions } from "./legal";

@@ -34,18 +34,25 @@ describe("opponent", () => {
 
 describe("makeRules", () => {
   it("defaults to an element bonus of 500, 2 plays per turn and a wear ratio of 1", () => {
-    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
+    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
   });
 
   it("applies overrides without changing the defaults", () => {
-    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
-    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1, firstTurnPlays: 1, wearRatio: 1 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
+    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
+    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1, firstTurnPlays: 1, wearRatio: 1, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
+  });
+
+  it("rejects synergy bonuses that are not whole numbers of 0 or more", () => {
+    expect(() => makeRules({ bannerBonus: -1 })).toThrow("invalid rule bannerBonus: -1");
+    expect(() => makeRules({ packBonus: 0.5 })).toThrow("invalid rule packBonus: 0.5");
+    expect(() => makeRules({ rallyBonus: -500 })).toThrow("invalid rule rallyBonus: -500");
+    expect(makeRules({ bannerBonus: 0, packBonus: 0, rallyBonus: 0 })).toMatchObject({ bannerBonus: 0, packBonus: 0, rallyBonus: 0 });
   });
 
   it("applies a wear ratio override", () => {
-    expect(makeRules({ wearRatio: 0.5 })).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 0.5 });
+    expect(makeRules({ wearRatio: 0.5, bannerBonus: 300, packBonus: 200, rallyBonus: 500 })).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 0.5, bannerBonus: 300, packBonus: 200, rallyBonus: 500 });
   });
 
   it("rejects a wear ratio outside 0 to 1", () => {

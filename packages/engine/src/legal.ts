@@ -33,7 +33,10 @@ export function legalActions(state: MatchState, player: PlayerId): Action[] {
   if (state.playsUsed < playsAllowed(state)) {
     for (const handIndexes of orderedSelections(state.players[player].hand.length)) {
       for (let slot = 0; slot < FIELD_SLOTS; slot++) {
-        for (const position of POSITIONS) candidates.push({ type: "PLAY", handIndexes, slot, position });
+        for (const position of POSITIONS) {
+          candidates.push({ type: "PLAY", handIndexes, slot, position });
+          candidates.push({ type: "PLAY", handIndexes, slot, position, faceDown: true });
+        }
       }
     }
   }
@@ -46,6 +49,7 @@ export function legalActions(state: MatchState, player: PlayerId): Action[] {
       candidates.push({ type: "ATTACK", attackerSlot, target });
     }
   }
+  for (let slot = 0; slot < FIELD_SLOTS; slot++) candidates.push({ type: "REVEAL", slot });
   candidates.push({ type: "END_TURN" });
 
   return candidates.filter((action) => actionError(state, player, action) === null);
