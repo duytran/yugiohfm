@@ -9,11 +9,12 @@ import type {
   PlayerId,
   Position,
   Rules,
+  Trait,
 } from "./types";
 import { effectiveStats } from "./values";
 
-/** One side of a battle: its current ATK and DEF, and its element. */
-export type Combatant = { atk: number; def: number; element: Element };
+/** One side of a battle: its current ATK and DEF, its element and its printed traits. */
+export type Combatant = { atk: number; def: number; element: Element; traits: readonly Trait[] };
 
 /** What an attack does. "Self" is the attacking player. */
 export type BattleOutcome = {
@@ -61,30 +62,24 @@ export function battleOutcome(
     };
   }
   const { attack, defense } = battleValues(attacker, target.combatant, target.position, rules);
-  const damageToSelf = Math.max(0, defense - attack);
-  // a target that survives is worn by the attack it withstood (R3)
-  const wearIfSurvives = Math.floor(rules.wearRatio * attack);
-  if (target.position === "attack") {
-    const targetDestroyed = attack >= defense;
-    return {
-      attack,
-      defense,
-      attackerDestroyed: attack <= defense,
-      targetDestroyed,
-      damageToSelf,
-      damageToOpponent: Math.max(0, attack - defense),
-      targetWear: targetDestroyed ? 0 : wearIfSurvives,
-    };
-  }
-  const targetDestroyed = attack > defense;
+  const inAttack = target.position === "attack";
+  // what the battle itself destroys
+  const beaten = inAttack ? attack >= defense : attack > defense;
+  const lost = inAttack && attack <= defense;
+  // Venom (R4): whatever destroys a Venom creature in battle is destroyed with it
+  const targetDestroyed = beaten || (lost && attacker.traits.includes("venom"));
+  const attackerDestroyed = lost || (beaten && target.combatant.traits.includes("venom"));
+  // Pierce (R4): destroying a defense-position creature still hurts its owner
+  const pierced = !inAttack && beaten && attacker.traits.includes("pierce");
   return {
     attack,
     defense,
-    attackerDestroyed: false,
+    attackerDestroyed,
     targetDestroyed,
-    damageToSelf,
-    damageToOpponent: 0,
-    targetWear: targetDestroyed ? 0 : wearIfSurvives,
+    damageToSelf: Math.max(0, defense - attack),
+    damageToOpponent: inAttack || pierced ? Math.max(0, attack - defense) : 0,
+    // a target that survives is worn by the attack it withstood (R3)
+    targetWear: targetDestroyed ? 0 : Math.floor(rules.wearRatio * attack),
   };
 }
 
@@ -125,8 +120,8 @@ function destroy(draft: MatchState, player: PlayerId, slot: number, events: Game
 }
 
 function fromState(state: MatchState, player: PlayerId, slot: number): Combatant {
-  const creature = state.players[player].field[slot]!;
-  return { ...effectiveStats(state, player, slot), element: getCard(creature.cardId).element };
+  const card = getCard(state.players[player].field[slot]!.cardId);
+  return { ...effectiveStats(state, player, slot), element: card.element, traits: card.traits };
 }
 
 /** Mutates `draft` and returns what happened. The caller must have checked attackError first. */

@@ -77,6 +77,9 @@ describe("previewAttack", () => {
       ["ash-duelist", "ember-fox", "defense"],
       ["ember-fox", "furnace-drone", "defense"],
       ["ash-duelist", "furnace-drone", "defense"],
+      ["ash-duelist", "thorn-sprite", "defense"],
+      ["spark-ferret", "ash-duelist", "attack"],
+      ["vine-archer", "root-shaman", "defense"],
     ];
     for (const [mine, theirs, position] of cases) {
       const state = duel(mine, theirs, position);

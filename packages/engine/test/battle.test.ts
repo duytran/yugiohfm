@@ -222,8 +222,8 @@ describe("resolveAttack direct", () => {
 });
 
 describe("battleOutcome", () => {
-  const strong = { atk: 2000, def: 1000, element: "flame" as const };
-  const weak = { atk: 1500, def: 1800, element: "flame" as const };
+  const strong = { atk: 2000, def: 1000, element: "flame" as const, traits: [] };
+  const weak = { atk: 1500, def: 1800, element: "flame" as const, traits: [] };
 
   it("against attack position: the lower value is destroyed and its owner takes the difference", () => {
     expect(battleOutcome(strong, { combatant: weak, position: "attack" }, DEFAULT_RULES)).toEqual({
@@ -367,5 +367,57 @@ describe("wear (R3)", () => {
       damageToOpponent: 0,
       targetWear: 1400,
     });
+  });
+});
+
+describe("Venom (R4)", () => {
+  it("destroys an attacker that destroys a Venom target", () => {
+    // flame beats forest: 1500 + 500 against Thorn Sprite's DEF 1100
+    const state = duel("ash-duelist", "thorn-sprite", "defense");
+    const events: GameEvent[] = [];
+    resolveAttack(state, 0, attack(0, 0), events);
+    expect(state.players[0].field[0]).toBeNull();
+    expect(state.players[1].field[0]).toBeNull();
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "destroyed", player: 1, slot: 0, cardId: "thorn-sprite" },
+      { type: "destroyed", player: 0, slot: 0, cardId: "ash-duelist" },
+    ]);
+  });
+
+  it("takes the target with it when a Venom attacker loses", () => {
+    // thunder against flame, no bonus: 1000 against 1500
+    const state = duel("spark-ferret", "ash-duelist");
+    const outcome = resolveAttack(state, 0, attack(0, 0), []);
+    expect(outcome).toMatchObject({ attackerDestroyed: true, targetDestroyed: true, damageToSelf: 500, targetWear: 0 });
+    expect(state.players[1].field[0]).toBeNull();
+    expect(state.players[0].lifePoints).toBe(3500);
+  });
+
+  it("does nothing when the Venom creature survives", () => {
+    // water against forest, no bonus: 900 against DEF 1100
+    const state = duel("harbor-gull", "thorn-sprite", "defense");
+    resolveAttack(state, 0, attack(0, 0), []);
+    expect(state.players[0].field[0]).not.toBeNull();
+    expect(state.players[1].field[0]).not.toBeNull();
+  });
+});
+
+describe("Pierce (R4)", () => {
+  it("deals the difference when it destroys a defense-position creature", () => {
+    // forest against earth, no bonus: 1400 against DEF 1300
+    const state = duel("vine-archer", "root-shaman", "defense");
+    resolveAttack(state, 0, attack(0, 0), []);
+    expect(state.players[1].field[0]).toBeNull();
+    expect(state.players[1].lifePoints).toBe(3900);
+  });
+
+  it("still deals its damage when the target has Venom", () => {
+    // forest against forest: 1400 against DEF 1100
+    const state = duel("vine-archer", "thorn-sprite", "defense");
+    resolveAttack(state, 0, attack(0, 0), []);
+    expect(state.players[0].field[0]).toBeNull();
+    expect(state.players[1].field[0]).toBeNull();
+    expect(state.players[1].lifePoints).toBe(3700);
   });
 });
