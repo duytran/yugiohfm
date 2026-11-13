@@ -456,3 +456,68 @@ What the baseline shows:
   element deck is a stand-in until traits exist (phase 3). The smart bot looks
   one attack ahead and beats greedy 72.8%; it is not a strong player, so the
   numbers compare rule sets, they do not predict human play.
+
+### 2026-11-13: phase 1 results (R1 and R2)
+
+R1 (free position changes) and R2 (`playsPerTurn`) are implemented. 500 matches
+per row, seeds 1 to 500, element bonus 500, "strongest" deck unless a deck is
+named. With `--plays 1` every row equals the phase 0 baseline exactly, which
+confirms R1 and R2 change nothing when set back to one play. The smart, greedy
+and wide bots were not changed; they use a second play simply because it is
+legal.
+
+Smart versus smart:
+
+| Plays per turn | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|
+| 1 (baseline) | 53.2% | 8.8 | 7.0% | 11.4% | 0.3 | 99.6% |
+| 2 (default) | 60.0% | 6.9 | 5.0% | 4.8% | 1.0 | 89.8% |
+| 5 (unlimited) | 59.2% | 6.4 | 2.4% | 6.0% | 1.4 | 64.8% |
+
+Other matchups (first-named bot's win rate):
+
+| Matchup | 1 play | 2 plays | 5 plays |
+|---|---|---|---|
+| greedy (tall) vs wide | 100% | 100% | 87.0% |
+| smart vs wide | 100% | 100% | 89.0% |
+| smart vs greedy | 72.8% | 82.2% | 82.0% |
+| smart, flame deck vs strongest deck | 46.0% | 52.0% | 44.2% |
+
+Against the targets of section 6 (smart versus smart, 2 plays, next to the
+baseline):
+
+| Measure | Target | Baseline | 2 plays | |
+|---|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | tall 100% | missed |
+| Average turns | 8 to 14 | 8.8 | 6.9 | met before, missed now |
+| First-player win rate | 45% to 55% | 53.2% | 60.0% | met before, missed now |
+| Deck-out | under 5% | 7.0% | 5.0% | missed (not under 5) |
+| Fusion share of plays | 30% to 70% | 99.6% | 89.8% | missed |
+| Themed (flame) versus strongest deck | themed at least 50% | 46.0% | 52.0% | met |
+| Comebacks | 20% to 35% | 11.4% | 4.8% | missed, further away |
+| Lead changes per match | at least 2 | 0.3 | 1.0 | missed, closer |
+
+What the numbers say:
+
+- **R2 alone makes the game worse on three measures.** Matches shorten to 6.9
+  turns, the first player gains a clear edge (60.0%), and comebacks fall from
+  11.4% to 4.8%. Two plays let the player on turn 1 build a board the opponent
+  cannot answer, and a winner who is ahead finishes sooner. This is the
+  expected shape: the spec says R2 is "needed before R3 can matter" (section 8),
+  and wear (R3) is the rule meant to give the player who is behind a way back.
+- **Wide is still not a plan.** At 2 plays wide never wins; only at 5 plays does
+  it win 11% to 13%. Wear (R3) is what is meant to change this.
+- **Lead changes more than triple (0.3 to 1.0)** and the themed flame deck now
+  edges the strongest deck (52.0%). The flame result is one deck, one run, and
+  at 5 plays it reverses (44.2%), so it is a hint, not a finding.
+- **Plays per turn: keep 2 for now.** 5 plays brings the fusion share inside the
+  target (64.8%) and cuts deck-out, but it misses the same targets by the same
+  margin and removes the hand decision (section 4, "considered, not proposed").
+  The default stays at the spec's proposal until R3 is measured; the owner may
+  change it.
+- **New problem to decide before R3:** the first-player edge (60.0%). The spec
+  has no rule for it. A possible fix is fewer plays on turn 1 for the first
+  player; this is a suggestion, not a decision.
+- A planning decision, recorded in the phase 1 plan: a `PLAY` onto a creature
+  that already attacked must keep its position, and any other position is
+  rejected.

@@ -7,7 +7,7 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phase 0 (measurement) is implemented; no tactics rule is implemented yet. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phase 0 (measurement) and phase 1 (R1 free position changes, R2 plays per turn) are implemented; R3 to R6 are not. Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
 
 ## Read first
 
@@ -21,7 +21,7 @@ independent of the GUI and network so bots can play-test it headlessly.
 | `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
 | `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. |
-| `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` | Tactics phase 1: free position changes, plays per turn. Not approved, not implemented. |
+| `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` | Tactics phase 1: free position changes, plays per turn. |
 | `docs/ddr/` | Design decision records. Read the ones that cover the area you are about to change; their "Constraints & Rules" are binding. |
 | `HISTORY.md` | Log of every action on the project. |
 
@@ -102,5 +102,5 @@ Available now (plan 1):
 - `pnpm test` runs every test.
 - `pnpm typecheck` runs `tsc --noEmit`.
 - `pnpm vitest run <file>` runs one test file.
-- `pnpm sim --a smart --b greedy --games 100` runs bot matches. Bots: random, greedy, wide, smart. `--deck-a`/`--deck-b` pick a deck (strongest, random or an element); `--element-bonus` sets that rule.
+- `pnpm sim --a smart --b greedy --games 100` runs bot matches. Bots: random, greedy, wide, smart. `--deck-a`/`--deck-b` pick a deck (strongest, random or an element); `--element-bonus` and `--plays` set those rules.
 - `pnpm dev` starts the server on :8787 (after plan 2) and the client on :5173 (after plan 3).

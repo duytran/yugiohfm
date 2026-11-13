@@ -36,14 +36,14 @@ The duel rules follow `docs/specs/2026-11-13-tactics-rules-design.md`, approved 
 
 ## Implementation
 
-No tactics rule is implemented yet. The engine still has the plan 1 rules (`packages/engine/src/battle.ts`, `play.ts`, `actions.ts`). Phases 0 to 4 in section 8 of the tactics spec each get issues and a plan before code.
+R1 (free position changes) and R2 (`playsPerTurn`) are implemented in `packages/engine/src/actions.ts`, `play.ts` and `rules.ts`. R3 to R6 are not. Phases 2 to 5 in section 8 of the tactics spec each get issues and a plan before code.
 
 ## Consequences
 
 - **Positive:** tall, wide and answer strategies each beat one of the others; a themed deck can beat a pile of the highest numbers.
 - **Negative / trade-off:** about half the engine files and most battle tests change, and plans 2 and 3 no longer match the engine — **mitigated by** revising plans 2 and 3 once, after the engine shape is implemented and before plan 2 starts.
 - **Negative / trade-off:** more candidates for `legalActions` (two plays, face-down) slow the simulator — **mitigated by** the faster simulator in phase 0.
-- **Known gap:** nothing is implemented, and no value has been accepted by a simulator run. Each element or tag covers at most 21 of 30 deck cards, so a deck cannot be single-theme with today's pool.
+- **Known gap:** only R1 and R2 are implemented. With 2 plays per turn they miss most targets (first-player win rate 60.0%, comebacks 4.8%, fusion share 89.8%); see the tactics spec, `Revisions`, 2026-11-13 phase 1 results. No value has been accepted by a simulator run yet. Each element or tag covers at most 21 of 30 deck cards, so a deck cannot be single-theme with today's pool.
 
 ## Compliance
 
