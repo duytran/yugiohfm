@@ -4,7 +4,7 @@ import { getCard } from "../src/cards";
 import { DEFAULT_RULES } from "../src/rules";
 import type { AttackAction, GameEvent, MatchState } from "../src/types";
 import { effectiveStats } from "../src/values";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 function attack(attackerSlot: number, target: number | "direct"): AttackAction {
   return { type: "ATTACK", attackerSlot, target };
@@ -446,5 +446,89 @@ describe("Pierce (R4)", () => {
     expect(state.players[0].field[0]).toBeNull();
     expect(state.players[1].field[0]).toBeNull();
     expect(state.players[1].lifePoints).toBe(3700);
+  });
+});
+
+describe("synergy in battle (R5)", () => {
+  it("destroying a Banner changes the next battle in the same turn", () => {
+    // flame against earth, no bonus. Burrow Drake is 1500 + 300 next to the Iron Digger Banner.
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist"), 1: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("iron-digger"), 1: creature("burrow-drake") }) },
+    });
+    expect(effectiveStats(state, 1, 1).atk).toBe(1800);
+    resolveAttack(state, 0, attack(0, 0), []); // 1500 vs 1300: the Banner falls
+    expect(effectiveStats(state, 1, 1).atk).toBe(1500);
+    const outcome = resolveAttack(state, 0, attack(1, 1), []); // 1500 vs 1500 now
+    expect(outcome).toMatchObject({ attackerDestroyed: true, targetDestroyed: true });
+  });
+});
+
+describe("face-down creatures in battle (R6)", () => {
+  it("reveals a hidden attacker before the battle", () => {
+    const state = makeState({ p0: { field: field({ 0: hidden("ash-duelist", "attack") }) }, p1: { field: field({ 0: creature("ember-fox") }) } });
+    const events: GameEvent[] = [];
+    resolveAttack(state, 0, attack(0, 0), events);
+    expect(state.players[0].field[0]?.faceDown).toBe(false);
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "revealed", player: 0, slot: 0, cardId: "ash-duelist" },
+      { type: "destroyed", player: 1, slot: 0, cardId: "ember-fox" },
+      { type: "damage", player: 1, amount: 300 },
+    ]);
+  });
+
+  it("reveals a hidden target that survives (F3)", () => {
+    const state = makeState({ p0: { field: field({ 0: creature("ember-fox") }) }, p1: { field: field({ 0: hidden("furnace-drone") }) } });
+    const events: GameEvent[] = [];
+    resolveAttack(state, 0, attack(0, 0), events);
+    expect(state.players[1].field[0]?.faceDown).toBe(false);
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "revealed", player: 1, slot: 0, cardId: "furnace-drone" },
+      { type: "worn", player: 1, slot: 0, amount: 1200 },
+      { type: "damage", player: 0, amount: 300 },
+    ]);
+  });
+
+  it("springs the lure: a hidden Venom creature takes its attacker with it", () => {
+    // the face-down spec's example: flame 3000 + 500 against Thorn Sprite's DEF 1100
+    const state = makeState({ p0: { field: field({ 0: creature("ancient-tyrant") }) }, p1: { field: field({ 0: hidden("thorn-sprite") }) } });
+    const events: GameEvent[] = [];
+    resolveAttack(state, 0, attack(0, 0), events);
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "revealed", player: 1, slot: 0, cardId: "thorn-sprite" },
+      { type: "destroyed", player: 1, slot: 0, cardId: "thorn-sprite" },
+      { type: "destroyed", player: 0, slot: 0, cardId: "ancient-tyrant" },
+    ]);
+  });
+
+  it("blocks direct attacks while hidden (F9)", () => {
+    const state = makeState({ p0: { field: field({ 0: creature("ash-duelist") }) }, p1: { field: field({ 2: hidden("seedling") }) } });
+    expect(attackError(state, 0, attack(0, "direct"))).toBe("cannot attack directly while the opponent has creatures");
+  });
+
+  it("a hidden Guard forces nothing (F4)", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("ember-fox"), 1: hidden("clay-sentinel") }) },
+    });
+    expect(attackError(state, 0, attack(0, 0))).toBeNull();
+  });
+
+  it("a hidden target fights without the Banner beside it; a revealed attacker fights with it", () => {
+    // earth Banner next to Burrow Drake on each side; flame attacker against earth, no element bonus
+    const target = makeState({
+      p0: { field: field({ 0: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("iron-digger"), 1: hidden("burrow-drake", "attack") }) },
+    });
+    expect(resolveAttack(target, 0, attack(0, 1), [])).toMatchObject({ attack: 1500, defense: 1500 });
+
+    const attacker = makeState({
+      p0: { field: field({ 0: creature("iron-digger"), 1: hidden("burrow-drake", "attack") }) },
+      p1: { field: field({ 0: creature("ash-duelist") }) },
+    });
+    expect(resolveAttack(attacker, 0, attack(1, 0), [])).toMatchObject({ attack: 1800, defense: 1500 });
   });
 });

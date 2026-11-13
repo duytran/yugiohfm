@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { resolveAttack } from "../src/battle";
-import { previewAttack, previewAttacks, stateFromView } from "../src/preview";
+import { previewAttack, previewAttacks, stateFromView, viewAfterPlay } from "../src/preview";
 import { DEFAULT_RULES } from "../src/rules";
 import type { AttackAction, MatchState } from "../src/types";
 import { viewFor } from "../src/view";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 function attack(attackerSlot: number, target: number | "direct"): AttackAction {
   return { type: "ATTACK", attackerSlot, target };
@@ -97,6 +97,16 @@ describe("previewAttacks", () => {
       p1: { field: field({ 0: creature("ancient-tyrant") }) },
     });
 
+  it("follows a Banner's loss from one attack to the next", () => {
+    const state = makeState({
+      p0: { field: field({ 0: creature("ash-duelist"), 1: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("iron-digger"), 1: creature("burrow-drake") }) },
+    });
+    const result = previewAttacks(viewFor(state, 0), [attack(0, 0), attack(1, 1)]);
+    if ("error" in result) throw new Error(result.error);
+    expect(result[1]).toMatchObject({ attack: 1500, defense: 1500 });
+  });
+
   it("lets each attack see the wear, losses and damage of the ones before it", () => {
     const result = previewAttacks(viewFor(titan(), 0), [attack(0, 0), attack(1, 0), attack(2, 0)]);
     if ("error" in result) throw new Error(result.error);
@@ -126,5 +136,53 @@ describe("previewAttacks", () => {
 
   it("returns an empty list for no attacks", () => {
     expect(previewAttacks(viewFor(titan(), 0), [])).toEqual([]);
+  });
+});
+
+describe("viewAfterPlay", () => {
+  const state = makeState({
+    p0: { hand: ["burrow-drake", "ember-fox"], field: field({ 1: creature("iron-digger") }) },
+    p1: { hand: ["seedling", "seedling"], field: field({ 0: creature("ember-fox") }) },
+  });
+
+  it("shows the board after the play, with the values the engine works out", () => {
+    const after = viewAfterPlay(viewFor(state, 0), { type: "PLAY", handIndexes: [0], slot: 0, position: "attack" });
+    if ("error" in after) throw new Error(after.error);
+    expect(after.self.field[0]).toMatchObject({ cardId: "burrow-drake", atk: 1800, def: 1700 });
+    expect(after.self.hand).toEqual(["ember-fox"]);
+    expect(after.playsUsed).toBe(1);
+  });
+
+  it("keeps the counts the viewer cannot rebuild", () => {
+    const before = viewFor(state, 0);
+    const after = viewAfterPlay(before, { type: "PLAY", handIndexes: [1], slot: 3, position: "defense" });
+    if ("error" in after) throw new Error(after.error);
+    expect(after.opponent.handCount).toBe(before.opponent.handCount);
+    expect(after.opponent.deckCount).toBe(before.opponent.deckCount);
+    expect(after.self.deckCount).toBe(before.self.deckCount);
+  });
+
+  it("returns why an illegal play is illegal, and never changes the view", () => {
+    const before = viewFor(state, 0);
+    const copy = structuredClone(before);
+    expect(viewAfterPlay(before, { type: "PLAY", handIndexes: [7], slot: 0, position: "attack" })).toEqual({
+      error: "invalid hand index",
+    });
+    expect(before).toEqual(copy);
+  });
+});
+
+describe("previews and hidden creatures", () => {
+  const state = makeState({
+    p0: { field: field({ 0: creature("ash-duelist"), 1: creature("ember-fox") }) },
+    p1: { field: field({ 0: creature("seedling"), 1: hidden("thorn-sprite") }) },
+  });
+
+  it("cannot preview an attack on a hidden creature", () => {
+    expect(previewAttack(viewFor(state, 0), attack(0, 1))).toEqual({ error: "the target is face-down" });
+  });
+
+  it("previews the visible creatures exactly, with the hidden one still on the board", () => {
+    expect(previewAttack(viewFor(state, 0), attack(0, 0))).toEqual(resolveAttack(structuredClone(state), 0, attack(0, 0), []));
   });
 });

@@ -1,8 +1,8 @@
 import { attackError, resolveAttack } from "./battle";
-import { endMatch, startTurn } from "./match";
+import { endMatch, reveal, startTurn } from "./match";
 import { playError, resolvePlay } from "./play";
 import { FIELD_SLOTS, opponent, turnError } from "./rules";
-import type { Action, ApplyResult, GameEvent, MatchState, PlayerId, SetPositionAction } from "./types";
+import type { Action, ApplyResult, GameEvent, MatchState, PlayerId, RevealAction, SetPositionAction } from "./types";
 
 export function setPositionError(state: MatchState, player: PlayerId, action: SetPositionAction): string | null {
   const turn = turnError(state, player);
@@ -14,6 +14,16 @@ export function setPositionError(state: MatchState, player: PlayerId, action: Se
   if (!creature) return "no creature in that slot";
   if (creature.hasAttacked) return "creature already attacked this turn";
   if (creature.position === position) return "creature is already in that position";
+  return null;
+}
+
+export function revealError(state: MatchState, player: PlayerId, action: RevealAction): string | null {
+  const turn = turnError(state, player);
+  if (turn) return turn;
+  if (!Number.isInteger(action.slot) || action.slot < 0 || action.slot >= FIELD_SLOTS) return "invalid slot";
+  const creature = state.players[player].field[action.slot];
+  if (!creature) return "no creature in that slot";
+  if (!creature.faceDown) return "creature is already face-up";
   return null;
 }
 
@@ -30,6 +40,8 @@ export function actionError(state: MatchState, player: PlayerId, action: Action)
       return setPositionError(state, player, action);
     case "ATTACK":
       return attackError(state, player, action);
+    case "REVEAL":
+      return revealError(state, player, action);
     default:
       return "unknown action";
   }
@@ -67,6 +79,9 @@ export function applyAction(state: MatchState, player: PlayerId, action: Action)
     }
     case "ATTACK":
       resolveAttack(draft, player, action, events);
+      break;
+    case "REVEAL":
+      reveal(draft, player, action.slot, events);
       break;
   }
   return { ok: true, state: draft, events };

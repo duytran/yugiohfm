@@ -23,6 +23,14 @@ export function endMatch(
   events.push({ type: "match-ended", winner, reason });
 }
 
+/** Mutates `draft`: turns a face-down creature face-up and tells both players what it is. */
+export function reveal(draft: MatchState, player: PlayerId, slot: number, events: GameEvent[]): void {
+  const creature = draft.players[player].field[slot];
+  if (!creature?.faceDown) return;
+  creature.faceDown = false;
+  events.push({ type: "revealed", player, slot, cardId: creature.cardId });
+}
+
 /**
  * Mutates `draft`: begins the active player's turn. Clears per-turn flags and
  * draws up to HAND_SIZE. A deck that cannot supply the cards loses the match.

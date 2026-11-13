@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_RULES, createRng, getCard, type Action, type AttackAction, type PlayerView } from "@duel/engine";
+import { DEFAULT_RULES, createRng, getCard, type Action, type AttackAction, type PlayAction, type PlayerView } from "@duel/engine";
 import { greedyBot } from "../src/greedy";
 import { runMatch } from "../src/runMatch";
-import { GANG_SIZE, attackScore, bestAttack, planScore, smartBot, smartPlay, threat } from "../src/smart";
+import { GANG_SIZE, attackScore, bestAttack, faceDownTwin, planScore, smartBot, smartPlay, threat } from "../src/smart";
 
 const EMPTY_FIELD = [null, null, null, null, null];
 
@@ -32,6 +32,7 @@ const on = (cardId: string, position: "attack" | "defense" = "attack") => ({
   position,
   hasAttacked: false,
   wear: 0,
+  faceDown: false,
   atk: getCard(cardId).atk,
   def: getCard(cardId).def,
 });
@@ -114,6 +115,15 @@ describe("smartPlay", () => {
 
   it("is null when no play is legal", () => {
     expect(smartPlay(view({}), [END])).toBeNull();
+  });
+});
+
+describe("smartPlay with synergy", () => {
+  it("puts a creature next to the Banner it shares a theme with", () => {
+    // turn 1, no threat: the best board is Burrow Drake beside the earth Banner
+    const v = { ...view({ hand: ["burrow-drake"], mine: [null, on("iron-digger"), null, null, null] }), turn: 1 };
+    const legal = [3, 0, 4, 2].map((slot): Action => ({ type: "PLAY", handIndexes: [0], slot, position: "attack" }));
+    expect(smartPlay(v, [...legal, END])).toMatchObject({ slot: 0 });
   });
 });
 
@@ -223,5 +233,43 @@ describe("bestAttack", () => {
     const v = view({ mine: [on("static-drakeling"), on("thunder-roc"), null, null, null], theirs: [on("storm-caller"), null, null, null, null] });
     // Thunder Roc 1700 beats Storm Caller 1500 alone
     expect(bestAttack(v, attacks)).toEqual({ type: "ATTACK", attackerSlot: 1, target: 0 });
+  });
+});
+
+describe("smartBot and face-down play", () => {
+  it("plays a Venom creature it puts in defense face-down, as a lure", () => {
+    const play: PlayAction = { type: "PLAY", handIndexes: [0], slot: 0, position: "defense" };
+    const twin: PlayAction = { ...play, faceDown: true };
+    expect(faceDownTwin(play, [play, twin, END])).toEqual(twin);
+  });
+
+  it("chooses the face-down twin when its play is a Venom creature in defense", () => {
+    // a 3000 threat: Thorn Sprite cannot hold in attack position, so it goes to defense
+    const v = view({ hand: ["thorn-sprite"], theirs: [on("ancient-tyrant"), null, null, null, null] });
+    const legal: Action[] = [
+      { type: "PLAY", handIndexes: [0], slot: 0, position: "attack" },
+      { type: "PLAY", handIndexes: [0], slot: 0, position: "attack", faceDown: true },
+      { type: "PLAY", handIndexes: [0], slot: 0, position: "defense" },
+      { type: "PLAY", handIndexes: [0], slot: 0, position: "defense", faceDown: true },
+      END,
+    ];
+    expect(smartBot.chooseAction(v, legal, rng)).toEqual({
+      type: "PLAY",
+      handIndexes: [0],
+      slot: 0,
+      position: "defense",
+      faceDown: true,
+    });
+  });
+
+  it("probes only while it has another creature", () => {
+    const alone = view({ mine: [on("ember-fox"), null, null, null, null], theirs: [{ hidden: true, position: "defense" }, null, null, null, null] });
+    const legal: Action[] = [{ type: "ATTACK", attackerSlot: 0, target: 0 }, END];
+    expect(smartBot.chooseAction(alone, legal, rng)).toEqual(END);
+    const two = view({
+      mine: [on("ember-fox"), on("ash-duelist", "defense"), null, null, null],
+      theirs: [{ hidden: true, position: "defense" }, null, null, null, null],
+    });
+    expect(smartBot.chooseAction(two, legal, rng)).toEqual({ type: "ATTACK", attackerSlot: 0, target: 0 });
   });
 });

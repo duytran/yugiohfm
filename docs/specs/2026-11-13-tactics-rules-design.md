@@ -691,3 +691,179 @@ What the numbers say:
   destruction by battle with the Venom creature; Pierce deals attack minus
   defense when it destroys a defense-position creature; Guard binds only in
   defense position, and the attacker picks among several Guards.
+
+### 2026-11-13: phase 4 results (R5)
+
+R5 (Banner, Pack, Rally), `viewAfterPlay` and the smart bot's formation play are
+implemented, with `tagDeck`, the `synergy` deck (every Banner and Pack base card)
+and one deck per tag. 500 matches per row, seeds 1 to 500, 2 plays per turn,
+`wearRatio` 1, default bonuses (Banner +300, Pack +200, Rally +500), smart bot
+on both sides unless noted. Two settings: the defaults (`firstTurnPlays` 2) and
+the phase 2 recommendation (`firstTurnPlays` 1). 0 errors in every run. With
+`--banner 0 --pack 0 --rally 0` the greedy bot reproduces its phase 3 numbers.
+
+Synergy traits printed (the plan's proposal, unchanged by the numbers):
+
+| Trait | Base cards | Fusion result |
+|---|---|---|
+| Banner | Flare Hawk, Canopy Owl, Zephyr Monk, Iron Digger, Tesla Turret, Reef Guard (one per element) | Bloom Witch |
+| Pack | Dust Jackal, Stone Ram, Tide Otter, Kelp Lurker | Twin-Fang Chimera |
+| Rally | Kite Glider, Grove Sage, Pebble Tortoise, Harbor Gull | none |
+
+Smart versus smart (the strongest deck holds no synergy card, so these rows
+should match phase 3, and do):
+
+| Run | First-turn plays | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|---|
+| phase 3 | 2 | 65.8% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| phase 4 | 2 | 66.0% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| phase 3 | 1 | 44.2% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+| phase 4 | 1 | 44.0% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+
+Themed deck versus the strongest deck (smart on both sides; the themed deck's
+win rate):
+
+| Themed deck | First-turn plays 2 | First-turn plays 1 | Bonuses 500 / 300 (plays 2) | All bonuses 0 (plays 2) |
+|---|---|---|---|---|
+| flame | 55.6% | 51.8% | | 54.6% |
+| water | 49.0% | 54.8% | 49.4% | |
+| earth | 45.0% | 36.6% | 46.6% | 43.8% |
+| beast (tag) | 25.4% | 20.8% | 29.2% | |
+| synergy (Banner and Pack cards) | 22.6% | 14.6% | 22.8% | |
+| answers (phase 3 cards) | 21.6% | 24.6% | | |
+
+Other matchups (first-named bot): tall vs wide 100% / 100%, smart vs wide 100% /
+100%, smart vs greedy 83.8% / 79.0% (first-turn plays 2 / 1). With Banner 150,
+Pack 100, Rally 250, the flame deck wins 55.0% and the synergy deck 21.6%.
+
+Against the targets of section 6 (smart versus smart, first-turn plays 1):
+
+| Measure | Target | Phase 3 | Phase 4 | |
+|---|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | tall 100% | missed, unchanged |
+| Average turns | 8 to 14 | 4.8 | 4.8 | missed |
+| First-player win rate | 45% to 55% | 44.2% | 44.0% | missed by 1 point (noise) |
+| Deck-out | under 5% | 0% | 0% | met |
+| Fusion share of plays | 30% to 70% | 90.5% | 90.5% | missed, unchanged |
+| Themed (flame) versus strongest deck | at least 50% | 51.8% | 51.8% | met for flame and water, missed for earth, tags and synergy |
+| Comebacks | 20% to 35% | 2.6% | 2.6% | missed |
+| Lead changes per match | at least 2 | 0.5 | 0.5 | missed |
+
+What the numbers say:
+
+- **R5 as printed has almost no effect.** Flame wins 54.6% with every bonus at
+  0 and 55.6% with the defaults, earth 43.8% and 45.0%: inside the noise of 500
+  matches (about 4 points either way). Raising Banner and Pack to 500 and 300
+  moves earth to 46.6% and beast to 29.2%, still short of 50%. No theme
+  dominates (the best is 55.6%), so the spec's "lower values if one theme
+  dominates" does not apply.
+- **The reason is the same as for R4: fusion.** A themed deck plays about 85% to
+  93% fusions, and a fusion result has its own traits and mostly none. Banner
+  and Pack cards are fused away within a turn or two, so a formation of
+  neighbours that share a theme seldom stands on the board. The synergy deck,
+  made only of Banner and Pack base cards, is the worst deck measured (22.6%,
+  and 14.6% at first-turn plays 1), because its bodies are small and it fuses
+  them like any other deck.
+- **Comebacks and lead changes did not move.** The strongest deck, which every
+  headline measure uses, holds no synergy card, so those rows could not move.
+  Rally is the rule meant to help the player who is behind, and it is printed
+  only on four small base cards.
+- **The smart bot does build formations when it can**: a test shows it placing
+  a creature beside a Banner it shares a theme with. It ranks plays by the total
+  ATK of its board after the play, which also changes a few fallback choices;
+  the smart-against-greedy rows are unchanged within noise (83.8%, was 83.8%).
+- Suggestions for the owner, not decisions: (1) decide whether a fusion result
+  should keep a trait of one ingredient, which both R4 and R5 need to matter
+  and which reverses a DDR-0009 decision; (2) put Banner, Pack or Rally on
+  fusion results with ATK up to 2100 (a fusion is what bots play); (3) leave
+  the bonus values at +300 / +200 / +500, since neither halving nor raising
+  them changes the picture; (4) judge R4 and R5 again after R6, which changes
+  what is on the board.
+- Planning decisions, recorded in the phase 4 plan: Banners stack; a Pack
+  creature counts each other own creature that shares a tag or element once;
+  Rally reads life points when the value is read; the smart bot ranks plays by
+  its whole board after the play.
+
+### 2026-11-13: phase 5 results (R6) and the full rule set
+
+R6 (face-down play) is implemented, so R1 to R6 are all in the engine. The
+engine has `faceDown` on creatures, a free `REVEAL`, `HiddenCreature` views,
+`eventsFor`, reveal steps in battle and previews that refuse a hidden target.
+The bots learned to probe a hidden creature (greedy, wide; smart only while it
+has two creatures) and the smart bot plays a Venom creature it puts in defense
+face-down. 500 matches per row, seeds 1 to 500, 2 plays per turn, all defaults,
+two settings (`firstTurnPlays` 2 and 1). 0 errors in every run.
+
+Smart versus smart and other matchups (the first-named bot's win rate):
+
+| Run | First-turn plays | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|---|
+| phase 4, smart vs smart | 2 | 66.0% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| phase 5, smart vs smart | 2 | 66.0% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| phase 4, smart vs smart | 1 | 44.0% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+| phase 5, smart vs smart | 1 | 44.0% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+
+| Matchup | First-turn plays 2 | First-turn plays 1 |
+|---|---|---|
+| greedy (tall) vs wide | 100% | 100% |
+| smart vs wide | 100% | 100% |
+| smart vs greedy | 83.8% | 79.0% |
+| smart, flame deck vs strongest deck | 55.8% | 51.8% |
+| smart, beast deck vs strongest deck | 25.6% | 20.8% |
+| smart, synergy deck vs strongest deck | 22.6% | 14.6% |
+| smart, answers deck vs strongest deck | 21.4% | 24.6% |
+
+Against the targets of section 6 (smart versus smart, first-turn plays 1), one
+column per phase. Phase 0 is the plan 1 rules at 1 play; phases 1 to 5 add one
+rule each.
+
+| Measure | Target | Phase 0 | Phase 1 (2 plays) | Phase 2 | Phase 3 | Phase 4 | Phase 5 |
+|---|---|---|---|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | 100% | 100% | 100% | 100% | 100% |
+| Average turns | 8 to 14 | 8.8 | 6.9 | 4.8 | 4.8 | 4.8 | 4.8 |
+| First-player win rate | 45% to 55% | 53.2% | 60.0% | 45.8% | 44.2% | 44.0% | 44.0% |
+| Deck-out | under 5% | 7.0% | 5.0% | 0% | 0% | 0% | 0% |
+| Fusion share of plays | 30% to 70% | 99.6% | 89.8% | 91.4% | 90.5% | 90.5% | 90.5% |
+| Themed (flame) versus strongest deck | at least 50% | 46.0% | 52.0% | 49.2% | 51.8% | 51.8% | 51.8% |
+| Comebacks | 20% to 35% | 11.4% | 4.8% | 2.4% | 2.6% | 2.6% | 2.6% |
+| Lead changes per match | at least 2 | 0.3 | 1.0 | 0.5 | 0.5 | 0.5 | 0.5 |
+
+Phase 1 is at the default first-turn plays (2); phases 2 to 5 are at 1, the
+phase 2 recommendation, which is why the first-player rate drops.
+
+What the numbers say:
+
+- **R6 changes nothing the simulator can see.** Every phase 5 row equals the
+  phase 4 row to the digit. Two bots never play face-down: the greedy, wide
+  and smart bots choose face-up plays only, apart from the smart lure, which
+  needs a Venom creature in defense and did not occur in 30 answers-deck
+  replays. Only the random bot plays face-down; in random against random 500
+  matches show 165 to 175 deck-outs (33% to 35%), a bot that is not a
+  benchmark. So the numbers measure that R6 breaks nothing, not that it
+  works as a rule.
+- **What is verified is the machinery**: unit tests for each rule F1 to F11,
+  a property test over 200 random matches (the random bot plays face-down and
+  reveals) that checks no view and no filtered event shows an opponent's
+  face-down card, and 0 errors in every run.
+- **The full rule set meets 2 of the 8 targets**: deck-out (0%) and the
+  themed flame deck against the strongest deck (51.8% at first-turn plays 1,
+  55.8% at 2). The first-player rate is 1 point under its band at first-turn
+  plays 1 (44.0%, which 500 matches cannot separate from noise) and 20 points
+  over it at 2. It misses the other five by wide margins: tall still beats wide 100%, matches last 4.8 turns, fusions
+  are about 90% of plays, comebacks 2.6%, lead changes 0.5.
+- **The shared cause**: every rule since phase 3 gives a bonus to something a
+  bot fuses away on its first play, and a fusion result inherits no trait
+  (DDR-0009). Wear (R3) works as intended on a big creature, but a match ends
+  before it matters, because two plays per turn finish a match in 5 turns.
+- **Simulator time** for smart against smart, 100 matches: 4.1 s (3.4 s
+  before the tactics rules; the budget was 30 s). `legalActions` lists both
+  faces of every play, so it has about 13,000 candidates for a five-card hand.
+- **Recommendation for the owner** (not decisions): keep the phase 2 pair
+  (`wearRatio` 1, `firstTurnPlays` 1); then decide whether a fusion keeps a
+  trait of an ingredient (needed for R4 and R5 to matter), whether `playsPerTurn`
+  should go back to 1 (matches reach 8.8 turns, the target is 8 to 14), and
+  whether a bot should play face-down on purpose, so R6 can be measured. R1 to
+  R6 are implemented as written; none of those changes is made here.
+- R1 to R6 are all implemented, so step 3 of the 2026-11-13 next steps can
+  start: revise plans 2 and 3 against the real engine types, then implement
+  them.

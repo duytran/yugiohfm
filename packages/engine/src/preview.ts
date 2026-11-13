@@ -1,10 +1,35 @@
 import { resolveAttack, type BattleOutcome } from "./battle";
+import { playError, resolvePlay } from "./play";
 import { opponent } from "./rules";
-import type { AttackAction, Creature, MatchState, PlayerState, PlayerView, ViewCreature } from "./types";
+import type {
+  AttackAction,
+  Creature,
+  HiddenCreature,
+  MatchState,
+  PlayAction,
+  PlayerState,
+  PlayerView,
+  ViewCreature,
+} from "./types";
+import { viewFor } from "./view";
 
-function toCreature(creature: ViewCreature | null): Creature | null {
+/** Stands in for a card the viewer cannot see. The rules never read a face-down creature's card outside its own battle. */
+const HIDDEN_CARD = "";
+
+function hiddenCreature(creature: HiddenCreature): Creature {
+  return { cardId: HIDDEN_CARD, position: creature.position, hasAttacked: false, wear: 0, faceDown: true };
+}
+
+function toCreature(creature: ViewCreature | HiddenCreature | null): Creature | null {
   if (!creature) return null;
-  return { cardId: creature.cardId, position: creature.position, hasAttacked: creature.hasAttacked, wear: creature.wear };
+  if (creature.hidden) return hiddenCreature(creature);
+  return {
+    cardId: creature.cardId,
+    position: creature.position,
+    hasAttacked: creature.hasAttacked,
+    wear: creature.wear,
+    faceDown: creature.faceDown,
+  };
 }
 
 /**
@@ -57,6 +82,9 @@ export function previewAttacks(
     if (action.target !== "direct" && !state.players[enemy].field[action.target]) {
       return { error: "no creature in the target slot", index };
     }
+    if (action.target !== "direct" && state.players[enemy].field[action.target]!.cardId === HIDDEN_CARD) {
+      return { error: "the target is face-down", index };
+    }
     outcomes.push(resolveAttack(state, me, action, []));
   }
   return outcomes;
@@ -66,4 +94,22 @@ export function previewAttacks(
 export function previewAttack(view: PlayerView, action: AttackAction): BattleOutcome | { error: string } {
   const result = previewAttacks(view, [action]);
   return "error" in result ? { error: result.error } : result[0]!;
+}
+
+/**
+ * The view the viewer would have after `action`, worked out by the real play
+ * code on a copy rebuilt from the view, or why the play is illegal. Counts the
+ * viewer cannot rebuild (decks, the opponent's hand) are kept from `view`.
+ */
+export function viewAfterPlay(view: PlayerView, action: PlayAction): PlayerView | { error: string } {
+  const state = stateFromView(view);
+  const error = playError(state, view.you, action);
+  if (error) return { error };
+  resolvePlay(state, view.you, action, []);
+  const after = viewFor(state, view.you);
+  return {
+    ...after,
+    self: { ...after.self, deckCount: view.self.deckCount },
+    opponent: { ...after.opponent, handCount: view.opponent.handCount, deckCount: view.opponent.deckCount },
+  };
 }

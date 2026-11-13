@@ -1,5 +1,5 @@
 import { getCard, hasTrait } from "./cards";
-import { endMatch } from "./match";
+import { endMatch, reveal } from "./match";
 import { FIELD_SLOTS, beats, opponent, turnError } from "./rules";
 import type {
   AttackAction,
@@ -103,7 +103,7 @@ export function attackError(state: MatchState, player: PlayerId, action: AttackA
   if (!enemyField[target]) return "no creature in the target slot";
   // Guard (R4): while a Guard stands in defense position, attacks go to a Guard first
   const guards = enemyField.flatMap((creature, slot) =>
-    creature && creature.position === "defense" && hasTrait(creature.cardId, "guard") ? [slot] : [],
+    creature && !creature.faceDown && creature.position === "defense" && hasTrait(creature.cardId, "guard") ? [slot] : [],
   );
   if (guards.length > 0 && !guards.includes(target)) return "a Guard creature must be attacked first";
   return null;
@@ -137,6 +137,10 @@ export function resolveAttack(
   events: GameEvent[],
 ): BattleOutcome {
   const enemy = opponent(player);
+  events.push({ type: "attacked", player, attackerSlot: action.attackerSlot, target: action.target });
+  // a hidden attacker turns face-up before the battle, so it fights with its formation (R6)
+  reveal(draft, player, action.attackerSlot, events);
+
   const target =
     action.target === "direct"
       ? null
@@ -147,8 +151,9 @@ export function resolveAttack(
   const outcome = battleOutcome(fromState(draft, player, action.attackerSlot), target, draft.rules);
 
   draft.players[player].field[action.attackerSlot]!.hasAttacked = true;
-  events.push({ type: "attacked", player, attackerSlot: action.attackerSlot, target: action.target });
 
+  // a hidden target is turned face-up by the battle, whether it survives or not (F3)
+  if (action.target !== "direct") reveal(draft, enemy, action.target, events);
   if (action.target !== "direct" && outcome.targetDestroyed) destroy(draft, enemy, action.target, events);
   if (outcome.attackerDestroyed) destroy(draft, player, action.attackerSlot, events);
   if (action.target !== "direct" && outcome.targetWear > 0) {

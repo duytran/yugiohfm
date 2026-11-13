@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyAction, applyTimeout } from "../src/actions";
 import type { Action, MatchState } from "../src/types";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 const HAND = ["ember-fox", "ash-duelist", "cinder-whelp", "furnace-drone", "pearl-clam"];
 
@@ -170,5 +170,28 @@ describe("applyTimeout", () => {
   it("leaves a finished match unchanged", () => {
     const over = makeState({ result: { winner: 0, reason: "life-points" } });
     expect(applyTimeout(over, 0)).toEqual({ state: over, events: [] });
+  });
+});
+
+describe("REVEAL", () => {
+  const state = makeState({ p0: { field: field({ 0: hidden("thorn-sprite"), 1: creature("ember-fox") }) } });
+
+  it("turns your own face-down creature face-up for free (F8)", () => {
+    const result = ok(state, 0, { type: "REVEAL", slot: 0 });
+    expect(result.state.players[0].field[0]?.faceDown).toBe(false);
+    expect(result.state.playsUsed).toBe(0);
+    expect(result.events).toEqual([{ type: "revealed", player: 0, slot: 0, cardId: "thorn-sprite" }]);
+  });
+
+  it("rejects an empty slot, a face-up creature, a bad slot and the wrong turn", () => {
+    expect(applyAction(state, 0, { type: "REVEAL", slot: 3 })).toEqual({ ok: false, error: "no creature in that slot" });
+    expect(applyAction(state, 0, { type: "REVEAL", slot: 1 })).toEqual({ ok: false, error: "creature is already face-up" });
+    expect(applyAction(state, 0, { type: "REVEAL", slot: 7 })).toEqual({ ok: false, error: "invalid slot" });
+    expect(applyAction(state, 1, { type: "REVEAL", slot: 0 })).toEqual({ ok: false, error: "not your turn" });
+  });
+
+  it("does not reveal on a position change (F10)", () => {
+    const result = ok(state, 0, { type: "SET_POSITION", slot: 0, position: "attack" });
+    expect(result.state.players[0].field[0]?.faceDown).toBe(true);
   });
 });

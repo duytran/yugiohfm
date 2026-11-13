@@ -9,10 +9,14 @@ import {
   applyAction,
   createMatch,
   createRng,
+  eventsFor,
   legalActions,
+  opponent,
   validateDeck,
+  viewFor,
   type Action,
   type CardId,
+  type GameEvent,
   type MatchState,
   type Rng,
 } from "../src/index";
@@ -39,6 +43,25 @@ function checkInvariants(state: MatchState): void {
   }
 }
 
+/** No player ever sees the card of an opponent's face-down creature. */
+function checkHidden(state: MatchState, events: GameEvent[]): void {
+  for (const viewer of [0, 1] as const) {
+    const them = opponent(viewer);
+    const view = viewFor(state, viewer);
+    state.players[them].field.forEach((creature, slot) => {
+      if (creature?.faceDown) expect(view.opponent.field[slot]).toEqual({ hidden: true, position: creature.position });
+    });
+    const seen = eventsFor(events, viewer);
+    seen.forEach((event, i) => {
+      if (event.type === "played" && event.player === them && event.faceDown) {
+        expect(event.cardId).toBeNull();
+        const before = seen[i - 1];
+        expect(before?.type === "fused" || before?.type === "fusion-failed" ? before.player : null).not.toBe(them);
+      }
+    });
+  }
+}
+
 /** Plays a whole match with uniformly random legal actions. */
 function playRandomMatch(seed: number): { state: MatchState; actions: Action[] } {
   const rng = createRng(seed);
@@ -53,6 +76,7 @@ function playRandomMatch(seed: number): { state: MatchState; actions: Action[] }
     state = result.state;
     actions.push(action);
     checkInvariants(state);
+    checkHidden(state, result.events);
     if (actions.length > 5000) throw new Error(`match did not end (seed ${seed})`);
   }
   return { state, actions };
@@ -70,7 +94,8 @@ describe("random matches", () => {
       reasons.add(state.result!.reason);
     }
     expect(reasons.has("deck-out") || reasons.has("life-points")).toBe(true);
-  });
+    // 200 matches with the hidden-information check on every action take about 5 s
+  }, 60_000);
 
   it("replaying the same seed gives the same actions and the same final state", () => {
     expect(playRandomMatch(77)).toEqual(playRandomMatch(77));

@@ -82,6 +82,26 @@ describe("traits (R4)", () => {
     expect(withTrait("pierce")).toEqual(["vine-archer", "gale-falcon", "storm-crow", "sky-lancer"]);
   });
 
+  it("prints Banner, Pack and Rally on the planned cards (R5)", () => {
+    expect(withTrait("banner")).toEqual([
+      "flare-hawk",
+      "canopy-owl",
+      "zephyr-monk",
+      "iron-digger",
+      "tesla-turret",
+      "reef-guard",
+      "bloom-witch",
+    ]);
+    expect(withTrait("pack")).toEqual(["dust-jackal", "stone-ram", "tide-otter", "kelp-lurker", "twin-fang-chimera"]);
+    expect(withTrait("rally")).toEqual(["grove-sage", "kite-glider", "pebble-tortoise", "harbor-gull"]);
+  });
+
+  it("gives every element exactly one Banner base card", () => {
+    for (const e of ELEMENTS) {
+      expect(base.filter((c) => c.element === e && c.traits.includes("banner")), e).toHaveLength(1);
+    }
+  });
+
   it("uses only known traits", () => {
     for (const c of CARDS) for (const t of c.traits) expect(TRAITS).toContain(t);
   });

@@ -3,7 +3,8 @@ import { makeRules, type Rules } from "@duel/engine";
 import { BOTS, DECKS, formatReplay, formatSummary, runMatch, summarize, withDeck, type Bot, type MatchOutcome } from "./index";
 
 const USAGE = `Usage: pnpm sim [--a <bot>] [--b <bot>] [--deck-a <deck>] [--deck-b <deck>]
-                [--games <n>] [--seed <n>] [--element-bonus <n>] [--plays <1-5>] [--first-plays <n>] [--wear <0-1>] [--replay <seed>]
+                [--games <n>] [--seed <n>] [--element-bonus <n>] [--plays <1-5>] [--first-plays <n>] [--wear <0-1>]
+                [--banner <n>] [--pack <n>] [--rally <n>] [--replay <seed>]
 Bots: ${Object.keys(BOTS).join(", ")}
 Decks: ${Object.keys(DECKS).join(", ")} (default: the bot's own deck)`;
 
@@ -42,6 +43,9 @@ const { values } = parseArgs({
     plays: { type: "string" },
     "first-plays": { type: "string" },
     wear: { type: "string" },
+    banner: { type: "string" },
+    pack: { type: "string" },
+    rally: { type: "string" },
     replay: { type: "string" },
     help: { type: "boolean", default: false },
   },
@@ -59,6 +63,9 @@ if (values["element-bonus"] !== undefined) rules.elementBonus = wholeNumber(valu
 if (values.plays !== undefined) rules.playsPerTurn = wholeNumber(values.plays, "plays");
 if (values["first-plays"] !== undefined) rules.firstTurnPlays = wholeNumber(values["first-plays"], "first-plays");
 if (values.wear !== undefined) rules.wearRatio = fraction(values.wear, "wear");
+if (values.banner !== undefined) rules.bannerBonus = wholeNumber(values.banner, "banner");
+if (values.pack !== undefined) rules.packBonus = wholeNumber(values.pack, "pack");
+if (values.rally !== undefined) rules.rallyBonus = wholeNumber(values.rally, "rally");
 try {
   makeRules(rules);
 } catch (error) {
