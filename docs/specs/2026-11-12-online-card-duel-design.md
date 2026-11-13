@@ -380,3 +380,13 @@ client holds no rules logic" now also covers effective stats (DDR-0010).
 - Section 4.8: `MatchState` and `PlayerView` carry `playsUsed` instead of
   `hasPlayed`.
 - Source: `2026-11-13-tactics-rules-design.md` (R1, R2), DDR-0009.
+
+### 2026-11-13: R3 and `firstTurnPlays` implemented
+
+- Section 4.5: a target that survives a battle is worn: its ATK and DEF drop by
+  `wearRatio` x the attack value it withstood (element bonus included) until
+  the turn ends; a creature's value never goes below 0. A failed attack still
+  costs its owner life points, worked out against the target's current value.
+- Section 4.4: `firstTurnPlays` plays are allowed on turn 1 (default
+  `playsPerTurn`).
+- Source: `2026-11-13-tactics-rules-design.md` (R3), DDR-0009.
