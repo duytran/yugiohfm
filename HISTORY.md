@@ -35,3 +35,18 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[docs]** Expanded the history rule in `CLAUDE.md`, adapted from another project: a where-things-go table, the four steps for every change, and "never lose the past" (DDRs edited in place with the old text noted in the log, specs and plans as dated snapshots, `HISTORY.md` append-only). Before, it was one short paragraph.
 - **[chore]** Created GitHub milestones "Plan 1: Engine and bots", "Plan 2: Protocol and server" and "Plan 3: Browser client" and 22 issues, #3 to #24, one per plan task, each linking its plan section.
 - **[decision]** Always have a GitHub issue before starting to implement; added to the working style in `CLAUDE.md`.
+- **[code]** Set up the pnpm workspace; added engine types, seeded RNG and rule constants (plan 1, task 1, #3).
+- **[code]** Added the 60-card pool and the fusion rule table (plan 1, task 2, #4).
+- **[code]** Added deck validation and the engine test helpers (plan 1, task 3, #5).
+- **[code]** Added fusion of pairs and chains (plan 1, task 4, #6).
+- **[code]** Added match creation, drawing and deck-out (plan 1, task 5, #7).
+- **[code]** Added the PLAY action with fusion onto the field and preview (plan 1, task 6, #8).
+- **[code]** Added the ATTACK action, element bonus and life-point win (plan 1, task 7, #9).
+- **[code]** Added applyAction with SET_POSITION, END_TURN, SURRENDER and applyTimeout (plan 1, task 8, #10).
+- **[code]** Added viewFor, which hides the opponent hand and both deck orders (plan 1, task 9, #11).
+- **[code]** Added legalActions (plan 1, task 10, #12).
+- **[code]** Added the engine public API, a 200-match random property test and the independence check (plan 1, task 11, #13).
+- **[code]** Added the bots package with the Bot interface, a random bot and a greedy bot (plan 1, task 12, #14).
+- **[code]** Added runMatch, which plays a whole match with no GUI, server or clock (plan 1, task 13, #15).
+- **[code]** Added match statistics, replay output and the `pnpm sim` command (plan 1, task 14, #16).
+- **[docs]** Updated the status and commands in `CLAUDE.md`: plan 1 is implemented, so `pnpm test`, `pnpm typecheck` and `pnpm sim` all work (#16).
