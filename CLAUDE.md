@@ -20,7 +20,7 @@ independent of the GUI and network so bots can play-test it headlessly.
 | `docs/plans/2026-11-12-engine-and-bots.md` | Plan 1 of 3: rules engine and bots. |
 | `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
 | `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
-| `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. Not implemented. |
+| `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. |
 | `docs/ddr/` | Design decision records. Read the ones that cover the area you are about to change; their "Constraints & Rules" are binding. |
 | `HISTORY.md` | Log of every action on the project. |
 
@@ -91,7 +91,7 @@ When a decision changes, edit its DDR in place and log the change in
 - Do not write code until the owner asks for it; planning comes first.
 - Implement plans task by task, test first, one commit per task.
 - Always have a GitHub issue before starting to implement. Every plan task has
-  one (#3 to #24, grouped in one milestone per plan). Work that has
+  one (#3 to #24 and #41 to #49, grouped in one milestone per plan). Work that has
   no issue gets one first. Say `Closes #N` in the commit or PR.
 
 ## Commands

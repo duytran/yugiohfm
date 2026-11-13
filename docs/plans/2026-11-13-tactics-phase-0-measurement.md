@@ -2013,3 +2013,11 @@ Closes #N"
 - Any duel rule change (R1 to R6). Phase 1 (R1 and R2) is the next plan.
 - `eventsFor`, hidden creatures, `REVEAL`: phase 5.
 - Trait-themed decks: there are no traits until phase 3. The element decks stand in for "a themed deck" until then.
+
+## Revisions
+
+### 2026-11-13
+
+- Approved by the owner. Issues: task 1 is #41, task 2 #42, task 3 #43, task 4 #44, task 5 #45, task 6 #46, task 7 #47, task 8 #48, task 9 #49 (milestone "Tactics phase 0: Measurement"). Read `#N` in a task as that task's issue.
+- Implemented on one branch, `feat/tactics-phase-0`, one commit per task, instead of a branch per task: the tasks build on each other and none is merged in between.
+
