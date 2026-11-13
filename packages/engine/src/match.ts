@@ -33,6 +33,12 @@ export function startTurn(draft: MatchState, events: GameEvent[]): void {
   for (const creature of player.field) {
     if (creature) creature.hasAttacked = false;
   }
+  // wear lasts for the rest of the turn it was taken in (R3)
+  for (const side of draft.players) {
+    for (const creature of side.field) {
+      if (creature) creature.wear = 0;
+    }
+  }
   const need = HAND_SIZE - player.hand.length;
   if (need > player.deck.length) {
     endMatch(draft, opponent(draft.active), "deck-out", events);

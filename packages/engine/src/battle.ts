@@ -25,6 +25,8 @@ export type BattleOutcome = {
   targetDestroyed: boolean;
   damageToSelf: number;
   damageToOpponent: number;
+  /** ATK and DEF the target loses for the rest of the turn; 0 if it is destroyed or for a direct attack */
+  targetWear: number;
 };
 
 /**
@@ -57,21 +59,35 @@ export function battleOutcome(
       targetDestroyed: false,
       damageToSelf: 0,
       damageToOpponent: attacker.atk,
+      targetWear: 0,
     };
   }
   const { attack, defense } = battleValues(attacker, target.combatant, target.position, rules);
   const damageToSelf = Math.max(0, defense - attack);
+  // a target that survives is worn by the attack it withstood (R3)
+  const wearIfSurvives = Math.floor(rules.wearRatio * attack);
   if (target.position === "attack") {
+    const targetDestroyed = attack >= defense;
     return {
       attack,
       defense,
       attackerDestroyed: attack <= defense,
-      targetDestroyed: attack >= defense,
+      targetDestroyed,
       damageToSelf,
       damageToOpponent: Math.max(0, attack - defense),
+      targetWear: targetDestroyed ? 0 : wearIfSurvives,
     };
   }
-  return { attack, defense, attackerDestroyed: false, targetDestroyed: attack > defense, damageToSelf, damageToOpponent: 0 };
+  const targetDestroyed = attack > defense;
+  return {
+    attack,
+    defense,
+    attackerDestroyed: false,
+    targetDestroyed,
+    damageToSelf,
+    damageToOpponent: 0,
+    targetWear: targetDestroyed ? 0 : wearIfSurvives,
+  };
 }
 
 function fromView(creature: ViewCreature): Combatant {
@@ -132,8 +148,13 @@ function fromState(state: MatchState, player: PlayerId, slot: number): Combatant
   return { ...effectiveStats(state, player, slot), element: getCard(creature.cardId).element };
 }
 
-/** Mutates `draft`. The caller must have checked attackError first. */
-export function resolveAttack(draft: MatchState, player: PlayerId, action: AttackAction, events: GameEvent[]): void {
+/** Mutates `draft` and returns what happened. The caller must have checked attackError first. */
+export function resolveAttack(
+  draft: MatchState,
+  player: PlayerId,
+  action: AttackAction,
+  events: GameEvent[],
+): BattleOutcome {
   const enemy = opponent(player);
   const target =
     action.target === "direct"
@@ -149,6 +170,11 @@ export function resolveAttack(draft: MatchState, player: PlayerId, action: Attac
 
   if (action.target !== "direct" && outcome.targetDestroyed) destroy(draft, enemy, action.target, events);
   if (outcome.attackerDestroyed) destroy(draft, player, action.attackerSlot, events);
+  if (action.target !== "direct" && outcome.targetWear > 0) {
+    draft.players[enemy].field[action.target]!.wear += outcome.targetWear;
+    events.push({ type: "worn", player: enemy, slot: action.target, amount: outcome.targetWear });
+  }
   if (outcome.damageToOpponent > 0) dealDamage(draft, enemy, outcome.damageToOpponent, events);
   if (outcome.damageToSelf > 0) dealDamage(draft, player, outcome.damageToSelf, events);
+  return outcome;
 }

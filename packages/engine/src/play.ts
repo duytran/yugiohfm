@@ -74,6 +74,8 @@ export function resolvePlay(draft: MatchState, player: PlayerId, action: PlayAct
     position: action.position,
     // a creature that already attacked cannot attack again by being fused onto
     hasAttacked: previous?.hasAttacked ?? false,
+    // a play never heals wear
+    wear: previous?.wear ?? 0,
   };
   draft.playsUsed += 1;
   events.push({ type: "played", player, slot: action.slot, cardId: chain.result, position: action.position });

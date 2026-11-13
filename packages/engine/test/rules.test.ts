@@ -32,15 +32,26 @@ describe("opponent", () => {
 });
 
 describe("makeRules", () => {
-  it("defaults to an element bonus of 500 and 2 plays per turn", () => {
-    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+  it("defaults to an element bonus of 500, 2 plays per turn and a wear ratio of 1", () => {
+    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2, wearRatio: 1 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, wearRatio: 1 });
   });
 
   it("applies overrides without changing the defaults", () => {
-    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2 });
-    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2, wearRatio: 1 });
+    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1, wearRatio: 1 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, wearRatio: 1 });
+  });
+
+  it("applies a wear ratio override", () => {
+    expect(makeRules({ wearRatio: 0.5 })).toEqual({ elementBonus: 500, playsPerTurn: 2, wearRatio: 0.5 });
+  });
+
+  it("rejects a wear ratio outside 0 to 1", () => {
+    expect(() => makeRules({ wearRatio: -0.5 })).toThrow("invalid rule wearRatio: -0.5");
+    expect(() => makeRules({ wearRatio: 1.5 })).toThrow("invalid rule wearRatio: 1.5");
+    expect(() => makeRules({ wearRatio: Number.NaN })).toThrow("invalid rule wearRatio: NaN");
+    expect(makeRules({ wearRatio: 0 }).wearRatio).toBe(0);
   });
 
   it("returns a new object each time", () => {

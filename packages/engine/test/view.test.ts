@@ -29,13 +29,13 @@ describe("viewFor", () => {
       turn: 4,
       playsUsed: 1,
       result: null,
-      rules: { elementBonus: 500, playsPerTurn: 2 },
+      rules: { elementBonus: 500, playsPerTurn: 2, wearRatio: 1 },
       self: {
         hand: ["ember-fox", "ash-duelist"],
         deckCount: 3,
         field: [
           null,
-          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, atk: 1400, def: 1000 },
+          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, wear: 0, atk: 1400, def: 1000 },
           null,
           null,
           null,
@@ -46,7 +46,7 @@ describe("viewFor", () => {
         handCount: 3,
         deckCount: 2,
         field: [
-          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, atk: 1400, def: 1500 },
+          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, wear: 0, atk: 1400, def: 1500 },
           null,
           null,
           null,
@@ -54,6 +54,19 @@ describe("viewFor", () => {
         ],
         lifePoints: 1500,
       },
+    });
+  });
+
+  it("shows a worn creature's lowered values and its wear", () => {
+    const worn = makeState({ p1: { field: field({ 0: { ...creature("stone-ram"), wear: 400 } }) } });
+    expect(viewFor(worn, 0).opponent.field[0]).toEqual({
+      hidden: false,
+      cardId: "stone-ram",
+      position: "attack",
+      hasAttacked: false,
+      wear: 400,
+      atk: 1000,
+      def: 1100,
     });
   });
 
