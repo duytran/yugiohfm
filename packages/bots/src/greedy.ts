@@ -1,16 +1,14 @@
 import {
-  DECK_SIZE,
-  MAX_COPIES,
   fuseChain,
   getCard,
   playMaterials,
   previewAttack,
   type Action,
   type AttackAction,
-  type CardId,
   type PlayAction,
   type PlayerView,
 } from "@duel/engine";
+import { strongestDeck } from "./decks";
 import type { Bot } from "./types";
 
 /** ATK gained by a play: the result's ATK minus the ATK of the creature it replaces. */
@@ -51,15 +49,7 @@ function bestPlay(view: PlayerView, legal: readonly Action[]): PlayAction | null
 export const greedyBot: Bot = {
   name: "greedy",
 
-  buildDeck(cards) {
-    const strongest = cards
-      .filter((c) => !c.fusionOnly)
-      .sort((x, y) => y.atk - x.atk || (x.id < y.id ? -1 : 1))
-      .slice(0, DECK_SIZE / MAX_COPIES);
-    const deck: CardId[] = [];
-    for (const c of strongest) for (let i = 0; i < MAX_COPIES; i++) deck.push(c.id);
-    return deck;
-  },
+  buildDeck: strongestDeck,
 
   chooseAction(view, legal) {
     const play = bestPlay(view, legal);

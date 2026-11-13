@@ -5,6 +5,7 @@ import type { Bot } from "./types";
 export type { Bot } from "./types";
 export { randomBot } from "./random";
 export { greedyBot, isFavourable, playGain } from "./greedy";
+export { DECKS, elementDeck, randomDeck, strongestDeck, withDeck, type DeckBuilder } from "./decks";
 export { runMatch, type ActionRecord, type MatchOutcome, type RunOptions } from "./runMatch";
 export { formatSummary, summarize, type Summary } from "./stats";
 export { formatEvent, formatReplay } from "./replay";
