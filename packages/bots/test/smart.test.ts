@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_RULES, createRng, getCard, type Action, type PlayerView } from "@duel/engine";
+import { DEFAULT_RULES, createRng, getCard, type Action, type AttackAction, type PlayerView } from "@duel/engine";
 import { greedyBot } from "../src/greedy";
 import { runMatch } from "../src/runMatch";
-import { attackScore, smartBot, smartPlay, threat } from "../src/smart";
+import { GANG_SIZE, attackScore, bestAttack, planScore, smartBot, smartPlay, threat } from "../src/smart";
 
 const EMPTY_FIELD = [null, null, null, null, null];
 
@@ -179,5 +179,49 @@ describe("smartBot.chooseAction", () => {
     for (let seed = 1; seed <= 10; seed++) {
       expect(runMatch(smartBot, greedyBot, seed).status).toBe("finished");
     }
+  });
+});
+
+describe("planScore", () => {
+  it("adds up a series of attacks the engine previews one after the other", () => {
+    // thunder against thunder, no element bonus. Steel Wyrm 2400.
+    const v = view({ mine: [on("static-drakeling"), on("thunder-roc"), null, null, null], theirs: [on("steel-wyrm"), null, null, null, null] });
+    const wear: AttackAction = { type: "ATTACK", attackerSlot: 0, target: 0 };
+    const finish: AttackAction = { type: "ATTACK", attackerSlot: 1, target: 0 };
+    // 1300 vs 2400: lose 1300 and take 1100, Wyrm now 1100. 1700 vs 1100: win 2400 and deal 600.
+    expect(planScore(v, [wear, finish])).toBe(-1300 - 1100 + 2400 + 600);
+    expect(planScore(v, [finish])).toBe(attackScore(v, finish));
+  });
+
+  it("is Infinity when the series deals lethal damage and -Infinity when it cannot be previewed", () => {
+    const v = view({ mine: [on("ash-duelist"), null, null, null, null], theirLife: 1000 });
+    expect(planScore(v, [{ type: "ATTACK", attackerSlot: 0, target: "direct" }])).toBe(Infinity);
+    expect(planScore(v, [{ type: "ATTACK", attackerSlot: 3, target: "direct" }])).toBe(-Infinity);
+  });
+});
+
+describe("bestAttack", () => {
+  const steel = () =>
+    view({ mine: [on("static-drakeling"), on("thunder-roc"), null, null, null], theirs: [on("steel-wyrm"), null, null, null, null] });
+  const attacks: Action[] = [
+    { type: "ATTACK", attackerSlot: 0, target: 0 },
+    { type: "ATTACK", attackerSlot: 1, target: 0 },
+    END,
+  ];
+
+  it("starts a gang-up with its weakest creature when no single attack pays", () => {
+    expect(GANG_SIZE).toBe(3);
+    expect(bestAttack(steel(), attacks)).toEqual({ type: "ATTACK", attackerSlot: 0, target: 0 });
+  });
+
+  it("does not gang up when wear is off", () => {
+    const v = { ...steel(), rules: { ...DEFAULT_RULES, wearRatio: 0 } };
+    expect(bestAttack(v, attacks)).toBeNull();
+  });
+
+  it("prefers a single attack that pays over a gang-up that pays less", () => {
+    const v = view({ mine: [on("static-drakeling"), on("thunder-roc"), null, null, null], theirs: [on("storm-caller"), null, null, null, null] });
+    // Thunder Roc 1700 beats Storm Caller 1500 alone
+    expect(bestAttack(v, attacks)).toEqual({ type: "ATTACK", attackerSlot: 1, target: 0 });
   });
 });
