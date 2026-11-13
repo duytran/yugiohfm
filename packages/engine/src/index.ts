@@ -18,7 +18,7 @@ export { fuseChain, fusePair, type FusionStep } from "./fusion";
 export { createMatch } from "./match";
 export { playMaterials, previewPlay } from "./play";
 export { type BattleOutcome } from "./battle";
-export { previewAttack, previewAttacks } from "./preview";
+export { previewAttack, previewAttacks, viewAfterPlay } from "./preview";
 export { actionError, applyAction, applyTimeout } from "./actions";
 export { viewFor } from "./view";
 export { legalActions } from "./legal";

@@ -117,6 +117,15 @@ describe("smartPlay", () => {
   });
 });
 
+describe("smartPlay with synergy", () => {
+  it("puts a creature next to the Banner it shares a theme with", () => {
+    // turn 1, no threat: the best board is Burrow Drake beside the earth Banner
+    const v = { ...view({ hand: ["burrow-drake"], mine: [null, on("iron-digger"), null, null, null] }), turn: 1 };
+    const legal = [3, 0, 4, 2].map((slot): Action => ({ type: "PLAY", handIndexes: [0], slot, position: "attack" }));
+    expect(smartPlay(v, [...legal, END])).toMatchObject({ slot: 0 });
+  });
+});
+
 describe("attackScore", () => {
   const mine = [on("ash-duelist"), null, null, null, null];
 

@@ -1,6 +1,8 @@
 import { resolveAttack, type BattleOutcome } from "./battle";
+import { playError, resolvePlay } from "./play";
 import { opponent } from "./rules";
-import type { AttackAction, Creature, MatchState, PlayerState, PlayerView, ViewCreature } from "./types";
+import type { AttackAction, Creature, MatchState, PlayAction, PlayerState, PlayerView, ViewCreature } from "./types";
+import { viewFor } from "./view";
 
 function toCreature(creature: ViewCreature | null): Creature | null {
   if (!creature) return null;
@@ -66,4 +68,22 @@ export function previewAttacks(
 export function previewAttack(view: PlayerView, action: AttackAction): BattleOutcome | { error: string } {
   const result = previewAttacks(view, [action]);
   return "error" in result ? { error: result.error } : result[0]!;
+}
+
+/**
+ * The view the viewer would have after `action`, worked out by the real play
+ * code on a copy rebuilt from the view, or why the play is illegal. Counts the
+ * viewer cannot rebuild (decks, the opponent's hand) are kept from `view`.
+ */
+export function viewAfterPlay(view: PlayerView, action: PlayAction): PlayerView | { error: string } {
+  const state = stateFromView(view);
+  const error = playError(state, view.you, action);
+  if (error) return { error };
+  resolvePlay(state, view.you, action, []);
+  const after = viewFor(state, view.you);
+  return {
+    ...after,
+    self: { ...after.self, deckCount: view.self.deckCount },
+    opponent: { ...after.opponent, handCount: view.opponent.handCount, deckCount: view.opponent.deckCount },
+  };
 }
