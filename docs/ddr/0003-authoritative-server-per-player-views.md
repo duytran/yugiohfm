@@ -30,13 +30,13 @@ We keep the only real `MatchState` on the server. A client message carries an ac
 
 ## Implementation
 
-`viewFor` (`packages/engine/src/view.ts`) hides an opponent's hand, both decks and an opponent's face-down creatures (shown as `{ hidden: true, position }`). `eventsFor` (`packages/engine/src/events.ts`) filters a face-down play's card and fusion steps out of the opponent's events; a property test checks that nothing leaks over 200 random matches. The server code does not exist yet: The server builds every `match.view` from it in `Room.broadcastMatch` and `Room.sendEverythingTo` (`apps/server/src/room.ts`, plan 2, task 3). The client renders only `match.view` (plan 3).
+`viewFor` (`packages/engine/src/view.ts`) hides an opponent's hand, both decks and an opponent's face-down creatures (shown as `{ hidden: true, position }`). `eventsFor` (`packages/engine/src/events.ts`) filters a face-down play's card and fusion steps out of the opponent's events; a property test checks that nothing leaks over 200 random matches. The server code does not exist yet. In the revised plan 2 (`docs/plans/2026-11-13-protocol-and-server.md`, task 3) `Room.broadcastMatch` sends each player `viewFor` and `eventsFor` for their seat, `Room.sendEverythingTo` sends `viewFor` on reconnect, and previews run on the asking player's own view. The client renders only `match.view` (revised plan 3).
 
 ## Consequences
 
 - **Positive:** modified clients cannot see hidden cards or make illegal moves.
 - **Negative / trade-off:** every action costs a round trip before the board updates — **mitigated by** small messages and `match.preview` for fusion previews; no client-side prediction in version one, accepted.
-- **Known gap:** the server and client are not implemented (plans 2 and 3). The engine side is done: `viewFor` and `eventsFor` exist. Plan 2 as written still sends one event list to both players; it must send `eventsFor(events, player)` to each, and is revised before it is implemented.
+- **Known gap:** the server and client are not implemented (plans 2 and 3). The engine side is done: `viewFor` and `eventsFor` exist. The revised plan 2 sends `eventsFor(events, player)` to each player and tests that a face-down play reaches the opponent with no card.
 
 ## Compliance
 

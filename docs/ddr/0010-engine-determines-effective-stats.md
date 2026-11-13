@@ -9,7 +9,7 @@ With wear, Banner, Pack and Rally (DDR-0009) a creature's value on the board is 
 
 ## Decision
 
-The engine owns one value calculation. `viewFor` puts each visible creature's effective ATK and DEF into the view. A value that depends on a pairing (the element bonus, the outcome of one attack) comes from an engine preview function, the same way `previewPlay` works today. Owner's decision, 2026-11-13: "the engine should be the one to determine them".
+The engine owns one value calculation. `viewFor` puts each visible creature's effective ATK and DEF into the view. A value that depends on a pairing (the element bonus, the outcome of one attack) comes from an engine preview function. Over the network the server runs the preview on the asking player's own view and answers through `match.preview`, for plays and attacks alike (owner's decision, 2026-11-13). Owner's decision, 2026-11-13: "the engine should be the one to determine them".
 
 ## Rationale
 
@@ -29,14 +29,14 @@ The engine owns one value calculation. `viewFor` puts each visible creature's ef
 
 ## Implementation
 
-`packages/engine/src/values.ts` has `effectiveStats(state, player, slot)`, the only place a creature's current ATK and DEF are worked out. `view.ts` puts them on every `ViewCreature`. `battle.ts` builds both sides of a battle from them in `resolveAttack` (direct attacks included). `preview.ts` has the public `previewAttack(view, action)` and `previewAttacks(view, actions)`: they rebuild a `MatchState` from the view (`stateFromView`) and run `resolveAttack` itself, so a preview cannot disagree with the match. `viewAfterPlay(view, action)` gives the board after a play, by the real play code, so the smart bot ranks plays by values the engine worked out. Bots read `atk` and `def` from the view and call the previews.
+`packages/engine/src/values.ts` has `effectiveStats(state, player, slot)`, the only place a creature's current ATK and DEF are worked out. `view.ts` puts them on every `ViewCreature`. `battle.ts` builds both sides of a battle from them in `resolveAttack` (direct attacks included). `preview.ts` has the public `previewAttack(view, action)` and `previewAttacks(view, actions)`: they rebuild a `MatchState` from the view (`stateFromView`) and run `resolveAttack` itself, so a preview cannot disagree with the match. `viewAfterPlay(view, action)` gives the board after a play, by the real play code, so the smart bot ranks plays by values the engine worked out. Bots read `atk` and `def` from the view and call the previews. The server (revised plan 2, `Room.previewFor`) answers `match.preview` with `viewAfterPlay` for a play and `previewAttack` for an attack, after `actionError`, on the asking player's own view; the client (revised plan 3) shows field values from the view and words the forecast without working anything out.
 
 ## Consequences
 
 - **Positive:** the client stays a pure display; a bot and a human read identical numbers; a rule change touches one function.
 - **Negative / trade-off:** `PlayerView` grows and `viewFor` does more work per action — **mitigated by** the phase 0 simulator speed work; accepted otherwise.
-- **Negative / trade-off:** an attack forecast in the client needs a round trip to the server — **mitigated by** reusing the `match.preview` pattern; to be settled when plans 2 and 3 are revised.
-- **Known gap:** effective values include synergy and wear; a hidden creature carries none (a `HiddenCreature` has only its position). The client and its attack forecast do not exist yet.
+- **Negative / trade-off:** an attack forecast in the client needs a round trip to the server — **mitigated by** reusing the `match.preview` pattern: the client aims an attack, the server answers with the engine's `previewAttack` outcome, and the player confirms (revised plans 2 and 3).
+- **Known gap:** effective values include synergy and wear; a hidden creature carries none (a `HiddenCreature` has only its position). The server and client are planned (revised plans 2 and 3) but not implemented.
 
 ## Compliance
 

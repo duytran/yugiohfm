@@ -7,7 +7,7 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phases 0 to 5 are implemented (R1 to R6: positions, plays per turn, wear, answer traits, synergy, face-down play), as the owner asked before plans 2 and 3. Next: revise plans 2 and 3 against the real engine types, then implement them. The full rule set meets 2 of the 8 targets (tactics spec, phase 5 results); the owner decides the follow-ups it recommends.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phases 0 to 5 are implemented (R1 to R6: positions, plays per turn, wear, answer traits, synergy, face-down play), as the owner asked before plans 2 and 3. Plans 2 and 3 are revised against the real engine types (2026-11-13 files, superseding the 2026-11-12 ones) and are next to implement. The full rule set meets 2 of the 8 targets (tactics spec, phase 5 results); the owner decides the follow-ups it recommends.
 
 ## Read first
 
@@ -18,8 +18,8 @@ independent of the GUI and network so bots can play-test it headlessly.
 | `docs/specs/2026-11-13-tactics-rules-design.md` | Approved rule changes: combination over raw stats. |
 | `docs/specs/2026-11-13-face-down-play-design.md` | Approved: face-down play, for deception only. |
 | `docs/plans/2026-11-12-engine-and-bots.md` | Plan 1 of 3: rules engine and bots. |
-| `docs/plans/2026-11-12-protocol-and-server.md` | Plan 2 of 3: protocol and game server. |
-| `docs/plans/2026-11-12-browser-client.md` | Plan 3 of 3: browser client. |
+| `docs/plans/2026-11-13-protocol-and-server.md` | Plan 2 of 3: protocol and game server (revised; supersedes the 2026-11-12 file). |
+| `docs/plans/2026-11-13-browser-client.md` | Plan 3 of 3: browser client (revised; supersedes the 2026-11-12 file). |
 | `docs/plans/2026-11-13-tactics-phase-0-measurement.md` | Tactics phase 0: simulator, bots and measures. |
 | `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` | Tactics phase 1: free position changes, plays per turn. |
 | `docs/plans/2026-11-13-tactics-phase-2-wear.md` | Tactics phase 2: R3 wear, attack-series previews, `firstTurnPlays`. |

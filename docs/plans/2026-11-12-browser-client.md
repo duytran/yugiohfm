@@ -1,5 +1,7 @@
 # Browser Client Implementation Plan
 
+> **Superseded** on 2026-11-13 by `docs/plans/2026-11-13-browser-client.md`, revised for the engine after tactics phases 0 to 5. Implement that plan, not this one; this file is kept as the record of the first version.
+
 > **For agentic workers:** Implement this plan task-by-task, in order — one fresh subagent per task (recommended) or inline in one session. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the browser game: nickname entry, lobby, deck builder, room with invite link and ready check, and the duel board with fusion preview, chess clocks, event log, result and rematch.
@@ -2259,3 +2261,9 @@ git commit -m "feat(client): screens, duel board and dev script"
 ## After this plan
 
 Version one from the spec is complete. Natural next steps, each needing its own spec change first: deploying the server, a mobile layout, playing against a bot in a room, spectators.
+
+## Revisions
+
+### 2026-11-13
+
+- Superseded by `docs/plans/2026-11-13-browser-client.md`: the engine changed shape in tactics phases 0 to 5 (face-down play, per-player events, effective values in views, `playsUsed`), so this plan's code no longer fits it. The tasks and issues stay the same.

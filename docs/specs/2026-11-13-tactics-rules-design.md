@@ -867,3 +867,7 @@ What the numbers say:
 - R1 to R6 are all implemented, so step 3 of the 2026-11-13 next steps can
   start: revise plans 2 and 3 against the real engine types, then implement
   them.
+
+### 2026-11-13: plans 2 and 3 revised
+
+Step 3 of the reordered next steps has started: plans 2 and 3 are revised against the real engine types (`docs/plans/2026-11-13-protocol-and-server.md`, `docs/plans/2026-11-13-browser-client.md`) and are ready to implement. The owner decisions listed in the phase 5 results are still open; online play uses `DEFAULT_RULES`, so a default changed later reaches it with no server change.
