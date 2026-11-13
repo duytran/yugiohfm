@@ -32,7 +32,7 @@ export function makeState(
     active: 0 as PlayerId,
     firstPlayer: 0 as PlayerId,
     turn: 2,
-    hasPlayed: false,
+    playsUsed: 0,
     result: null,
     rules: { ...DEFAULT_RULES },
     ...rest,

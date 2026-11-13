@@ -29,7 +29,7 @@ export function endMatch(
  */
 export function startTurn(draft: MatchState, events: GameEvent[]): void {
   const player = draft.players[draft.active];
-  draft.hasPlayed = false;
+  draft.playsUsed = 0;
   for (const creature of player.field) {
     if (creature) creature.hasAttacked = false;
   }
@@ -65,7 +65,7 @@ export function createMatch(
     active: first,
     firstPlayer: first,
     turn: 1,
-    hasPlayed: false,
+    playsUsed: 0,
     result: null,
     rules: matchRules,
   };

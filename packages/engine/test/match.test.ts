@@ -10,7 +10,7 @@ describe("createMatch", () => {
     const second = state.players[state.firstPlayer === 0 ? 1 : 0];
     expect(state.active).toBe(state.firstPlayer);
     expect(state.turn).toBe(1);
-    expect(state.hasPlayed).toBe(false);
+    expect(state.playsUsed).toBe(0);
     expect(state.result).toBeNull();
     expect(first.hand).toHaveLength(5);
     expect(first.deck).toHaveLength(25);
@@ -23,8 +23,11 @@ describe("createMatch", () => {
   });
 
   it("stores the default rules, or the overrides it was given", () => {
-    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500 });
-    expect(createMatch(sampleDeck(), sampleDeck(), 1, { elementBonus: 1000 }).rules).toEqual({ elementBonus: 1000 });
+    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+    expect(createMatch(sampleDeck(), sampleDeck(), 1, { elementBonus: 1000, playsPerTurn: 1 }).rules).toEqual({
+      elementBonus: 1000,
+      playsPerTurn: 1,
+    });
   });
 
   it("throws for an invalid rule value", () => {
@@ -102,9 +105,9 @@ describe("startTurn", () => {
 
   it("clears the per-turn flags of the active player", () => {
     const used = { ...creature("ember-fox"), hasAttacked: true };
-    const state = makeState({ hasPlayed: true, p0: { field: field({ 0: used }) } });
+    const state = makeState({ playsUsed: 2, p0: { field: field({ 0: used }) } });
     startTurn(state, []);
-    expect(state.hasPlayed).toBe(false);
+    expect(state.playsUsed).toBe(0);
     expect(state.players[0].field[0]).toEqual(creature("ember-fox"));
   });
 });

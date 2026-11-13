@@ -43,7 +43,7 @@ describe("battleValues", () => {
 describe("battleValues with other rules", () => {
   it("uses the element bonus from the rules it is given", () => {
     // flame beats forest
-    expect(battleValues(getCard("ember-fox"), getCard("moss-boar"), "attack", { elementBonus: 1000 })).toEqual({
+    expect(battleValues(getCard("ember-fox"), getCard("moss-boar"), "attack", { ...DEFAULT_RULES, elementBonus: 1000 })).toEqual({
       attack: 2200,
       defense: 1300,
     });
@@ -156,7 +156,7 @@ describe("resolveAttack with other rules", () => {
   it("uses the match's own element bonus", () => {
     // flame 1200 + 1000 vs forest 1300
     const state = makeState({
-      rules: { elementBonus: 1000 },
+      rules: { ...DEFAULT_RULES, elementBonus: 1000 },
       p0: { field: field({ 0: creature("ember-fox") }) },
       p1: { field: field({ 0: creature("moss-boar") }) },
     });
@@ -288,7 +288,7 @@ describe("previewAttack", () => {
 
   it("uses the view's rules for the element bonus", () => {
     const state = makeState({
-      rules: { elementBonus: 1000 },
+      rules: { ...DEFAULT_RULES, elementBonus: 1000 },
       p0: { field: field({ 0: creature("ember-fox") }) },
       p1: { field: field({ 0: creature("moss-boar") }) },
     });

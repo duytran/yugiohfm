@@ -89,3 +89,4 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[decision]** Owner approved `docs/plans/2026-11-13-tactics-phase-1-positions-and-plays.md` after PRs #40 and #50 were merged, and asked for it to be implemented.
 - **[chore]** Created the milestone "Tactics phase 1: Positions and plays", the label `tactics-phase-1` and issues #51 to #53, one per plan task; listed them in the plan's `Revisions`. Work is on the branch `feat/tactics-phase-1`.
 - **[code]** R1: a creature may change position any number of times until it attacks (positionChanged removed), and a PLAY onto a creature that already attacked must keep its position, which closes the attack-then-fuse-into-defense hole; runMatch now stops after maxActions (tactics phase 1, task 1, #51).
+- **[code]** R2: plays per turn is now the rule setting playsPerTurn (default 2, 1 to 5); hasPlayed became the counter playsUsed in the state and the view; pnpm sim gained --plays (tactics phase 1, task 2, #52).

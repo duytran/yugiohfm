@@ -41,9 +41,11 @@ describe("legalActions", () => {
     expect(count(two, "PLAY")).toBe(40);
   });
 
-  it("lists no play once a card was played this turn", () => {
-    const actions = legalActions(makeState({ hasPlayed: true, p0: { hand: ["ember-fox"] } }), 0);
-    expect(count(actions, "PLAY")).toBe(0);
+  it("lists plays until the turn's plays are used up", () => {
+    const oneLeft = legalActions(makeState({ playsUsed: 1, p0: { hand: ["ember-fox"] } }), 0);
+    expect(count(oneLeft, "PLAY")).toBe(10);
+    const noneLeft = legalActions(makeState({ playsUsed: 2, p0: { hand: ["ember-fox"] } }), 0);
+    expect(count(noneLeft, "PLAY")).toBe(0);
   });
 
   it("lists a position change for every creature that has not attacked", () => {

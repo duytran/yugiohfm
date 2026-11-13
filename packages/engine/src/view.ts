@@ -22,7 +22,7 @@ export function viewFor(state: MatchState, player: PlayerId): PlayerView {
     active: state.active,
     firstPlayer: state.firstPlayer,
     turn: state.turn,
-    hasPlayed: state.hasPlayed,
+    playsUsed: state.playsUsed,
     result: state.result,
     rules: state.rules,
     self: { hand: me.hand, deckCount: me.deck.length, field: viewField(state, player), lifePoints: me.lifePoints },

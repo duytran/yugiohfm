@@ -34,14 +34,17 @@ describe("applyAction", () => {
     });
   });
 
-  it("applies PLAY", () => {
+  it("applies PLAY, twice in a turn and no more", () => {
     const state = makeState({ p0: { hand: HAND } });
-    const result = ok(state, 0, { type: "PLAY", handIndexes: [0], slot: 4, position: "attack" });
-    expect(result.state.players[0].field[4]?.cardId).toBe("ember-fox");
-    expect(result.state.hasPlayed).toBe(true);
-    expect(applyAction(result.state, 0, { type: "PLAY", handIndexes: [0], slot: 3, position: "attack" })).toEqual({
+    const first = ok(state, 0, { type: "PLAY", handIndexes: [0], slot: 4, position: "attack" });
+    expect(first.state.players[0].field[4]?.cardId).toBe("ember-fox");
+    expect(first.state.playsUsed).toBe(1);
+    const second = ok(first.state, 0, { type: "PLAY", handIndexes: [0], slot: 3, position: "attack" });
+    expect(second.state.players[0].field[3]?.cardId).toBe("ash-duelist");
+    expect(second.state.playsUsed).toBe(2);
+    expect(applyAction(second.state, 0, { type: "PLAY", handIndexes: [0], slot: 2, position: "attack" })).toEqual({
       ok: false,
-      error: "already played a card this turn",
+      error: "no plays left this turn",
     });
   });
 
@@ -101,11 +104,11 @@ describe("SET_POSITION", () => {
 
 describe("END_TURN", () => {
   it("passes the turn, counts it, and draws for the next player", () => {
-    const state = makeState({ hasPlayed: true, p1: { hand: ["seedling"] } });
+    const state = makeState({ playsUsed: 2, p1: { hand: ["seedling"] } });
     const result = ok(state, 0, { type: "END_TURN" });
     expect(result.state.active).toBe(1);
     expect(result.state.turn).toBe(3);
-    expect(result.state.hasPlayed).toBe(false);
+    expect(result.state.playsUsed).toBe(0);
     expect(result.state.players[1].hand).toHaveLength(5);
     expect(result.events).toEqual([
       { type: "turn-ended", player: 0 },

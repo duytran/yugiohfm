@@ -33,7 +33,7 @@ export function playMaterials(
 export function playError(state: MatchState, player: PlayerId, action: PlayAction): string | null {
   const turn = turnError(state, player);
   if (turn) return turn;
-  if (state.hasPlayed) return "already played a card this turn";
+  if (state.playsUsed >= state.rules.playsPerTurn) return "no plays left this turn";
   const shape = playShapeError(state.players[player].hand.length, action);
   if (shape) return shape;
   // fusing onto a creature that attacked must not move it out of harm's way
@@ -75,6 +75,6 @@ export function resolvePlay(draft: MatchState, player: PlayerId, action: PlayAct
     // a creature that already attacked cannot attack again by being fused onto
     hasAttacked: previous?.hasAttacked ?? false,
   };
-  draft.hasPlayed = true;
+  draft.playsUsed += 1;
   events.push({ type: "played", player, slot: action.slot, cardId: chain.result, position: action.position });
 }

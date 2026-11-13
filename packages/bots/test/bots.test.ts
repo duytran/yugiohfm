@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CARDS,
   createMatch,
+  DEFAULT_RULES,
   createRng,
   getCard,
   legalActions,
@@ -22,9 +23,9 @@ function view(overrides: { hand?: string[]; mine?: PlayerView["self"]["field"]; 
     active: 0,
     firstPlayer: 0,
     turn: 2,
-    hasPlayed: false,
+    playsUsed: 0,
     result: null,
-    rules: { elementBonus: 500 },
+    rules: { ...DEFAULT_RULES },
     self: { hand: overrides.hand ?? [], deckCount: 20, field: overrides.mine ?? EMPTY_FIELD, lifePoints: 4000 },
     opponent: { handCount: 5, deckCount: 20, field: overrides.theirs ?? EMPTY_FIELD, lifePoints: 4000 },
   };
