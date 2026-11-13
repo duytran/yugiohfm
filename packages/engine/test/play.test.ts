@@ -26,6 +26,14 @@ describe("playError", () => {
     expect(playError(makeState({ playsUsed: 2, p0: { hand: HAND } }), 0, play([0]))).toBe("no plays left this turn");
   });
 
+  it("limits turn 1 to firstTurnPlays", () => {
+    const rules = { ...DEFAULT_RULES, firstTurnPlays: 1 };
+    expect(playError(makeState({ turn: 1, rules, playsUsed: 1, p0: { hand: HAND } }), 0, play([0]))).toBe(
+      "no plays left this turn",
+    );
+    expect(playError(makeState({ turn: 2, rules, playsUsed: 1, p0: { hand: HAND } }), 0, play([0]))).toBeNull();
+  });
+
   it("takes the number of plays from the match's rules", () => {
     const onePlay = makeState({ rules: { ...DEFAULT_RULES, playsPerTurn: 1 }, playsUsed: 1, p0: { hand: HAND } });
     expect(playError(onePlay, 0, play([0]))).toBe("no plays left this turn");

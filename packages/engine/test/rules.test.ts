@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_RULES, beats, makeRules, opponent } from "../src/rules";
+import { DEFAULT_RULES, beats, makeRules, opponent, playsAllowed } from "../src/rules";
 import { ELEMENTS } from "../src/types";
+import { makeState } from "./helpers";
 
 describe("beats", () => {
   it("follows the ring flame > forest > wind > earth > thunder > water > flame", () => {
@@ -32,15 +33,37 @@ describe("opponent", () => {
 });
 
 describe("makeRules", () => {
-  it("defaults to an element bonus of 500 and 2 plays per turn", () => {
-    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+  it("defaults to an element bonus of 500, 2 plays per turn and a wear ratio of 1", () => {
+    expect(makeRules()).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
   });
 
   it("applies overrides without changing the defaults", () => {
-    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2 });
-    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1 });
-    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+    expect(makeRules({ elementBonus: 1000 })).toEqual({ elementBonus: 1000, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
+    expect(makeRules({ playsPerTurn: 1 })).toEqual({ elementBonus: 500, playsPerTurn: 1, firstTurnPlays: 1, wearRatio: 1 });
+    expect(DEFAULT_RULES).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
+  });
+
+  it("applies a wear ratio override", () => {
+    expect(makeRules({ wearRatio: 0.5 })).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 0.5 });
+  });
+
+  it("rejects a wear ratio outside 0 to 1", () => {
+    expect(() => makeRules({ wearRatio: -0.5 })).toThrow("invalid rule wearRatio: -0.5");
+    expect(() => makeRules({ wearRatio: 1.5 })).toThrow("invalid rule wearRatio: 1.5");
+    expect(() => makeRules({ wearRatio: Number.NaN })).toThrow("invalid rule wearRatio: NaN");
+    expect(makeRules({ wearRatio: 0 }).wearRatio).toBe(0);
+  });
+
+  it("gives turn 1 as many plays as any turn unless told otherwise", () => {
+    expect(makeRules({ playsPerTurn: 5 }).firstTurnPlays).toBe(5);
+    expect(makeRules({ playsPerTurn: 5, firstTurnPlays: 1 }).firstTurnPlays).toBe(1);
+  });
+
+  it("rejects first-turn plays outside 1 to playsPerTurn", () => {
+    expect(() => makeRules({ firstTurnPlays: 0 })).toThrow("invalid rule firstTurnPlays: 0");
+    expect(() => makeRules({ firstTurnPlays: 3 })).toThrow("invalid rule firstTurnPlays: 3");
+    expect(() => makeRules({ firstTurnPlays: 1.5 })).toThrow("invalid rule firstTurnPlays: 1.5");
   });
 
   it("returns a new object each time", () => {
@@ -58,5 +81,13 @@ describe("makeRules", () => {
     expect(() => makeRules({ playsPerTurn: 6 })).toThrow("invalid rule playsPerTurn: 6");
     expect(() => makeRules({ playsPerTurn: 1.5 })).toThrow("invalid rule playsPerTurn: 1.5");
     expect(makeRules({ playsPerTurn: 5 }).playsPerTurn).toBe(5);
+  });
+});
+
+describe("playsAllowed", () => {
+  it("is firstTurnPlays on turn 1 and playsPerTurn after", () => {
+    const rules = { ...DEFAULT_RULES, playsPerTurn: 2, firstTurnPlays: 1 };
+    expect(playsAllowed(makeState({ turn: 1, rules }))).toBe(1);
+    expect(playsAllowed(makeState({ turn: 2, rules }))).toBe(2);
   });
 });

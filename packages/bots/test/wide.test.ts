@@ -25,6 +25,7 @@ const on = (cardId: string, position: "attack" | "defense" = "attack") => ({
   cardId,
   position,
   hasAttacked: false,
+  wear: 0,
   atk: getCard(cardId).atk,
   def: getCard(cardId).def,
 });

@@ -25,6 +25,10 @@ export type Rules = {
   elementBonus: number;
   /** PLAY actions allowed per turn, 1 to HAND_SIZE */
   playsPerTurn: number;
+  /** PLAY actions allowed on turn 1, which is always the first player's; 1 to playsPerTurn */
+  firstTurnPlays: number;
+  /** Share of a withstood attack value that a surviving target loses from ATK and DEF until the turn ends (R3), 0 to 1 */
+  wearRatio: number;
 };
 
 export type PlayerId = 0 | 1;
@@ -34,6 +38,8 @@ export type Creature = {
   cardId: CardId;
   position: Position;
   hasAttacked: boolean;
+  /** ATK and DEF lost to battles survived this turn (R3); cleared at the start of every turn */
+  wear: number;
 };
 
 /**
@@ -45,6 +51,7 @@ export type ViewCreature = {
   cardId: CardId;
   position: Position;
   hasAttacked: boolean;
+  wear: number;
   atk: number;
   def: number;
 };
@@ -88,6 +95,7 @@ export type GameEvent =
   | { type: "position-set"; player: PlayerId; slot: number; position: Position }
   | { type: "attacked"; player: PlayerId; attackerSlot: number; target: number | "direct" }
   | { type: "destroyed"; player: PlayerId; slot: number; cardId: CardId }
+  | { type: "worn"; player: PlayerId; slot: number; amount: number }
   | { type: "damage"; player: PlayerId; amount: number }
   | { type: "turn-ended"; player: PlayerId }
   | { type: "match-ended"; winner: PlayerId; reason: EndReason };

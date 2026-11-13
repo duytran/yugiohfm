@@ -314,3 +314,19 @@ R1 and R2 (see the tactics spec). The sections above describe the earlier engine
 - `MatchState.hasPlayed` is now `playsUsed` (a count). A `PLAY` is legal while
   `playsUsed < rules.playsPerTurn`; `Rules` gained `playsPerTurn` (default 2).
 - `runMatch` stops after `maxActions` (default 10,000) as well as `maxTurns`.
+
+### 2026-11-13: after tactics phase 2
+
+R3 (see the tactics spec). The sections above describe the earlier engine.
+
+- `Creature` and `ViewCreature` have `wear`, which `effectiveStats` subtracts
+  (never below 0). Turn start clears wear on both sides.
+- `resolveAttack` applies the wear a surviving target takes, emits a public
+  `worn` event and returns its `BattleOutcome`.
+- New `preview.ts`: `stateFromView` rebuilds a `MatchState` from a
+  `PlayerView`; `previewAttack` and `previewAttacks` (a series, with wear,
+  losses and damage carried between attacks) run `resolveAttack` on it.
+  `previewAttack` moved out of `battle.ts`.
+- `Rules` gained `wearRatio` (0 to 1, default 1) and `firstTurnPlays` (1 to
+  `playsPerTurn`, default `playsPerTurn`); `playsAllowed(state)` reads them.
+- The smart bot plans gang-ups of up to 3 attacks on one target.

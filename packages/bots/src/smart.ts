@@ -2,7 +2,7 @@ import {
   fuseChain,
   getCard,
   playMaterials,
-  previewAttack,
+  previewAttacks,
   type Action,
   type AttackAction,
   type PlayAction,
@@ -27,6 +27,7 @@ function afterPlay(view: PlayerView, option: Option): PlayerView {
           cardId: option.cardId,
           position: option.action.position,
           hasAttacked: false,
+          wear: 0,
           atk: option.atk,
           def: option.def,
         }
@@ -99,27 +100,88 @@ export function smartPlay(view: PlayerView, legal: readonly Action[]): PlayActio
 }
 
 /**
- * How good an attack is, from the engine's preview: damage dealt plus the ATK
- * of a destroyed target, minus damage taken and the ATK of a lost attacker.
+ * How good a series of attacks is, from the engine's preview of the whole
+ * series: damage dealt plus the ATK of destroyed targets, minus damage taken
+ * and the ATK of lost attackers. Values are read from the view before the
+ * series, so wearing a target down earns nothing until it is destroyed.
+ * Infinity if it wins the match, -Infinity if it loses it or cannot be previewed.
  */
+export function planScore(view: PlayerView, plan: readonly AttackAction[]): number {
+  const previews = previewAttacks(view, plan);
+  if ("error" in previews) return -Infinity;
+  let dealt = 0;
+  let taken = 0;
+  let value = 0;
+  previews.forEach((preview, i) => {
+    const action = plan[i]!;
+    dealt += preview.damageToOpponent;
+    taken += preview.damageToSelf;
+    if (preview.targetDestroyed && action.target !== "direct") value += view.opponent.field[action.target]!.atk;
+    if (preview.attackerDestroyed) value -= view.self.field[action.attackerSlot]!.atk;
+  });
+  if (dealt >= view.opponent.lifePoints) return Infinity;
+  if (taken >= view.self.lifePoints) return -Infinity;
+  return dealt - taken + value;
+}
+
+/** How good one attack is; see planScore. */
 export function attackScore(view: PlayerView, action: AttackAction): number {
-  const preview = previewAttack(view, action);
-  if ("error" in preview) return -Infinity;
-  if (preview.damageToOpponent >= view.opponent.lifePoints) return Infinity;
-  if (preview.damageToSelf >= view.self.lifePoints) return -Infinity;
-  const attacker = view.self.field[action.attackerSlot]!;
-  const target = action.target === "direct" ? null : view.opponent.field[action.target]!;
-  return (
-    preview.damageToOpponent +
-    (preview.targetDestroyed && target ? target.atk : 0) -
-    preview.damageToSelf -
-    (preview.attackerDestroyed ? attacker.atk : 0)
-  );
+  return planScore(view, [action]);
+}
+
+/** Most attacks on one target the bot plans together: wearers, then a finisher (R3). */
+export const GANG_SIZE = 3;
+
+/**
+ * The attack to make now, or null if none scores above 0. Every legal attack
+ * is a plan of its own. For each target, it also plans gang-ups: one finisher
+ * (strongest first) after 1 to GANG_SIZE - 1 of the weakest other attackers,
+ * where every attack but the last leaves the target standing and the last
+ * destroys it. A plan replaces the best so far only when it scores strictly
+ * higher, so with wear off the bot attacks exactly as it did before. Only the
+ * plan's first attack is returned; the bot asks again after it.
+ */
+export function bestAttack(view: PlayerView, legal: readonly Action[]): AttackAction | null {
+  const attacks = legal.filter((action): action is AttackAction => action.type === "ATTACK");
+  let best: AttackAction | null = null;
+  let bestScore = 0;
+  for (const action of attacks) {
+    const score = attackScore(view, action);
+    if (score > bestScore) {
+      best = action;
+      bestScore = score;
+    }
+  }
+
+  const atkOf = (action: AttackAction) => view.self.field[action.attackerSlot]!.atk;
+  const targets = new Set(attacks.flatMap((action) => (action.target === "direct" ? [] : [action.target])));
+  for (const target of targets) {
+    const onTarget = attacks.filter((action) => action.target === target);
+    const weakestFirst = [...onTarget].sort((x, y) => atkOf(x) - atkOf(y));
+    const strongestFirst = [...weakestFirst].reverse();
+    for (const finisher of strongestFirst) {
+      const others = weakestFirst.filter((action) => action !== finisher);
+      for (let wearers = 1; wearers < GANG_SIZE && wearers <= others.length; wearers++) {
+        const plan = [...others.slice(0, wearers), finisher];
+        const previews = previewAttacks(view, plan);
+        if ("error" in previews) continue;
+        const wearsThenFinishes = previews.every((preview, i) => preview.targetDestroyed === (i === plan.length - 1));
+        if (!wearsThenFinishes) continue;
+        const score = planScore(view, plan);
+        if (score > bestScore) {
+          best = plan[0]!;
+          bestScore = score;
+        }
+      }
+    }
+  }
+  return best;
 }
 
 /**
- * Looks one attack ahead through the engine's preview, so it follows whatever
- * the battle rules are. Same deck as the greedy and wide bots.
+ * Looks ahead through the engine's previews, one attack or a gang-up of up to
+ * GANG_SIZE attacks, so it follows whatever the battle rules are. Same deck as
+ * the greedy and wide bots.
  */
 export const smartBot: Bot = {
   name: "smart",
@@ -141,17 +203,8 @@ export const smartBot: Bot = {
     const toAttack = turn("attack");
     if (toAttack) return toAttack;
 
-    let best: AttackAction | null = null;
-    let bestScore = 0;
-    for (const action of legal) {
-      if (action.type !== "ATTACK") continue;
-      const score = attackScore(view, action);
-      if (score > bestScore) {
-        best = action;
-        bestScore = score;
-      }
-    }
-    if (best) return best;
+    const attack = bestAttack(view, legal);
+    if (attack) return attack;
 
     const toDefense = turn("defense");
     if (toDefense) return toDefense;

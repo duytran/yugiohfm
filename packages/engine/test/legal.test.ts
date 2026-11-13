@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyAction } from "../src/actions";
 import { legalActions, orderedSelections } from "../src/legal";
+import { DEFAULT_RULES } from "../src/rules";
 import type { Action } from "../src/types";
 import { creature, field, makeState } from "./helpers";
 
@@ -39,6 +40,11 @@ describe("legalActions", () => {
     expect(count(one, "PLAY")).toBe(10);
     const two = legalActions(makeState({ p0: { hand: ["ember-fox", "seedling"] } }), 0);
     expect(count(two, "PLAY")).toBe(40);
+  });
+
+  it("lists no play on turn 1 once firstTurnPlays are used", () => {
+    const state = makeState({ turn: 1, playsUsed: 1, rules: { ...DEFAULT_RULES, firstTurnPlays: 1 }, p0: { hand: ["ember-fox"] } });
+    expect(legalActions(state, 0).filter((a) => a.type === "PLAY")).toEqual([]);
   });
 
   it("lists plays until the turn's plays are used up", () => {

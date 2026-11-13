@@ -22,6 +22,8 @@ export function formatEvent(event: GameEvent, bots: readonly [string, string]): 
       }`;
     case "destroyed":
       return `  ${who(event.player)} lost ${name(event.cardId)} (slot ${event.slot})`;
+    case "worn":
+      return `  ${who(event.player)} slot ${event.slot} worn by ${event.amount}`;
     case "damage":
       return `  ${who(event.player)} took ${event.amount} damage`;
     case "turn-ended":

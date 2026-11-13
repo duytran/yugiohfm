@@ -1,5 +1,5 @@
 import { actionError } from "./actions";
-import { FIELD_SLOTS } from "./rules";
+import { FIELD_SLOTS, playsAllowed } from "./rules";
 import type { Action, MatchState, PlayerId, Position } from "./types";
 
 const POSITIONS: Position[] = ["attack", "defense"];
@@ -30,7 +30,7 @@ export function legalActions(state: MatchState, player: PlayerId): Action[] {
 
   const candidates: Action[] = [];
   // skipping this when no play is left is only a speed-up; the filter below would drop them anyway
-  if (state.playsUsed < state.rules.playsPerTurn) {
+  if (state.playsUsed < playsAllowed(state)) {
     for (const handIndexes of orderedSelections(state.players[player].hand.length)) {
       for (let slot = 0; slot < FIELD_SLOTS; slot++) {
         for (const position of POSITIONS) candidates.push({ type: "PLAY", handIndexes, slot, position });

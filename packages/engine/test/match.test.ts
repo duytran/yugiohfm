@@ -23,10 +23,12 @@ describe("createMatch", () => {
   });
 
   it("stores the default rules, or the overrides it was given", () => {
-    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500, playsPerTurn: 2 });
+    expect(createMatch(sampleDeck(), sampleDeck(), 1).rules).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
     expect(createMatch(sampleDeck(), sampleDeck(), 1, { elementBonus: 1000, playsPerTurn: 1 }).rules).toEqual({
       elementBonus: 1000,
       playsPerTurn: 1,
+      firstTurnPlays: 1,
+      wearRatio: 1,
     });
   });
 
@@ -101,6 +103,16 @@ describe("startTurn", () => {
     const state = makeState({ p0: { hand, deck: [] } });
     startTurn(state, []);
     expect(state.result).toBeNull();
+  });
+
+  it("clears wear from both players' creatures", () => {
+    const state = makeState({
+      p0: { field: field({ 0: { ...creature("ember-fox"), wear: 500 } }) },
+      p1: { field: field({ 2: { ...creature("moss-boar"), wear: 300 } }) },
+    });
+    startTurn(state, []);
+    expect(state.players[0].field[0]?.wear).toBe(0);
+    expect(state.players[1].field[2]?.wear).toBe(0);
   });
 
   it("clears the per-turn flags of the active player", () => {

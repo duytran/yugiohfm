@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { attackError, battleOutcome, battleValues, previewAttack, resolveAttack } from "../src/battle";
+import { attackError, battleOutcome, battleValues, resolveAttack } from "../src/battle";
 import { getCard } from "../src/cards";
 import { DEFAULT_RULES } from "../src/rules";
 import type { AttackAction, GameEvent, MatchState } from "../src/types";
-import { viewFor } from "../src/view";
+import { effectiveStats } from "../src/values";
 import { creature, field, makeState } from "./helpers";
 
 function attack(attackerSlot: number, target: number | "direct"): AttackAction {
@@ -181,14 +181,17 @@ describe("resolveAttack against defense position", () => {
     expect(state.players[0].lifePoints).toBe(3700);
   });
 
-  it("does nothing on equal values", () => {
+  it("destroys nothing on equal values, but wears the target (R3)", () => {
     const state = duel("ash-duelist", "furnace-drone", "defense"); // 1500 vs DEF 1500
     const events: GameEvent[] = [];
     resolveAttack(state, 0, attack(0, 0), events);
     expect(state.players[0].field[0]?.hasAttacked).toBe(true);
     expect(state.players[1].field[0]).not.toBeNull();
     expect(state.players[0].lifePoints).toBe(4000);
-    expect(events).toEqual([{ type: "attacked", player: 0, attackerSlot: 0, target: 0 }]);
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "worn", player: 1, slot: 0, amount: 1500 },
+    ]);
   });
 });
 
@@ -230,6 +233,7 @@ describe("battleOutcome", () => {
       targetDestroyed: true,
       damageToSelf: 0,
       damageToOpponent: 500,
+      targetWear: 0,
     });
     expect(battleOutcome(weak, { combatant: strong, position: "attack" }, DEFAULT_RULES)).toMatchObject({
       attackerDestroyed: true,
@@ -256,6 +260,7 @@ describe("battleOutcome", () => {
       targetDestroyed: true,
       damageToSelf: 0,
       damageToOpponent: 0,
+      targetWear: 0,
     });
     expect(battleOutcome(weak, { combatant: weak, position: "defense" }, DEFAULT_RULES)).toMatchObject({
       attackerDestroyed: false,
@@ -273,54 +278,94 @@ describe("battleOutcome", () => {
       targetDestroyed: false,
       damageToSelf: 0,
       damageToOpponent: 2000,
+      targetWear: 0,
     });
   });
 });
 
-describe("previewAttack", () => {
-  it("reads the creatures' values from the view, not from the cards", () => {
-    const view = viewFor(duel("ember-fox", "ash-duelist"), 0);
-    expect(previewAttack(view, attack(0, 0))).toMatchObject({ attack: 1200, defense: 1500, attackerDestroyed: true });
-    view.self.field[0]!.atk = 1900;
-    expect(previewAttack(view, attack(0, 0))).toMatchObject({ attack: 1900, defense: 1500, targetDestroyed: true });
-    expect(previewAttack(view, attack(0, "direct"))).toMatchObject({ damageToOpponent: 1900 });
-  });
-
-  it("uses the view's rules for the element bonus", () => {
-    const state = makeState({
-      rules: { ...DEFAULT_RULES, elementBonus: 1000 },
-      p0: { field: field({ 0: creature("ember-fox") }) },
-      p1: { field: field({ 0: creature("moss-boar") }) },
+describe("wear (R3)", () => {
+  /** Player 1's Ancient Tyrant (flame 3000/2500) against three flame attackers: no element bonus anywhere. */
+  function titan(wearRatio = 1): MatchState {
+    return makeState({
+      rules: { ...DEFAULT_RULES, wearRatio },
+      p0: { field: field({ 0: creature("cinder-whelp"), 1: creature("pyre-adept"), 2: creature("ash-duelist") }) },
+      p1: { field: field({ 0: creature("ancient-tyrant") }) },
     });
-    expect(previewAttack(viewFor(state, 0), attack(0, 0))).toMatchObject({ attack: 2200, defense: 1300 });
+  }
+
+  it("wears a surviving target down by the attack value it withstood", () => {
+    const state = titan();
+    const events: GameEvent[] = [];
+    resolveAttack(state, 0, attack(0, 0), events); // 1400 against 3000
+    expect(state.players[1].field[0]?.wear).toBe(1400);
+    expect(effectiveStats(state, 1, 0)).toEqual({ atk: 1600, def: 1100 });
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "destroyed", player: 0, slot: 0, cardId: "cinder-whelp" },
+      { type: "worn", player: 1, slot: 0, amount: 1400 },
+      { type: "damage", player: 0, amount: 1600 },
+    ]);
   });
 
-  it("returns an error when a creature is missing", () => {
-    const view = viewFor(duel("ember-fox", "ash-duelist"), 0);
-    expect(previewAttack(view, attack(3, 0))).toEqual({ error: "no creature in that slot" });
-    expect(previewAttack(view, attack(9, 0))).toEqual({ error: "no creature in that slot" });
-    expect(previewAttack(view, attack(0, 2))).toEqual({ error: "no creature in the target slot" });
+  it("lets three small creatures bring down a big one (the spec's worked example)", () => {
+    const state = titan();
+    resolveAttack(state, 0, attack(0, 0), []); // 1400 vs 3000: you take 1600, Titan now 1600
+    resolveAttack(state, 0, attack(1, 0), []); // 1300 vs 1600: you take 300, Titan now 300
+    resolveAttack(state, 0, attack(2, 0), []); // 1500 vs 300: Titan destroyed, they take 1200
+    expect(state.players[1].field[0]).toBeNull();
+    expect(state.players[0].lifePoints).toBe(2100);
+    expect(state.players[1].lifePoints).toBe(2800);
   });
 
-  it("agrees with what resolveAttack then does", () => {
-    const cases: [string, string, "attack" | "defense"][] = [
-      ["ash-duelist", "ember-fox", "attack"],
-      ["ember-fox", "ash-duelist", "attack"],
-      ["ash-duelist", "burrow-drake", "attack"],
-      ["ember-fox", "moss-boar", "attack"],
-      ["ash-duelist", "ember-fox", "defense"],
-      ["ember-fox", "furnace-drone", "defense"],
-      ["ash-duelist", "furnace-drone", "defense"],
-    ];
-    for (const [mine, theirs, position] of cases) {
-      const state = duel(mine, theirs, position);
-      const preview = previewAttack(viewFor(state, 0), attack(0, 0));
-      if ("error" in preview) throw new Error(preview.error);
-      resolveAttack(state, 0, attack(0, 0), []);
-      expect(state.players[0].field[0] === null, `${mine} -> ${theirs}`).toBe(preview.attackerDestroyed);
-      expect(state.players[1].field[0] === null, `${mine} -> ${theirs}`).toBe(preview.targetDestroyed);
-      expect(4000 - state.players[0].lifePoints).toBe(preview.damageToSelf);
-      expect(4000 - state.players[1].lifePoints).toBe(preview.damageToOpponent);
-    }
+  it("wears a target in defense position that holds", () => {
+    const state = duel("ember-fox", "furnace-drone", "defense"); // 1200 vs DEF 1500
+    const events: GameEvent[] = [];
+    resolveAttack(state, 0, attack(0, 0), events);
+    expect(effectiveStats(state, 1, 0)).toEqual({ atk: 0, def: 300 });
+    expect(events).toEqual([
+      { type: "attacked", player: 0, attackerSlot: 0, target: 0 },
+      { type: "worn", player: 1, slot: 0, amount: 1200 },
+      { type: "damage", player: 0, amount: 300 },
+    ]);
+  });
+
+  it("never wears the attacker", () => {
+    const state = duel("ember-fox", "furnace-drone", "defense");
+    resolveAttack(state, 0, attack(0, 0), []);
+    expect(state.players[0].field[0]?.wear).toBe(0);
+  });
+
+  it("uses the match's wear ratio", () => {
+    const half = titan(0.5);
+    resolveAttack(half, 0, attack(1, 0), []); // 1300 x 0.5
+    expect(half.players[1].field[0]?.wear).toBe(650);
+    const none = titan(0);
+    const events: GameEvent[] = [];
+    resolveAttack(none, 0, attack(1, 0), events);
+    expect(none.players[1].field[0]?.wear).toBe(0);
+    expect(events.some((e) => e.type === "worn")).toBe(false);
+  });
+
+  it("adds the element bonus after wear, so a creature worn to 0 still gets it", () => {
+    // forest beats wind: Moss Boar worn to 0 still defends at 0 + 500
+    const state = makeState({
+      p0: { field: field({ 0: creature("gale-falcon") }) },
+      p1: { field: field({ 0: { ...creature("moss-boar"), wear: 1300 } }) },
+    });
+    const outcome = resolveAttack(state, 0, attack(0, 0), []);
+    expect(outcome).toMatchObject({ attack: 1500, defense: 500, targetDestroyed: true, damageToOpponent: 1000 });
+  });
+
+  it("returns the outcome it applied", () => {
+    const outcome = resolveAttack(titan(), 0, attack(0, 0), []);
+    expect(outcome).toEqual({
+      attack: 1400,
+      defense: 3000,
+      attackerDestroyed: true,
+      targetDestroyed: false,
+      damageToSelf: 1600,
+      damageToOpponent: 0,
+      targetWear: 1400,
+    });
   });
 });

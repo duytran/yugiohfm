@@ -544,3 +544,74 @@ plans 2 and 3. The plans are
 - The phase plans propose which cards print which trait (phase 3 for Venom,
   Guard and Pierce; phase 4 for Banner, Pack and Rally). Only traits are added;
   the 40 base cards keep their names, tags and stats.
+
+### 2026-11-13: phase 2 results (R3)
+
+R3 (wear) and `firstTurnPlays` are implemented. 500 matches per row, seeds 1 to
+500, 2 plays per turn, default element bonus, "strongest" deck unless a deck is
+named. Rows with `--wear 0` and no `--first-plays` equal the phase 1 "2 plays"
+rows exactly, which confirms R3 changes nothing when it is off. 0 errors in
+every run.
+
+Smart versus smart:
+
+| Wear ratio | First-turn plays | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|---|
+| 0 | 2 (default) | 60.0% | 6.9 | 5.0% | 4.8% | 1.0 | 89.8% |
+| 0.5 | 2 | 69.2% | 5.9 | 0% | 6.4% | 1.2 | 89.8% |
+| 1 | 2 | 68.0% | 5.3 | 0% | 7.8% | 1.3 | 90.2% |
+| 0 | 1 | 38.6% | 6.1 | 3.6% | 7.8% | 0.3 | 90.8% |
+| 0.5 | 1 | 44.4% | 5.3 | 0% | 3.2% | 0.4 | 91.0% |
+| 1 | 1 | 45.8% | 4.8 | 0% | 2.4% | 0.5 | 91.4% |
+
+Other matchups (first-named bot's win rate), at first-turn plays 2 / 1:
+
+| Matchup | Wear 0 | Wear 0.5 | Wear 1 |
+|---|---|---|---|
+| greedy (tall) vs wide | 100% / 100% | 100% / 100% | 100% / 100% |
+| smart vs wide | 100% / 100% | 100% / 100% | 100% / 100% |
+| smart vs greedy | 82.2% / 76.2% | 81.2% / 76.4% | 84.0% / 78.6% |
+| smart, flame deck vs strongest deck | 52.0% / 49.8% | 50.4% / 49.6% | 51.2% / 49.2% |
+
+Against the targets of section 6 (smart versus smart):
+
+| Measure | Target | Phase 1 (2 plays) | Phase 2 best | |
+|---|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | tall 100% | missed, unchanged |
+| Average turns | 8 to 14 | 6.9 | 6.9 (wear 0) / 4.8 (wear 1, first-turn plays 1) | missed, wear shortens matches |
+| First-player win rate | 45% to 55% | 60.0% | 45.8% (wear 1, first-turn plays 1) | met only with first-turn plays 1 |
+| Deck-out | under 5% | 5.0% | 0% (any wear above 0) | met |
+| Fusion share of plays | 30% to 70% | 89.8% | 89.8% | missed, unchanged |
+| Themed (flame) versus strongest deck | at least 50% | 52.0% | 50.4% to 52.0% at first-turn plays 2 | met at first-turn plays 2, 49.2% to 49.8% at 1 (noise) |
+| Comebacks | 20% to 35% | 4.8% | 7.8% | missed, closer |
+| Lead changes per match | at least 2 | 1.0 | 1.3 (wear 1, first-turn plays 2) | missed, closer |
+
+What the numbers say:
+
+- **Wear removes deck-out and nudges comebacks and lead changes up, and
+  nothing else.** Any wear above 0 ends every match on life points (deck-out
+  0%), because matches get shorter. Comebacks rise from 4.8% to 7.8% and lead
+  changes from 1.0 to 1.3, at first-turn plays 2.
+- **Wear does not make wide a plan.** Wide still wins 0 of 500 in every run,
+  and the fusion share does not move. Those matches last 3.7 turns, so wear has
+  no time to matter: the tall bot wins before a gang-up is worth planning. The
+  cause is the size of a fusion against single cards, which R4 and R5 address,
+  not wear.
+- **Wear raises the first-player edge** (60.0% to 68.0% at wear 1) and shortens
+  matches (6.9 to 5.3 turns), moving away from the 8-to-14 target. The first
+  player builds a worn-proof board first.
+- **`firstTurnPlays` 1 fixes the edge.** It brings the first-player win rate to
+  38.6% at wear 0, 44.4% at 0.5 and 45.8% at wear 1; only wear 1 is inside the
+  45% to 55% band. With wear 0 it overshoots to the second player.
+- **Recommendation for the owner** (a recommendation only; the defaults change
+  only by the owner's decision, in a later commit): `wearRatio` 1 and
+  `firstTurnPlays` 1. It is the only pair inside the first-player band, it
+  removes deck-out, and the lead-change and comeback measures stay where phase 3
+  to 5 must lift them. The cost is shorter matches (4.8 turns), which phase 3
+  to 5 must also address. Wear 0.5 is within 1.4 points of wear 1 on the
+  first-player rate and the numbers do not separate it from 1 elsewhere.
+- Planning decisions, recorded in the phase 2 plan: only the target is worn;
+  the wear is the attack value it withstood, element bonus included, times
+  `wearRatio`; wear clears at every turn start; the order of a value is printed
+  value, plus synergy, minus wear (never below 0), with the element bonus added
+  in battle on top.
