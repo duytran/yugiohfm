@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatReplay } from "../src/replay";
 import type { MatchOutcome } from "../src/runMatch";
-import { formatSummary, summarize } from "../src/stats";
+import { formatSummary, lifeTrack, summarize } from "../src/stats";
 
 const base = { seed: 1, actions: [] };
 
@@ -91,5 +91,82 @@ describe("formatReplay", () => {
 
   it("ends with the error for an error outcome", () => {
     expect(formatReplay(outcomes[2]!).split("\n").at(-1)).toBe("ERROR: boom");
+  });
+});
+
+describe("lifeTrack", () => {
+  it("counts lead changes and the worst deficit of each player", () => {
+    const track = lifeTrack([
+      { type: "damage", player: 0, amount: 2500 }, // 1500 vs 4000: player 1 leads
+      { type: "turn-ended", player: 1 },
+      { type: "damage", player: 1, amount: 3000 }, // 1500 vs 1000: player 0 leads
+      { type: "damage", player: 1, amount: 1000 }, // 1500 vs 0
+    ]);
+    expect(track).toEqual({ leadChanges: 1, worstDeficit: [2500, 1500] });
+  });
+
+  it("does not count a tie as a lead change", () => {
+    const track = lifeTrack([
+      { type: "damage", player: 0, amount: 500 }, // player 1 leads
+      { type: "damage", player: 1, amount: 500 }, // tied
+      { type: "damage", player: 0, amount: 500 }, // player 1 leads again
+    ]);
+    expect(track.leadChanges).toBe(0);
+  });
+
+  it("is all zeros with no damage", () => {
+    expect(lifeTrack([])).toEqual({ leadChanges: 0, worstDeficit: [0, 0] });
+  });
+});
+
+describe("summarize: tactics measures", () => {
+  const comeback: MatchOutcome = {
+    seed: 7,
+    actions: [],
+    bots: ["smart", "greedy"],
+    status: "finished",
+    winner: 0,
+    reason: "life-points",
+    firstPlayer: 1,
+    turns: 12,
+    events: [
+      { type: "damage", player: 0, amount: 2500 },
+      { type: "damage", player: 1, amount: 3000 },
+      { type: "damage", player: 1, amount: 1000 },
+    ],
+  };
+
+  it("measures comebacks and lead changes over finished games", () => {
+    const summary = summarize([...outcomes, comeback]);
+    // finished games: the two in `outcomes` (no damage events) and the comeback
+    expect(summary.comebackRate).toBeCloseTo(1 / 3);
+    expect(summary.averageLeadChanges).toBeCloseTo(1 / 3);
+  });
+
+  it("measures the share of plays that fused", () => {
+    // `outcomes` has 3 plays; one of them follows a successful fusion
+    expect(summarize(outcomes).fusionShare).toBeCloseTo(1 / 3);
+  });
+
+  it("does not count a failed fusion as a fusion play", () => {
+    const failed: MatchOutcome = {
+      ...comeback,
+      events: [
+        { type: "fusion-failed", player: 0, a: "furnace-drone", b: "pearl-clam" },
+        { type: "played", player: 0, slot: 0, cardId: "pearl-clam", position: "attack" },
+      ],
+    };
+    expect(summarize([failed]).fusionShare).toBe(0);
+  });
+
+  it("is zero for no games", () => {
+    expect(summarize([])).toMatchObject({ comebackRate: 0, averageLeadChanges: 0, fusionShare: 0 });
+  });
+
+  it("prints the three measures", () => {
+    const text = formatSummary(summarize([...outcomes, comeback]));
+    expect(text).toContain("Comebacks (winner was 2000+ behind): 33.3%");
+    expect(text).toContain("Lead changes: average 0.3");
+    expect(text).toContain("Fusion share of plays: 33.3%");
   });
 });

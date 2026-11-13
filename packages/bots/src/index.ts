@@ -11,7 +11,7 @@ export { wideBot, widePlay } from "./wide";
 export { attackScore, smartBot, smartPlay, threat } from "./smart";
 export { DECKS, elementDeck, randomDeck, strongestDeck, withDeck, type DeckBuilder } from "./decks";
 export { runMatch, type ActionRecord, type MatchOutcome, type RunOptions } from "./runMatch";
-export { formatSummary, summarize, type Summary } from "./stats";
+export { COMEBACK_DEFICIT, formatSummary, lifeTrack, summarize, type Summary } from "./stats";
 export { formatEvent, formatReplay } from "./replay";
 
 /** Bots selectable by name on the command line. Add a new bot here. */
