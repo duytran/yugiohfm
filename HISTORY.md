@@ -50,3 +50,7 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added runMatch, which plays a whole match with no GUI, server or clock (plan 1, task 13, #15).
 - **[code]** Added match statistics, replay output and the `pnpm sim` command (plan 1, task 14, #16).
 - **[docs]** Updated the status and commands in `CLAUDE.md`: plan 1 is implemented, so `pnpm test`, `pnpm typecheck` and `pnpm sim` all work (#16).
+
+## 2026-11-13
+
+- **[docs]** Wrote `docs/specs/2026-11-13-engine-high-level-design.md`: how the implemented engine works (module map, apply-action flow, fusion, battle, views, legal actions) with ASCII diagrams, plus four open questions.
