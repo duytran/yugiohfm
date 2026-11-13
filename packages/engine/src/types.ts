@@ -25,6 +25,8 @@ export type Rules = {
   elementBonus: number;
   /** PLAY actions allowed per turn, 1 to HAND_SIZE */
   playsPerTurn: number;
+  /** PLAY actions allowed on turn 1, which is always the first player's; 1 to playsPerTurn */
+  firstTurnPlays: number;
   /** Share of a withstood attack value that a surviving target loses from ATK and DEF until the turn ends (R3), 0 to 1 */
   wearRatio: number;
 };

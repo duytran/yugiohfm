@@ -29,7 +29,7 @@ describe("viewFor", () => {
       turn: 4,
       playsUsed: 1,
       result: null,
-      rules: { elementBonus: 500, playsPerTurn: 2, wearRatio: 1 },
+      rules: { elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 },
       self: {
         hand: ["ember-fox", "ash-duelist"],
         deckCount: 3,

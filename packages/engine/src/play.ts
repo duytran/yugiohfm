@@ -1,6 +1,6 @@
 import { getCard } from "./cards";
 import { fuseChain } from "./fusion";
-import { FIELD_SLOTS, turnError } from "./rules";
+import { FIELD_SLOTS, playsAllowed, turnError } from "./rules";
 import type { Card, CardId, GameEvent, MatchState, PlayAction, PlayerId } from "./types";
 
 /** Why this PLAY is illegal for a player holding `hand`, or null if it is legal. */
@@ -33,7 +33,7 @@ export function playMaterials(
 export function playError(state: MatchState, player: PlayerId, action: PlayAction): string | null {
   const turn = turnError(state, player);
   if (turn) return turn;
-  if (state.playsUsed >= state.rules.playsPerTurn) return "no plays left this turn";
+  if (state.playsUsed >= playsAllowed(state)) return "no plays left this turn";
   const shape = playShapeError(state.players[player].hand.length, action);
   if (shape) return shape;
   // fusing onto a creature that attacked must not move it out of harm's way

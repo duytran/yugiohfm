@@ -62,10 +62,10 @@ describe("runMatch", () => {
       },
     };
     expect(runMatch(spy, spy, 1, { rules: { elementBonus: 1000 } }).status).toBe("finished");
-    expect(seen[0]).toEqual({ elementBonus: 1000, playsPerTurn: 2, wearRatio: 1 });
+    expect(seen[0]).toEqual({ elementBonus: 1000, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
     seen.length = 0;
     runMatch(spy, spy, 1);
-    expect(seen[0]).toEqual({ elementBonus: 500, playsPerTurn: 2, wearRatio: 1 });
+    expect(seen[0]).toEqual({ elementBonus: 500, playsPerTurn: 2, firstTurnPlays: 2, wearRatio: 1 });
   });
 
   it("stops at maxActions when a bot never ends its turn", () => {

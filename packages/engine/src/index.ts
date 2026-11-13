@@ -10,6 +10,7 @@ export {
   beats,
   makeRules,
   opponent,
+  playsAllowed,
 } from "./rules";
 export { CARDS, FUSION_RULES, findCard, getCard } from "./cards";
 export { validateDeck, type DeckCheck } from "./deck";
