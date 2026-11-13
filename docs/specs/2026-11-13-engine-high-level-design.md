@@ -330,3 +330,15 @@ R3 (see the tactics spec). The sections above describe the earlier engine.
 - `Rules` gained `wearRatio` (0 to 1, default 1) and `firstTurnPlays` (1 to
   `playsPerTurn`, default `playsPerTurn`); `playsAllowed(state)` reads them.
 - The smart bot plans gang-ups of up to 3 attacks on one target.
+
+### 2026-11-13: after tactics phase 3
+
+R4 (see the tactics spec). The sections above describe the earlier engine.
+
+- `Card.traits` (`Trait`: venom, guard, pierce), printed in `cards.ts`;
+  `hasTrait(cardId, trait)` reads them. `Creature`, views and events do not
+  change: a creature's traits are those of its card.
+- `Combatant` gained `traits`. Venom and Pierce are decided in `battleOutcome`,
+  so `resolveAttack` and every preview share them. Guard is a check in
+  `attackError`, so `legalActions` follows.
+- `packages/bots`: `traitDeck(traits)` and the `answers` deck.

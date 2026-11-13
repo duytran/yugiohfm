@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { CARDS, createRng, getCard, validateDeck } from "@duel/engine";
-import { DECKS, elementDeck, randomDeck, strongestDeck, withDeck } from "../src/decks";
+import { DECKS, elementDeck, randomDeck, strongestDeck, traitDeck, withDeck } from "../src/decks";
 import { greedyBot } from "../src/greedy";
 
 describe("deck builders", () => {
   it("every named deck is valid", () => {
-    expect(Object.keys(DECKS)).toEqual(["strongest", "random", "flame", "forest", "wind", "earth", "thunder", "water"]);
+    expect(Object.keys(DECKS)).toEqual(["strongest", "random", "answers", "flame", "forest", "wind", "earth", "thunder", "water"]);
     for (const [name, build] of Object.entries(DECKS)) {
       expect(validateDeck(build(CARDS, createRng(1))), name).toEqual({ ok: true });
     }
@@ -20,6 +20,14 @@ describe("deck builders", () => {
 
   it("random differs by seed", () => {
     expect(randomDeck(CARDS, createRng(1))).not.toEqual(randomDeck(CARDS, createRng(2)));
+  });
+
+  it("a trait deck holds 3 copies of every base card with one of the traits, then the strongest others", () => {
+    const deck = traitDeck(["venom", "guard", "pierce"])(CARDS, createRng(1));
+    const answers = deck.filter((id) => getCard(id).traits.length > 0);
+    // 9 base cards with an answer trait x 3
+    expect(answers).toHaveLength(27);
+    expect(deck.filter((id) => id === "cloud-serpent")).toHaveLength(3);
   });
 
   it("an element deck holds 3 copies of every base card of that element, then the strongest others", () => {

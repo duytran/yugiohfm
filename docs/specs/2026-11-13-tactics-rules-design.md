@@ -615,3 +615,79 @@ What the numbers say:
   `wearRatio`; wear clears at every turn start; the order of a value is printed
   value, plus synergy, minus wear (never below 0), with the element bonus added
   in battle on top.
+
+### 2026-11-13: phase 3 results (R4)
+
+R4 (Venom, Guard, Pierce) is implemented, with `traitDeck` and the `answers`
+deck (every base card that prints a trait, 3 copies each, then the strongest
+other base cards). 500 matches per row, seeds 1 to 500, 2 plays per turn,
+default element bonus, `wearRatio` 1 (its default). Two settings are run: the
+defaults (`firstTurnPlays` 2) and the phase 2 recommendation (`firstTurnPlays`
+1). 0 errors in every run.
+
+Traits printed (the plan's proposal, unchanged by the numbers):
+
+| Trait | Base cards | Fusion result |
+|---|---|---|
+| Venom | Thorn Sprite, Breeze Wisp, Spark Ferret | Briar Stag |
+| Guard | Furnace Drone, Clay Sentinel, Pearl Clam | Iron Vanguard |
+| Pierce | Vine Archer, Storm Crow, Gale Falcon | Sky Lancer |
+
+Smart versus smart, then other matchups (first-named bot's win rate):
+
+| Run | First-turn plays | First player wins | Avg turns | Deck-out | Comebacks | Lead changes | Fusion share |
+|---|---|---|---|---|---|---|---|
+| smart vs smart, phase 2 (no traits) | 2 | 68.0% | 5.3 | 0% | 7.8% | 1.3 | 90.2% |
+| smart vs smart | 2 | 65.8% | 5.2 | 0% | 4.2% | 1.3 | 89.3% |
+| smart vs smart, phase 2 (no traits) | 1 | 45.8% | 4.8 | 0% | 2.4% | 0.5 | 91.4% |
+| smart vs smart | 1 | 44.2% | 4.8 | 0% | 2.6% | 0.5 | 90.5% |
+
+| Matchup | First-turn plays 2 | First-turn plays 1 |
+|---|---|---|
+| greedy (tall) vs wide | 100% | 100% |
+| smart vs wide | 100% | 100% |
+| smart vs greedy | 83.8% | 78.8% |
+| smart, flame deck vs strongest deck | 54.6% | 51.8% |
+| smart, answers deck vs strongest deck | 22.2% | 24.4% |
+| greedy, answers deck vs strongest deck | 22.4% | 21.6% |
+
+Against the targets of section 6 (smart versus smart, first-turn plays 1):
+
+| Measure | Target | Phase 2 | Phase 3 | |
+|---|---|---|---|---|
+| Tall versus wide | neither above 60% | tall 100% | tall 100% | missed, unchanged |
+| Average turns | 8 to 14 | 4.8 | 4.8 | missed |
+| First-player win rate | 45% to 55% | 45.8% | 44.2% | missed by 0.8 points (noise) |
+| Deck-out | under 5% | 0% | 0% | met |
+| Fusion share of plays | 30% to 70% | 91.4% | 90.5% | missed, unchanged |
+| Themed (flame) versus strongest deck | at least 50% | 49.2% | 51.8% | met |
+| Comebacks | 20% to 35% | 2.4% | 2.6% | missed |
+| Lead changes per match | at least 2 | 0.5 | 0.5 | missed |
+
+What the numbers say:
+
+- **R4 as printed does not change the game.** Every headline measure is within
+  noise of phase 2, and the tall bot still beats wide 100%. The answers deck,
+  built from the answer cards, loses to the strongest deck 75% to 78% of the
+  time with both the smart and the greedy bot. At the defaults, comebacks fall
+  from 7.8% to 4.2% (a mild worsening).
+- **Why: the traits do not survive a fusion.** A fusion result prints its own
+  traits and inherits none (DDR-0009), and 90% of plays are fusions. Every bot
+  fuses a trait card into a trait-less result (`fusePair` picks by tag pair),
+  so the traits are used for one play and then lost. Only three fusion results
+  print one, and the answer cards are weak bodies that the strongest deck
+  outgrows.
+- **The bots do not play the traits yet.** No bot puts a Guard in defense
+  position on purpose or holds back a Venom creature as a lure; Guard only
+  bites when a creature happens to sit in defense. The smart bot sees Venom
+  and Pierce through the previews, which now include them.
+- Suggestions for the owner, not decisions: (1) give the base answer cards
+  more reason to stay unfused, or let a fusion keep one trait of an ingredient
+  (this reverses the DDR-0009 decision "a fusion result inherits nothing" and
+  needs the owner to change it); (2) teach the smart bot to hold Guard and
+  Venom creatures; (3) judge R4 again after R5 and R6, which change what a
+  board is worth and what a creature can hide.
+- Planning decisions, recorded in the phase 3 plan: Venom counts only a
+  destruction by battle with the Venom creature; Pierce deals attack minus
+  defense when it destroys a defense-position creature; Guard binds only in
+  defense position, and the attacker picks among several Guards.

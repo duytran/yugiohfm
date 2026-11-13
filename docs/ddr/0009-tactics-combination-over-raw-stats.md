@@ -36,14 +36,14 @@ The duel rules follow `docs/specs/2026-11-13-tactics-rules-design.md`, approved 
 
 ## Implementation
 
-R1 (free position changes), R2 (`playsPerTurn`) and R3 (wear, `wearRatio`, plus `firstTurnPlays`) are implemented in `packages/engine/src/actions.ts`, `play.ts`, `rules.ts`, `battle.ts`, `values.ts`, `match.ts` and `preview.ts`. R4 to R6 are not; their plans are `docs/plans/2026-11-13-tactics-phase-2-wear.md`, `...-phase-3-answer-traits.md`, `...-phase-4-synergy.md` and `...-phase-5-face-down.md`, each task with a GitHub issue.
+R1 (free position changes), R2 (`playsPerTurn`), R3 (wear, `wearRatio`, plus `firstTurnPlays`) and R4 (Venom, Guard, Pierce, printed in `cards.ts`, decided in `battle.ts`) are implemented in `packages/engine/src/actions.ts`, `play.ts`, `rules.ts`, `battle.ts`, `values.ts`, `match.ts`, `cards.ts` and `preview.ts`. R5 and R6 are not; their plans are `docs/plans/2026-11-13-tactics-phase-2-wear.md`, `...-phase-3-answer-traits.md`, `...-phase-4-synergy.md` and `...-phase-5-face-down.md`, each task with a GitHub issue.
 
 ## Consequences
 
 - **Positive:** tall, wide and answer strategies each beat one of the others; a themed deck can beat a pile of the highest numbers.
 - **Negative / trade-off:** about half the engine files and most battle tests change, and plans 2 and 3 no longer match the engine — **mitigated by** revising plans 2 and 3 once, after the engine shape is implemented and before plan 2 starts.
 - **Negative / trade-off:** more candidates for `legalActions` (two plays, face-down) slow the simulator — **mitigated by** the faster simulator in phase 0.
-- **Known gap:** only R1 to R3 are implemented. With wear 1 and 1 first-turn play the first-player rate (45.8%) and deck-out (0%) are inside their targets, but wide still wins 0%, comebacks are 2.4% to 7.8%, lead changes 0.5 to 1.3 and the fusion share about 90%; see the tactics spec, `Revisions`, 2026-11-13 phase 1 and phase 2 results. No value has been accepted by a simulator run yet. Each element or tag covers at most 21 of 30 deck cards, so a deck cannot be single-theme with today's pool.
+- **Known gap:** only R1 to R4 are implemented. R4 as printed moved no headline measure and the answers deck loses to the strongest deck 75% to 78% (traits are lost when a card is fused); see the phase 3 results in the tactics spec. With wear 1 and 1 first-turn play the first-player rate (45.8%) and deck-out (0%) are inside their targets, but wide still wins 0%, comebacks are 2.4% to 7.8%, lead changes 0.5 to 1.3 and the fusion share about 90%; see the tactics spec, `Revisions`, 2026-11-13 phase 1 and phase 2 results. No value has been accepted by a simulator run yet. Each element or tag covers at most 21 of 30 deck cards, so a deck cannot be single-theme with today's pool.
 
 ## Compliance
 

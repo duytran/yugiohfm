@@ -390,3 +390,15 @@ client holds no rules logic" now also covers effective stats (DDR-0010).
 - Section 4.4: `firstTurnPlays` plays are allowed on turn 1 (default
   `playsPerTurn`).
 - Source: `2026-11-13-tactics-rules-design.md` (R3), DDR-0009.
+
+### 2026-11-13: R4 implemented
+
+- Cards may print one trait (Venom, Guard or Pierce); a creature has exactly
+  the traits of its card and a fusion result inherits none.
+- Section 4.5: Venom: whatever destroys a Venom creature in battle is
+  destroyed with it, whether the Venom creature attacked or was attacked.
+  Pierce: destroying a defense-position creature deals the attack minus the
+  defense to its owner.
+- Section 4.4: Guard: while the opponent has a Guard creature in defense
+  position, an attack must target a Guard creature (any of them).
+- Source: `2026-11-13-tactics-rules-design.md` (R4), DDR-0009.

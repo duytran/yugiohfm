@@ -1,4 +1,4 @@
-import { DECK_SIZE, ELEMENTS, MAX_COPIES, type Card, type CardId, type Element, type Rng } from "@duel/engine";
+import { DECK_SIZE, ELEMENTS, MAX_COPIES, type Card, type CardId, type Element, type Rng, type Trait } from "@duel/engine";
 import type { Bot } from "./types";
 
 /** Builds a deck from the whole pool. Must return a deck that passes validateDeck. */
@@ -43,10 +43,20 @@ export function elementDeck(element: Element): DeckBuilder {
   };
 }
 
+/** Every base card with one of `traits`, then the strongest other base cards. */
+export function traitDeck(traits: readonly Trait[]): DeckBuilder {
+  return (cards) => {
+    const base = cards.filter((c) => !c.fusionOnly);
+    const has = (c: Card) => c.traits.some((t) => traits.includes(t));
+    return fill([...base.filter(has).sort(strongestFirst), ...base.filter((c) => !has(c)).sort(strongestFirst)]);
+  };
+}
+
 /** Decks selectable by name on the command line. */
 export const DECKS: Record<string, DeckBuilder> = {
   strongest: strongestDeck,
   random: randomDeck,
+  answers: traitDeck(["venom", "guard", "pierce"]),
   ...Object.fromEntries(ELEMENTS.map((element) => [element, elementDeck(element)])),
 };
 
