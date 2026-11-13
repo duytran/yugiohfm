@@ -48,3 +48,5 @@ Types: `decision`, `docs`, `code`, `test`, `fix`, `chore`.
 - **[code]** Added the engine public API, a 200-match random property test and the independence check (plan 1, task 11, #13).
 - **[code]** Added the bots package with the Bot interface, a random bot and a greedy bot (plan 1, task 12, #14).
 - **[code]** Added runMatch, which plays a whole match with no GUI, server or clock (plan 1, task 13, #15).
+- **[code]** Added match statistics, replay output and the `pnpm sim` command (plan 1, task 14, #16).
+- **[docs]** Updated the status and commands in `CLAUDE.md`: plan 1 is implemented, so `pnpm test`, `pnpm typecheck` and `pnpm sim` all work (#16).
