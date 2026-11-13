@@ -8,6 +8,7 @@ export function playShapeError(handSize: number, action: PlayAction): string | n
   const { handIndexes, slot, position } = action;
   if (!Number.isInteger(slot) || slot < 0 || slot >= FIELD_SLOTS) return "invalid slot";
   if (position !== "attack" && position !== "defense") return "invalid position";
+  if (action.faceDown !== undefined && typeof action.faceDown !== "boolean") return "invalid face";
   if (handIndexes.length === 0) return "play at least one card";
   if (new Set(handIndexes).size !== handIndexes.length) return "duplicate hand index";
   for (const index of handIndexes) {
@@ -41,6 +42,8 @@ export function playError(state: MatchState, player: PlayerId, action: PlayActio
   if (onField?.hasAttacked && onField.position !== action.position) {
     return "a creature that already attacked keeps its position";
   }
+  // F6: once face-up, always face-up
+  if (action.faceDown && onField && !onField.faceDown) return "a face-up creature stays face-up";
   return null;
 }
 
@@ -69,6 +72,7 @@ export function resolvePlay(draft: MatchState, player: PlayerId, action: PlayAct
     );
   }
 
+  const faceDown = action.faceDown ?? false;
   me.field[action.slot] = {
     cardId: chain.result,
     position: action.position,
@@ -76,7 +80,16 @@ export function resolvePlay(draft: MatchState, player: PlayerId, action: PlayAct
     hasAttacked: previous?.hasAttacked ?? false,
     // a play never heals wear
     wear: previous?.wear ?? 0,
+    faceDown,
   };
   draft.playsUsed += 1;
-  events.push({ type: "played", player, slot: action.slot, cardId: chain.result, position: action.position });
+  events.push({
+    type: "played",
+    player,
+    slot: action.slot,
+    cardId: chain.result,
+    position: action.position,
+    faceDown,
+    handCards: action.handIndexes.length,
+  });
 }

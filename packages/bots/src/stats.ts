@@ -76,7 +76,7 @@ export function summarize(outcomes: readonly MatchOutcome[], topN = 10): Summary
         fusedInThisPlay = true;
       }
       if (event.type === "played") {
-        played.set(event.cardId, (played.get(event.cardId) ?? 0) + 1);
+        if (event.cardId) played.set(event.cardId, (played.get(event.cardId) ?? 0) + 1);
         plays += 1;
         if (fusedInThisPlay) fusionPlays += 1;
         fusedInThisPlay = false;

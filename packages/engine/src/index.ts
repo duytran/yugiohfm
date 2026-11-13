@@ -21,4 +21,5 @@ export { type BattleOutcome } from "./battle";
 export { previewAttack, previewAttacks, viewAfterPlay } from "./preview";
 export { actionError, applyAction, applyTimeout } from "./actions";
 export { viewFor } from "./view";
+export { eventsFor } from "./events";
 export { legalActions } from "./legal";

@@ -1,5 +1,6 @@
 import {
   fuseChain,
+  hasTrait,
   playMaterials,
   previewAttacks,
   viewAfterPlay,
@@ -9,11 +10,12 @@ import {
   type PlayerView,
 } from "@duel/engine";
 import { strongestDeck } from "./decks";
+import { probe } from "./probe";
 import type { Bot } from "./types";
 
 /** The highest current ATK among the opponent's creatures; 0 with none. */
 export function threat(view: PlayerView): number {
-  return Math.max(0, ...view.opponent.field.map((creature) => (creature ? creature.atk : 0)));
+  return Math.max(0, ...view.opponent.field.map((creature) => (creature && !creature.hidden ? creature.atk : 0)));
 }
 
 type Option = { action: PlayAction; cards: number; after: PlayerView; atk: number; def: number; board: number };
@@ -30,7 +32,7 @@ function boardAtk(view: PlayerView): number {
 function playOptions(view: PlayerView, legal: readonly Action[]): Option[] {
   const cheapest = new Map<string, PlayAction>();
   for (const action of legal) {
-    if (action.type !== "PLAY") continue;
+    if (action.type !== "PLAY" || action.faceDown) continue;
     const result = fuseChain(playMaterials(view.self.field, view.self.hand, action)).result;
     const key = `${result}|${action.slot}|${action.position}`;
     const kept = cheapest.get(key);
@@ -62,6 +64,21 @@ function attackValue(view: PlayerView, option: Option): number {
 const stronger = (x: Option, y: Option) =>
   x.board > y.board ||
   (x.board === y.board && (x.atk > y.atk || (x.atk === y.atk && (x.def > y.def || (x.def === y.def && x.cards < y.cards)))));
+
+/** The face-down version of `play` if it is legal, else null. */
+export function faceDownTwin(play: PlayAction, legal: readonly Action[]): PlayAction | null {
+  const same = (a: readonly number[], b: readonly number[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+  return (
+    legal.find(
+      (action): action is PlayAction =>
+        action.type === "PLAY" &&
+        action.faceDown === true &&
+        action.slot === play.slot &&
+        action.position === play.position &&
+        same(action.handIndexes, play.handIndexes),
+    ) ?? null
+  );
+}
 
 /**
  * 1. The play whose creature can make the best attack this turn, by the
@@ -120,7 +137,8 @@ export function planScore(view: PlayerView, plan: readonly AttackAction[]): numb
     const action = plan[i]!;
     dealt += preview.damageToOpponent;
     taken += preview.damageToSelf;
-    if (preview.targetDestroyed && action.target !== "direct") value += view.opponent.field[action.target]!.atk;
+    const target = action.target === "direct" ? null : view.opponent.field[action.target];
+    if (preview.targetDestroyed && target && !target.hidden) value += target.atk;
     if (preview.attackerDestroyed) value -= view.self.field[action.attackerSlot]!.atk;
   });
   if (dealt >= view.opponent.lifePoints) return Infinity;
@@ -193,7 +211,12 @@ export const smartBot: Bot = {
 
   chooseAction(view, legal) {
     const play = smartPlay(view, legal);
-    if (play) return play;
+    if (play) {
+      // a Venom creature in defense is worth more unseen: the lure (R6)
+      const result = fuseChain(playMaterials(view.self.field, view.self.hand, play)).result;
+      if (play.position === "defense" && hasTrait(result, "venom")) return faceDownTwin(play, legal) ?? play;
+      return play;
+    }
 
     const need = threat(view);
     const turn = (to: "attack" | "defense") =>
@@ -209,6 +232,11 @@ export const smartBot: Bot = {
 
     const attack = bestAttack(view, legal);
     if (attack) return attack;
+
+    // never send its only creature into a possible lure
+    const creatures = view.self.field.filter((creature) => creature !== null).length;
+    const look = creatures >= 2 ? probe(view, legal) : null;
+    if (look) return look;
 
     const toDefense = turn("defense");
     if (toDefense) return toDefense;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { viewFor } from "../src/view";
-import { creature, field, makeState } from "./helpers";
+import { creature, field, hidden, makeState } from "./helpers";
 
 const state = makeState({
   active: 1,
@@ -35,7 +35,7 @@ describe("viewFor", () => {
         deckCount: 3,
         field: [
           null,
-          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, wear: 0, atk: 1400, def: 1000 },
+          { hidden: false, cardId: "cinder-whelp", position: "attack", hasAttacked: false, wear: 0, faceDown: false, atk: 1400, def: 1000 },
           null,
           null,
           null,
@@ -46,7 +46,7 @@ describe("viewFor", () => {
         handCount: 3,
         deckCount: 2,
         field: [
-          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, wear: 0, atk: 1400, def: 1500 },
+          { hidden: false, cardId: "stone-ram", position: "defense", hasAttacked: false, wear: 0, faceDown: false, atk: 1400, def: 1500 },
           null,
           null,
           null,
@@ -65,7 +65,23 @@ describe("viewFor", () => {
       position: "attack",
       hasAttacked: false,
       wear: 400,
+      faceDown: false,
       atk: 1000,
+      def: 1100,
+    });
+  });
+
+  it("shows the opponent only the position of a face-down creature, and the owner everything", () => {
+    const state = makeState({ p1: { field: field({ 2: hidden("thorn-sprite") }) } });
+    expect(viewFor(state, 0).opponent.field[2]).toEqual({ hidden: true, position: "defense" });
+    expect(viewFor(state, 1).self.field[2]).toEqual({
+      hidden: false,
+      cardId: "thorn-sprite",
+      position: "defense",
+      hasAttacked: false,
+      wear: 0,
+      faceDown: true,
+      atk: 900,
       def: 1100,
     });
   });

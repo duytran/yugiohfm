@@ -36,11 +36,11 @@ The engine owns one value calculation. `viewFor` puts each visible creature's ef
 - **Positive:** the client stays a pure display; a bot and a human read identical numbers; a rule change touches one function.
 - **Negative / trade-off:** `PlayerView` grows and `viewFor` does more work per action — **mitigated by** the phase 0 simulator speed work; accepted otherwise.
 - **Negative / trade-off:** an attack forecast in the client needs a round trip to the server — **mitigated by** reusing the `match.preview` pattern; to be settled when plans 2 and 3 are revised.
-- **Known gap:** effective values include synergy and wear; there are no hidden creatures yet. The client and its attack forecast do not exist yet.
+- **Known gap:** effective values include synergy and wear; a hidden creature carries none (a `HiddenCreature` has only its position). The client and its attack forecast do not exist yet.
 
 ## Compliance
 
-Review check: no element, synergy or wear arithmetic outside `packages/engine`. A view test asserts effective values are present for visible creatures and absent for hidden ones.
+Review check: no element, synergy or wear arithmetic outside `packages/engine`. `view.test.ts` asserts effective values are present for visible creatures and absent for hidden ones.
 
 ## Revisit when
 

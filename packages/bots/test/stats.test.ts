@@ -15,9 +15,9 @@ const outcomes: MatchOutcome[] = [
     firstPlayer: 0,
     turns: 10,
     events: [
-      { type: "played", player: 0, slot: 0, cardId: "ember-fox", position: "attack" },
+      { type: "played", player: 0, slot: 0, cardId: "ember-fox", position: "attack", faceDown: false, handCards: 1 },
       { type: "fused", player: 0, a: "ember-fox", b: "ash-duelist", result: "beast-rider" },
-      { type: "played", player: 0, slot: 1, cardId: "beast-rider", position: "attack" },
+      { type: "played", player: 0, slot: 1, cardId: "beast-rider", position: "attack", faceDown: false, handCards: 1 },
     ],
   },
   {
@@ -28,7 +28,7 @@ const outcomes: MatchOutcome[] = [
     reason: "deck-out",
     firstPlayer: 0,
     turns: 30,
-    events: [{ type: "played", player: 1, slot: 0, cardId: "ember-fox", position: "attack" }],
+    events: [{ type: "played", player: 1, slot: 0, cardId: "ember-fox", position: "attack", faceDown: false, handCards: 1 }],
   },
   { ...base, bots: ["greedy", "random"], status: "error", error: "boom", firstPlayer: 1, turns: 3, events: [] },
 ];
@@ -153,7 +153,7 @@ describe("summarize: tactics measures", () => {
       ...comeback,
       events: [
         { type: "fusion-failed", player: 0, a: "furnace-drone", b: "pearl-clam" },
-        { type: "played", player: 0, slot: 0, cardId: "pearl-clam", position: "attack" },
+        { type: "played", player: 0, slot: 0, cardId: "pearl-clam", position: "attack", faceDown: false, handCards: 1 },
       ],
     };
     expect(summarize([failed]).fusionShare).toBe(0);

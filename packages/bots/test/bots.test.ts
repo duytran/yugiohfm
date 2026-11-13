@@ -13,6 +13,7 @@ import {
   type PlayerView,
 } from "@duel/engine";
 import { greedyBot, isFavourable, playGain } from "../src/greedy";
+import { probe } from "../src/probe";
 import { randomBot } from "../src/random";
 
 const EMPTY_FIELD = [null, null, null, null, null];
@@ -37,6 +38,7 @@ const on = (cardId: string, position: "attack" | "defense" = "attack") => ({
   position,
   hasAttacked: false,
   wear: 0,
+  faceDown: false,
   atk: getCard(cardId).atk,
   def: getCard(cardId).def,
 });
@@ -137,5 +139,33 @@ describe("greedyBot.chooseAction", () => {
     const v = view({ mine: [on("ember-fox"), null, null, null, null], theirs: [on("ash-duelist"), null, null, null, null] });
     const legal: Action[] = [{ type: "ATTACK", attackerSlot: 0, target: 0 }, { type: "END_TURN" }];
     expect(greedyBot.chooseAction(v, legal, rng)).toEqual({ type: "END_TURN" });
+  });
+});
+
+describe("probe", () => {
+  it("attacks a hidden creature with the weakest attacker that may", () => {
+    const v = view({
+      mine: [on("ash-duelist"), on("ember-fox"), null, null, null],
+      theirs: [{ hidden: true, position: "defense" }, null, null, null, null],
+    });
+    const legal: Action[] = [
+      { type: "ATTACK", attackerSlot: 0, target: 0 },
+      { type: "ATTACK", attackerSlot: 1, target: 0 },
+      { type: "END_TURN" },
+    ];
+    expect(probe(v, legal)).toEqual({ type: "ATTACK", attackerSlot: 1, target: 0 });
+  });
+
+  it("is null with no hidden target", () => {
+    const v = view({ mine: [on("ash-duelist"), null, null, null, null], theirs: [on("seedling"), null, null, null, null] });
+    expect(probe(v, [{ type: "ATTACK", attackerSlot: 0, target: 0 }])).toBeNull();
+  });
+});
+
+describe("greedyBot and hidden creatures", () => {
+  it("probes when no known attack is favourable", () => {
+    const v = view({ mine: [on("ember-fox"), null, null, null, null], theirs: [{ hidden: true, position: "defense" }, null, null, null, null] });
+    const legal: Action[] = [{ type: "ATTACK", attackerSlot: 0, target: 0 }, { type: "END_TURN" }];
+    expect(greedyBot.chooseAction(v, legal, createRng(1))).toEqual({ type: "ATTACK", attackerSlot: 0, target: 0 });
   });
 });

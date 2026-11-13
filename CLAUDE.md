@@ -7,7 +7,7 @@ An original browser card-duel game with online play in chess-style match rooms
 names and art are our own. It is also a learning project: the rules engine is
 independent of the GUI and network so bots can play-test it headlessly.
 
-**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phases 0 to 4 are implemented (measurement; R1 free position changes, R2 plays per turn; R3 wear, series previews, `firstTurnPlays`; R4 Venom, Guard, Pierce; R5 Banner, Pack, Rally); R6 is planned (phase 5, issues #68 to #72) and are all implemented before plans 2 and 3 (owner, 2026-11-13). Plans 2 and 3 (server, client) are written but not implemented; they will be revised once the tactics rules have changed the engine's shape, before plan 2 starts.
+**Status:** plan 1 (engine and bots) is implemented, in `packages/engine` and `packages/bots`. Tactics phases 0 to 5 are implemented (R1 to R6: positions, plays per turn, wear, answer traits, synergy, face-down play), as the owner asked before plans 2 and 3. Next: revise plans 2 and 3 against the real engine types, then implement them. The full rule set meets 2 of the 8 targets (tactics spec, phase 5 results); the owner decides the follow-ups it recommends.
 
 ## Read first
 
